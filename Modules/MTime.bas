@@ -25,7 +25,6 @@ End Type
 Private Declare Sub GetSystemTime Lib "kernel32" (lpSystemTime As SYSTEMTIME)
 Private Declare Function FileTimeToSystemTime Lib "kernel32" (lpFileTime As FILETIME, lpSystemTime As SYSTEMTIME) As Long
 Private Declare Function SystemTimeToFileTime Lib "kernel32" (lpSystemTime As SYSTEMTIME, lpFileTime As FILETIME) As Long
-Public Declare Sub cpymem Lib "kernel32" Alias "RtlMoveMemory" (ByRef pDst As Any, ByRef pSrc As Any, ByVal BytLen As Long)
 
 ' ############################## '  Date  ' ############################## '
 Public Function Date_Now() As Date
@@ -55,6 +54,9 @@ End Function
 Public Function GetSummerTimeCorrector() As Double
     GetSummerTimeCorrector = DateDiff("s", SystemTime_ToDate(SystemTime_Now), Now)
 End Function
+Public Function Date_Equals(aDate As Date, other As Date) As Boolean
+    Date_Equals = aDate = other
+End Function
 
 ' ############################## '  SystemTime  ' ############################## '
 Public Function SystemTime_Now() As SYSTEMTIME
@@ -73,8 +75,23 @@ Public Function SystemTime_ToUnixTime(aSt As SYSTEMTIME) As Double
 End Function
 Public Function SystemTime_ToStr(aSt As SYSTEMTIME) As String
     With aSt
-        SystemTime_ToStr = "y: " & CStr(.wYear) & "; m: " & CStr(.wMonth) & "; dow: " & CStr(.wDayOfWeek) & "; d: " & CStr(.wDay) & "; h: " & CStr(.wHour) & "; min: " & CStr(.wMinute) & "; s: " & CStr(.wSecond) & "; ms: " & CStr(.wMilliseconds)
+        SystemTime_ToStr = "y: " & CStr(.wYear) & "; m: " & CStr(.wMonth) & "; dow: " & CStr(.wDayOfWeek) & "; d: " & CStr(.wDay) & _
+                         "; h: " & CStr(.wHour) & "; min: " & CStr(.wMinute) & "; s: " & CStr(.wSecond) & "; ms: " & CStr(.wMilliseconds)
     End With
+End Function
+Public Function SystemTime_Equals(aSt As SYSTEMTIME, other As SYSTEMTIME) As Boolean
+    Dim b As Boolean
+    With aSt
+        b = .wYear = other.wYear:                 If Not b Then Exit Function
+        b = .wMonth = other.wMonth:               If Not b Then Exit Function
+        b = .wDay = other.wDay:                   If Not b Then Exit Function
+        b = .wDayOfWeek = other.wDayOfWeek:       If Not b Then Exit Function
+        b = .wHour = other.wHour:                 If Not b Then Exit Function
+        b = .wMinute = other.wMinute:             If Not b Then Exit Function
+        b = .wSecond = other.wSecond:             If Not b Then Exit Function
+        b = .wMilliseconds = other.wMilliseconds: If Not b Then Exit Function
+    End With
+    SystemTime_Equals = True
 End Function
 
 ' ############################## '  FileTime  ' ############################## '
@@ -97,8 +114,20 @@ Public Function FileTime_ToStr(aFt As FILETIME) As String
         FileTime_ToStr = "lo: &&H" & Hex(.dwLowDateTime) & "; hi: &&H" & Hex(.dwHighDateTime)
     End With
 End Function
+Public Function FileTime_Equals(aFt As FILETIME, other As FILETIME) As Boolean
+    Dim b As Boolean
+    With aFt
+        b = .dwHighDateTime = other.dwHighDateTime: If Not b Then Exit Function
+        b = .dwLowDateTime = other.dwLowDateTime:   If Not b Then Exit Function
+    End With
+    FileTime_Equals = b
+End Function
 
 ' ############################## '  UnixTime  ' ############################## '
+'In Unix und Linux werden Datumsangaben intern immer als die Anzahl der Sekunden seit
+'dem 1. Januar 1970 um 00:00 Greenwhich Mean Time (GTM, heute UTC) dargestellt.
+'Dieses Urdatum wird manchmal auch "The Epoch" genannt. In manchen Situationen muss
+'man in Shellskripten die Unix-Zeit in ein normales Datum umrechnen und umgekehrt.
 Public Property Get UnixTime_Now() As Double
     UnixTime_Now = Date_ToUnixTime(Date_Now)
 End Property
@@ -114,8 +143,8 @@ End Function
 Public Function UnixTime_ToStr(ByVal uts As Double) As String
     UnixTime_ToStr = CStr(uts)
 End Function
+Public Function UnixTime_Equals(uts As Double, other As Double) As Boolean
+    UnixTime_Equals = uts = other
+End Function
 
-'In Unix und Linux werden Datumsangaben intern immer als die Anzahl der Sekunden seit
-'dem 1. Januar 1970 um 00:00 Greenwhich Mean Time (GTM, heute UTC) dargestellt.
-'Dieses Urdatum wird manchmal auch "The Epoch" genannt. In manchen Situationen muss
-'man in Shellskripten die Unix-Zeit in ein normales Datum umrechnen und umgekehrt.
+

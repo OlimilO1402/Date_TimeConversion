@@ -129,6 +129,11 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Private Sub Form_Load()
+    Command1_Click
+    Command5_Click
+End Sub
+
 Private Sub Command1_Click()
 
     Dim dat As Date: dat = MTime.Date_Now
@@ -204,4 +209,3 @@ Private Sub Command5_Click()
     Text1.Text = s
     
 End Sub
-
