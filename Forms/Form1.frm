@@ -1,20 +1,28 @@
 VERSION 5.00
 Begin VB.Form Form1 
    Caption         =   "Form1"
-   ClientHeight    =   3975
+   ClientHeight    =   4455
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   8415
    LinkTopic       =   "Form1"
-   ScaleHeight     =   3975
+   ScaleHeight     =   4455
    ScaleWidth      =   8415
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton Command6 
+      Caption         =   "DosTime_Now"
+      Height          =   375
+      Left            =   120
+      TabIndex        =   14
+      Top             =   2040
+      Width           =   1815
+   End
    Begin VB.TextBox Text1 
       Height          =   1695
       Left            =   2040
       MultiLine       =   -1  'True
       TabIndex        =   9
-      Top             =   2160
+      Top             =   2640
       Width           =   6255
    End
    Begin VB.CommandButton Command5 
@@ -22,7 +30,7 @@ Begin VB.Form Form1
       Height          =   375
       Left            =   120
       TabIndex        =   8
-      Top             =   2160
+      Top             =   2640
       Width           =   1815
    End
    Begin VB.CommandButton Command4 
@@ -57,7 +65,23 @@ Begin VB.Form Form1
       Top             =   120
       Width           =   1815
    End
-   Begin VB.Label Label8 
+   Begin VB.Label Label5 
+      Caption         =   "Label1"
+      Height          =   375
+      Left            =   3120
+      TabIndex        =   16
+      Top             =   2040
+      Width           =   5175
+   End
+   Begin VB.Label Labe15 
+      Caption         =   "DosTime:"
+      Height          =   375
+      Left            =   2040
+      TabIndex        =   15
+      Top             =   2040
+      Width           =   975
+   End
+   Begin VB.Label Label14 
       Caption         =   "UnixTime:"
       Height          =   375
       Left            =   2040
@@ -65,7 +89,7 @@ Begin VB.Form Form1
       Top             =   1560
       Width           =   1095
    End
-   Begin VB.Label Label7 
+   Begin VB.Label Label13 
       Caption         =   "FileTime:"
       Height          =   375
       Left            =   2040
@@ -73,7 +97,7 @@ Begin VB.Form Form1
       Top             =   1080
       Width           =   1095
    End
-   Begin VB.Label Label6 
+   Begin VB.Label Labe12 
       Caption         =   "SystemTime:"
       Height          =   375
       Left            =   2040
@@ -81,7 +105,7 @@ Begin VB.Form Form1
       Top             =   600
       Width           =   1095
    End
-   Begin VB.Label Label5 
+   Begin VB.Label Label11 
       Caption         =   "Date:"
       Height          =   375
       Left            =   2040
@@ -141,7 +165,8 @@ Private Sub Command1_Click()
     Label2.Caption = MTime.SystemTime_ToStr(MTime.Date_ToSystemTime(dat))
     Label3.Caption = MTime.FileTime_ToStr(MTime.Date_ToFileTime(dat))
     Label4.Caption = MTime.UnixTime_ToStr(MTime.Date_ToUnixTime(dat))
-       
+    Label5.Caption = MTime.DosTime_ToStr(MTime.Date_ToDosTime(dat))
+    
 End Sub
 
 Private Sub Command2_Click()

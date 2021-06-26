@@ -22,14 +22,52 @@ Public Type SYSTEMTIME
     wSecond       As Integer
     wMilliseconds As Integer
 End Type
-Private Declare Sub GetSystemTime Lib "kernel32" (lpSystemTime As SYSTEMTIME)
-Private Declare Function FileTimeToSystemTime Lib "kernel32" (lpFileTime As FILETIME, lpSystemTime As SYSTEMTIME) As Long
-Private Declare Function SystemTimeToFileTime Lib "kernel32" (lpSystemTime As SYSTEMTIME, lpFileTime As FILETIME) As Long
+Public Type DOSTIME
+'https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-dosdatetimetofiletime
+    ' Bits    Description
+    ' 0 - 4   Day of the month (1–31)
+    ' 5 - 8   Month (1 = January, 2 = February, and so on)
+    ' 9 -15   Year offset from 1980 (add 1980 to get actual year)
+    wDate As Integer
+    
+    ' Bits Description
+    ' 0 - 4   Second divided by 2
+    ' 5 -10   Minute (0–59)
+    '11 -15   Hour (0–23 on a 24-hour clock)
+    wTime As Integer
+End Type
+
+Private Type TIME_ZONE_INFORMATION
+    Bias         As Long
+    StandardName(0 To 31) As Integer
+    StandardDate As SYSTEMTIME
+    StandardBias As Long
+    DaylightName(0 To 31) As Integer
+    DaylightDate As SYSTEMTIME
+    DaylightBias As Long
+End Type
+Private Declare Sub GetSystemTime Lib "kernel32" ( _
+    lpSysTime As SYSTEMTIME)
+
+Private Declare Function FileTimeToSystemTime Lib "kernel32" ( _
+    lpFilTime As FILETIME, lpSysTime As SYSTEMTIME) As Long
+
+Private Declare Function SystemTimeToFileTime Lib "kernel32" ( _
+    lpSysTime As SYSTEMTIME, lpFilTime As FILETIME) As Long
+
+Private Declare Function FileTimeToLocalFileTime Lib "kernel32" ( _
+    lpFilTime As FILETIME, lpLocFilTime As FILETIME) As Long
+
+Private Declare Function FileTimeToDosDateTime Lib "kernel32" ( _
+    lpFileTime As FILETIME, ByVal lpFatDate As Long, ByVal lpFatTime As Long) As Long
+
+Private Declare Function DosDateTimeToFileTime Lib "kernel32" ( _
+    ByVal wFatDate As Long, ByVal wFatTime As Long, lpFilTime As FILETIME) As Long
 
 ' ############################## '  Date  ' ############################## '
-Public Function Date_Now() As Date
+Public Property Get Date_Now() As Date
     Date_Now = Now
-End Function
+End Property
 Public Function Date_ToSystemTime(aDate As Date) As SYSTEMTIME
     With Date_ToSystemTime
         .wYear = Year(aDate)
@@ -48,6 +86,10 @@ End Function
 Public Function Date_ToUnixTime(aDate As Date) As Double
     Date_ToUnixTime = DateDiff("s", DateSerial(1970, 1, 1), aDate) - GetSummerTimeCorrector
 End Function
+Public Function Date_ToDosTime(aDate As Date) As DOSTIME
+    Date_ToDosTime = FileTime_ToDosTime(Date_ToFileTime(aDate))
+End Function
+
 Public Function Date_ToStr(aDate As Date) As String
     Date_ToStr = FormatDateTime(aDate, VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(aDate, VbDateTimeFormat.vbLongTime)
 End Function
@@ -59,9 +101,9 @@ Public Function Date_Equals(aDate As Date, other As Date) As Boolean
 End Function
 
 ' ############################## '  SystemTime  ' ############################## '
-Public Function SystemTime_Now() As SYSTEMTIME
+Public Property Get SystemTime_Now() As SYSTEMTIME
     GetSystemTime SystemTime_Now
-End Function
+End Property
 Public Function SystemTime_ToDate(aSt As SYSTEMTIME) As Date
     With aSt
         SystemTime_ToDate = DateSerial(.wYear, .wMonth, .wDay) + TimeSerial(.wHour, .wMinute, .wSecond)
@@ -70,6 +112,7 @@ End Function
 Public Function SystemTime_ToFileTime(aSt As SYSTEMTIME) As FILETIME
     SystemTimeToFileTime aSt, SystemTime_ToFileTime
 End Function
+
 Public Function SystemTime_ToUnixTime(aSt As SYSTEMTIME) As Double
     SystemTime_ToUnixTime = Date_ToUnixTime(SystemTime_ToDate(aSt))
 End Function
@@ -89,15 +132,24 @@ Public Function SystemTime_Equals(aSt As SYSTEMTIME, other As SYSTEMTIME) As Boo
         b = .wHour = other.wHour:                 If Not b Then Exit Function
         b = .wMinute = other.wMinute:             If Not b Then Exit Function
         b = .wSecond = other.wSecond:             If Not b Then Exit Function
-        b = .wMilliseconds = other.wMilliseconds: If Not b Then Exit Function
+        b = .wMilliseconds = other.wMilliseconds ': If Not b Then Exit Function
     End With
-    SystemTime_Equals = True
+    SystemTime_Equals = b
 End Function
 
 ' ############################## '  FileTime  ' ############################## '
-Public Function FileTime_Now() As FILETIME
+Public Property Get FileTime_Now() As FILETIME
     FileTime_Now = SystemTime_ToFileTime(SystemTime_Now)
+End Property
+Public Function FileTime_ToLocalFileTime(aFt As FILETIME) As FILETIME
+    FileTimeToLocalFileTime aFt, FileTime_ToLocalFileTime
 End Function
+
+Public Property Get FileTime_ToDosTime(aFt As FILETIME) As DOSTIME
+    Dim pdt As Long: pdt = VarPtr(FileTime_ToDosTime)
+    FileTimeToDosDateTime aFt, pdt, pdt + 2
+End Property
+
 Public Function FileTime_ToDate(aFt As FILETIME) As Date
     With FileTime_ToSystemTime(aFt) 'st
         FileTime_ToDate = DateSerial(.wYear, .wMonth, .wDay) + TimeSerial(.wHour, .wMinute, .wSecond)
@@ -118,14 +170,14 @@ Public Function FileTime_Equals(aFt As FILETIME, other As FILETIME) As Boolean
     Dim b As Boolean
     With aFt
         b = .dwHighDateTime = other.dwHighDateTime: If Not b Then Exit Function
-        b = .dwLowDateTime = other.dwLowDateTime:   If Not b Then Exit Function
+        b = .dwLowDateTime = other.dwLowDateTime ':   If Not b Then Exit Function
     End With
     FileTime_Equals = b
 End Function
 
 ' ############################## '  UnixTime  ' ############################## '
 'In Unix und Linux werden Datumsangaben intern immer als die Anzahl der Sekunden seit
-'dem 1. Januar 1970 um 00:00 Greenwhich Mean Time (GTM, heute UTC) dargestellt.
+'dem 1. Januar 1970 um 00:00 Greenwhich Mean Time (GMT, heute UTC) dargestellt.
 'Dieses Urdatum wird manchmal auch "The Epoch" genannt. In manchen Situationen muss
 'man in Shellskripten die Unix-Zeit in ein normales Datum umrechnen und umgekehrt.
 Public Property Get UnixTime_Now() As Double
@@ -147,4 +199,46 @@ Public Function UnixTime_Equals(uts As Double, other As Double) As Boolean
     UnixTime_Equals = uts = other
 End Function
 
+' ############################## '  DosTime  ' ############################## '
+' oder auch FAT-Time also die Zeit die unter DOS in der FAT der Festplatte gespeichert wird
+Public Function DosTime_Now() As DOSTIME
+    DosTime_Now = FileTime_ToDosTime(Date_ToFileTime(Date_Now))
+End Function
+Public Property Get DosTime_ToFileTime(aDosTime As DOSTIME) As FILETIME
+    DosDateTimeToFileTime aDosTime.wDate, aDosTime.wTime, DosTime_ToFileTime
+End Property
+
+Public Function DosTime_ToStr(aDt As DOSTIME) As String
+    ' Bits    Description
+    ' 0 - 4   Day of the month (1–31)
+    ' 5 - 8   Month (1 = January, 2 = February, and so on)
+    ' 9 -15   Year offset from 1980 (add 1980 to get actual year)
+    'wDate As Integer
+    ' Bits Description
+    ' 0 - 4   Second divided by 2
+    ' 5 -10   Minute (0–59)
+    '11 -15   Hour (0–23 on a 24-hour clock)
+    'wTime As Integer
+    'DosTime_ToStr = SystemTime_ToStr(FileTime_ToSystemTime(DosTime_ToFileTime(aDosTime)))
+'    Dim dm As Byte:    dm = (aDt.wDate And &H1F)
+'    Dim mo As Byte:    mo = (aDt.wDate And &H1E0) \ 32
+'    Dim ye As Integer: ye = (aDt.wDate And &H7F00) \ 512 + 1980
+'
+'    Dim se As Byte: se = (aDt.wTime And &H1F)
+'    Dim mi As Byte: mi = (aDt.wTime And &H7E0) \ 32
+'    Dim ho As Byte: ho = (aDt.wTime And &H7C00) \ 2048
+'    DosTime_ToStr = Str2(dm) & "." & Str2(mo) & "." & CStr(ye) & " " & Str2(ho) & ":" & Str2(mi) & ":" & Str2(se)
+    DosTime_ToStr = SystemTime_ToStr(FileTime_ToSystemTime(DosTime_ToFileTime(aDt)))
+End Function
+'Private Function Str2(ByVal by As Byte) As String
+'    Str2 = CStr(by): If Len(Str2) < 2 Then Str2 = "0" & Str2
+'End Function
+Public Function DosTime_Equals(aDosTime As DOSTIME, other As DOSTIME) As Boolean
+    Dim b As Boolean
+    With aDosTime
+        b = .wDate = other.wDate: If Not b Then Exit Function
+        b = .wTime = other.wTime ': If Not b Then Exit Function
+    End With
+    DosTime_Equals = b
+End Function
 
