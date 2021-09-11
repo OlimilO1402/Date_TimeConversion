@@ -8,20 +8,36 @@ Option Explicit
 ' Verwenden Sie den Date-Datentyp, um Datumswerte, Uhrzeitwerte oder Datums-und Uhrzeitwerte einzuschließen.
 ' Der Standardwert von Date ist 0:00:00 (Mitternacht) am 1. Januar 0001.
 ' Sie erhalten das aktuelle Datum und die aktuelle Uhrzeit aus der DateAndTime-Klasse. (VBA.DateTime)
+
+'typedef struct _FILETIME {
+'  DWORD dwLowDateTime;
+'  DWORD dwHighDateTime;
+'} FILETIME, *PFILETIME;
 Public Type FILETIME
-    dwLowDateTime  As Long
-    dwHighDateTime As Long
-End Type
+    dwLowDateTime  As Long ' 4
+    dwHighDateTime As Long ' 4
+End Type               'Sum: 8
+
+'typedef struct _SYSTEMTIME {
+'  WORD wYear;
+'  WORD wMonth;
+'  WORD wDayOfWeek;
+'  WORD wDay;
+'  WORD wHour;
+'  WORD wMinute;
+'  WORD wSecond;
+'  WORD wMilliseconds;
+'} SYSTEMTIME, *PSYSTEMTIME;
 Public Type SYSTEMTIME
-    wYear         As Integer
-    wMonth        As Integer
-    wDayOfWeek    As Integer
-    wDay          As Integer
-    wHour         As Integer
-    wMinute       As Integer
-    wSecond       As Integer
-    wMilliseconds As Integer
-End Type
+    wYear         As Integer ' 2
+    wMonth        As Integer ' 2
+    wDayOfWeek    As Integer ' 2
+    wDay          As Integer ' 2
+    wHour         As Integer ' 2
+    wMinute       As Integer ' 2
+    wSecond       As Integer ' 2
+    wMilliseconds As Integer ' 2
+End Type               ' Sum: 16
 Public Type DOSTIME
 'https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-dosdatetimetofiletime
     ' Bits    Description
@@ -240,5 +256,52 @@ Public Function DosTime_Equals(aDosTime As DOSTIME, other As DOSTIME) As Boolean
         b = .wTime = other.wTime ': If Not b Then Exit Function
     End With
     DosTime_Equals = b
+End Function
+
+' ############################## '  CyTime  ' ############################## '
+'contains time in milliseconds in a Currency, with maximum 4 digits
+Public Function CyTime_FromSng(ms As Single) As Currency
+    CyTime_FromSng = CCur(ms)
+End Function
+Public Function CyTime_FromDbl(ms As Double) As Currency
+    CyTime_FromDbl = CCur(ms)
+End Function
+'Function CyTime_FromDate(aDate As Date) As Currency
+'    'hmm müßte eigentlich sein Date_ToCyTime
+'End Function
+Public Function CyTime_ToStr(t As Currency) As String
+    '1 day = 24 h =
+    Dim yy As Integer
+    Dim mo As Integer
+    Dim dd As Integer
+    Dim hh As Integer
+    Dim mm As Integer
+    Dim ss As Double
+    CyTime_ToStr = CStr(ms)
+End Function
+
+' ############################## '  StrTime  ' ############################## '
+' "hh:mm:ss.mls"
+Public Function StrTime_ToCyTime(t As String) As Currency
+    Dim sa() As String: sa = Split(t, ":")
+    'Dim h  As Integer:  h = sa(0)
+    'Dim m  As Integer:  m = sa(1)
+    'Dim s  As Integer:  s = Int(Val(sa(2)))
+    'Dim ms As Integer: ms = Split(sa(2), ".")(1)
+    StrTime_ToCyTime = CLng(Split(sa(2), ".")(1)) + Int(Val(sa(2))) * 1000 + CLng(sa(1)) * 60 * 1000 + CLng(sa(0)) * 60 * 60 * 1000
+End Function
+
+Public Function StrTime_ToSYSTEMTIME(t As String) As SYSTEMTIME
+    Dim sa() As String: sa = Split(t, ":")
+    With StrTime_ToSYSTEMTIME
+        .wYear = Year(Now)
+        .wMonth = Month(Now)
+        .wDay = Day(Now)
+        .wHour = sa(0)
+        .wMinute = sa(1)
+        .wSecond = Int(Val(sa(2)))
+        .wMilliseconds = Split(sa(2), ".")(1)
+    End With
+    'Debug.Print SystemTime_ToStr(MyTime_ToSYSTEMTIME)
 End Function
 
