@@ -1,5 +1,11 @@
 Attribute VB_Name = "MTime"
 Option Explicit
+
+Private Const HoursPerDay      As Long = 24&
+Private Const MinutesPerHour   As Long = 60&
+Private Const SecondsPerMinute As Long = 60&
+Private Const SecondsPerDay    As Long = HoursPerDay * MinutesPerHour * SecondsPerMinute '86400
+
 ' Date:
 ' Enthält IEEE-64-Bit(8-Byte)-Werte, die Datumsangaben im Bereich vom 1. Januar des Jahres 0001 bis zum 31. Dezember
 ' des Jahres 9999 und Uhrzeiten von 00:00:00 Uhr (Mitternacht) bis 23:59:59.9999999 Uhr darstellen.
@@ -80,7 +86,23 @@ Private Declare Function FileTimeToDosDateTime Lib "kernel32" ( _
 Private Declare Function DosDateTimeToFileTime Lib "kernel32" ( _
     ByVal wFatDate As Long, ByVal wFatTime As Long, lpFilTime As FILETIME) As Long
 
-' ############################## '  Date  ' ############################## '
+' ############################## '    DateTimeStamp    ' ############################## '
+'can e.g. be found in executable files, exe, dll
+Public Function DateTimeStamp_ToStr(ByVal DTStamp As Long) As String
+    Dim l0  As Long:  l0 = DTStamp \ SecondsPerDay
+    Dim l1  As Long:  l1 = DTStamp - l0 * SecondsPerDay
+    Dim l2  As Long:  l2 = DateSerial(1970, 1, 2)
+    Dim gmt As Date: gmt = l0 + Sgn(l1) + l1 / SecondsPerDay + l2
+    DateTimeStamp_ToStr = Format$(gmt, "dd.mm.yyyy - hh:mm:ss")
+End Function
+Public Function DateTimeStamp_ToDate(ByVal DTStamp As Long) As Date
+    Dim l0  As Long:  l0 = DTStamp \ SecondsPerDay
+    Dim l1  As Long:  l1 = DTStamp - l0 * SecondsPerDay
+    Dim l2  As Long:  l2 = DateSerial(1970, 1, 2)
+    DateTimeStamp_ToDate = l0 + Sgn(l1) + l1 / SecondsPerDay + l2
+End Function
+
+' ############################## '        Date         ' ############################## '
 Public Property Get Date_Now() As Date
     Date_Now = Now
 End Property
@@ -105,7 +127,9 @@ End Function
 Public Function Date_ToDosTime(aDate As Date) As DOSTIME
     Date_ToDosTime = FileTime_ToDosTime(Date_ToFileTime(aDate))
 End Function
-
+Public Function Date_ToDateTimeStamp(aDate As Date) As Long
+    Date_ToDateTimeStamp = DateDiff("s", aDate, DateSerial(1970, 1, 2))
+End Function
 Public Function Date_ToStr(aDate As Date) As String
     Date_ToStr = FormatDateTime(aDate, VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(aDate, VbDateTimeFormat.vbLongTime)
 End Function
@@ -116,7 +140,7 @@ Public Function Date_Equals(aDate As Date, other As Date) As Boolean
     Date_Equals = aDate = other
 End Function
 
-' ############################## '  SystemTime  ' ############################## '
+' ############################## '     SystemTime      ' ############################## '
 Public Property Get SystemTime_Now() As SYSTEMTIME
     GetSystemTime SystemTime_Now
 End Property
@@ -153,7 +177,7 @@ Public Function SystemTime_Equals(aSt As SYSTEMTIME, other As SYSTEMTIME) As Boo
     SystemTime_Equals = b
 End Function
 
-' ############################## '  FileTime  ' ############################## '
+' ############################## '      FileTime       ' ############################## '
 Public Property Get FileTime_Now() As FILETIME
     FileTime_Now = SystemTime_ToFileTime(SystemTime_Now)
 End Property
@@ -191,7 +215,7 @@ Public Function FileTime_Equals(aFt As FILETIME, other As FILETIME) As Boolean
     FileTime_Equals = b
 End Function
 
-' ############################## '  UnixTime  ' ############################## '
+' ############################## '      UnixTime       ' ############################## '
 'In Unix und Linux werden Datumsangaben intern immer als die Anzahl der Sekunden seit
 'dem 1. Januar 1970 um 00:00 Greenwhich Mean Time (GMT, heute UTC) dargestellt.
 'Dieses Urdatum wird manchmal auch "The Epoch" genannt. In manchen Situationen muss
@@ -215,7 +239,7 @@ Public Function UnixTime_Equals(uts As Double, other As Double) As Boolean
     UnixTime_Equals = uts = other
 End Function
 
-' ############################## '  DosTime  ' ############################## '
+' ############################## '       DosTime       ' ############################## '
 ' oder auch FAT-Time also die Zeit die unter DOS in der FAT der Festplatte gespeichert wird
 Public Function DosTime_Now() As DOSTIME
     DosTime_Now = FileTime_ToDosTime(Date_ToFileTime(Date_Now))
@@ -258,7 +282,7 @@ Public Function DosTime_Equals(aDosTime As DOSTIME, other As DOSTIME) As Boolean
     DosTime_Equals = b
 End Function
 
-' ############################## '  CyTime  ' ############################## '
+' ############################## '       CyTime        ' ############################## '
 'contains time in milliseconds in a Currency, with maximum 4 digits
 Public Function CyTime_FromSng(ms As Single) As Currency
     CyTime_FromSng = CCur(ms)
@@ -280,7 +304,7 @@ Public Function CyTime_ToStr(t As Currency) As String
     CyTime_ToStr = CStr(ms)
 End Function
 
-' ############################## '  StrTime  ' ############################## '
+' ############################## '       StrTime       ' ############################## '
 ' "hh:mm:ss.mls"
 Public Function StrTime_ToCyTime(t As String) As Currency
     Dim sa() As String: sa = Split(t, ":")

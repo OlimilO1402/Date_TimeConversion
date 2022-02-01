@@ -9,6 +9,14 @@ Begin VB.Form Form1
    ScaleHeight     =   4455
    ScaleWidth      =   8415
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton Command7 
+      Caption         =   "Command7"
+      Height          =   735
+      Left            =   120
+      TabIndex        =   17
+      Top             =   3240
+      Width           =   1695
+   End
    Begin VB.CommandButton Command6 
       Caption         =   "DosTime_Now"
       Height          =   375
@@ -152,6 +160,13 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
+
+Private Sub Command7_Click()
+    Dim dat As Date: dat = Now
+    MsgBox Date_ToStr(dat)
+    Dim dtstmp As Long: dtstmp = Date_ToDateTimeStamp(dat)
+    MsgBox DateTimeStamp_ToStr(dtstmp)
+End Sub
 
 Private Sub Form_Load()
     Command1_Click
