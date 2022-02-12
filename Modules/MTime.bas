@@ -293,7 +293,7 @@ End Function
 'Function CyTime_FromDate(aDate As Date) As Currency
 '    'hmm müßte eigentlich sein Date_ToCyTime
 'End Function
-Public Function CyTime_ToStr(t As Currency) As String
+Public Function CyTime_ToStr(T As Currency) As String
     '1 day = 24 h =
     Dim yy As Integer
     Dim mo As Integer
@@ -301,13 +301,13 @@ Public Function CyTime_ToStr(t As Currency) As String
     Dim hh As Integer
     Dim mm As Integer
     Dim ss As Double
-    CyTime_ToStr = CStr(ms)
+    'CyTime_ToStr = CStr(ms)
 End Function
 
 ' ############################## '       StrTime       ' ############################## '
 ' "hh:mm:ss.mls"
-Public Function StrTime_ToCyTime(t As String) As Currency
-    Dim sa() As String: sa = Split(t, ":")
+Public Function StrTime_ToCyTime(T As String) As Currency
+    Dim sa() As String: sa = Split(T, ":")
     'Dim h  As Integer:  h = sa(0)
     'Dim m  As Integer:  m = sa(1)
     'Dim s  As Integer:  s = Int(Val(sa(2)))
@@ -315,8 +315,8 @@ Public Function StrTime_ToCyTime(t As String) As Currency
     StrTime_ToCyTime = CLng(Split(sa(2), ".")(1)) + Int(Val(sa(2))) * 1000 + CLng(sa(1)) * 60 * 1000 + CLng(sa(0)) * 60 * 60 * 1000
 End Function
 
-Public Function StrTime_ToSYSTEMTIME(t As String) As SYSTEMTIME
-    Dim sa() As String: sa = Split(t, ":")
+Public Function StrTime_ToSYSTEMTIME(T As String) As SYSTEMTIME
+    Dim sa() As String: sa = Split(T, ":")
     With StrTime_ToSYSTEMTIME
         .wYear = Year(Now)
         .wMonth = Month(Now)
