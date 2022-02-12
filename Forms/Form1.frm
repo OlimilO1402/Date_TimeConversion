@@ -1,6 +1,6 @@
 VERSION 5.00
-Begin VB.Form Form1 
-   Caption         =   "Form1"
+Begin VB.Form FMain 
+   Caption         =   "Datetime-Conversions"
    ClientHeight    =   4455
    ClientLeft      =   120
    ClientTop       =   465
@@ -11,13 +11,13 @@ Begin VB.Form Form1
    StartUpPosition =   3  'Windows-Standard
    Begin VB.CommandButton Command7 
       Caption         =   "Command7"
-      Height          =   735
-      Left            =   120
+      Height          =   495
+      Left            =   240
       TabIndex        =   17
       Top             =   3240
-      Width           =   1695
+      Width           =   1575
    End
-   Begin VB.CommandButton Command6 
+   Begin VB.CommandButton Command5 
       Caption         =   "DosTime_Now"
       Height          =   375
       Left            =   120
@@ -33,7 +33,7 @@ Begin VB.Form Form1
       Top             =   2640
       Width           =   6255
    End
-   Begin VB.CommandButton Command5 
+   Begin VB.CommandButton Command6 
       Caption         =   "Some UnixTime tests"
       Height          =   375
       Left            =   120
@@ -74,7 +74,7 @@ Begin VB.Form Form1
       Width           =   1815
    End
    Begin VB.Label Label5 
-      Caption         =   "Label1"
+      Caption         =   "Label5"
       Height          =   375
       Left            =   3120
       TabIndex        =   16
@@ -154,21 +154,15 @@ Begin VB.Form Form1
       Width           =   5175
    End
 End
-Attribute VB_Name = "Form1"
+Attribute VB_Name = "FMain"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Sub Command7_Click()
-    Dim dat As Date: dat = Now
-    MsgBox Date_ToStr(dat)
-    Dim dtstmp As Long: dtstmp = Date_ToDateTimeStamp(dat)
-    MsgBox DateTimeStamp_ToStr(dtstmp)
-End Sub
-
 Private Sub Form_Load()
+    Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
     Command1_Click
     Command5_Click
 End Sub
@@ -191,7 +185,8 @@ Private Sub Command2_Click()
     Label2.Caption = MTime.SystemTime_ToStr(syt)
     Label3.Caption = MTime.FileTime_ToStr(MTime.SystemTime_ToFileTime(syt))
     Label4.Caption = MTime.UnixTime_ToStr(MTime.SystemTime_ToUnixTime(syt))
-
+    Label5.Caption = MTime.DosTime_ToStr(MTime.SystemTime_ToDosTime(syt))
+    
 End Sub
 
 Private Sub Command3_Click()
@@ -201,6 +196,7 @@ Private Sub Command3_Click()
     Label2.Caption = MTime.SystemTime_ToStr(MTime.FileTime_ToSystemTime(fit))
     Label3.Caption = MTime.FileTime_ToStr(fit)
     Label4.Caption = MTime.UnixTime_ToStr(MTime.FileTime_ToUnixTime(fit))
+    Label5.Caption = MTime.DosTime_ToStr(MTime.FileTime_ToDosTime(fit))
     
 End Sub
 
@@ -211,10 +207,22 @@ Private Sub Command4_Click()
     Label2.Caption = MTime.SystemTime_ToStr(MTime.UnixTime_ToSystemTime(uxt))
     Label3.Caption = MTime.FileTime_ToStr(MTime.UnixTime_ToFileTime(uxt))
     Label4.Caption = MTime.UnixTime_ToStr(uxt)
+    Label5.Caption = MTime.DosTime_ToStr(MTime.UnixTime_ToDosTime(uxt))
     
 End Sub
 
 Private Sub Command5_Click()
+    
+    Dim dst As DOSTIME: dst = MTime.DosTime_Now
+    Label1.Caption = MTime.Date_ToStr(MTime.DosTime_ToDate(dst))
+    Label2.Caption = MTime.SystemTime_ToStr(MTime.DosTime_ToSystemTime(dst))
+    Label3.Caption = MTime.FileTime_ToStr(MTime.DosTime_ToFileTime(dst))
+    Label4.Caption = MTime.UnixTime_ToStr(MTime.DosTime_ToUnixTime(dst))
+    Label5.Caption = MTime.DosTime_ToStr(dst)
+    
+End Sub
+
+Private Sub Command6_Click()
     
     Dim dat As Date
     Dim uxs As Double
@@ -249,3 +257,12 @@ Private Sub Command5_Click()
     Text1.Text = s
     
 End Sub
+
+Private Sub Command7_Click()
+    Dim dat As Date: dat = Now
+    MsgBox Date_ToStr(dat)
+    Dim dtstmp As Long: dtstmp = Date_ToDateTimeStamp(dat)
+    'ist datetimestamp möglciherweise das gleich wie DosTime???
+    MsgBox DateTimeStamp_ToStr(dtstmp)
+End Sub
+

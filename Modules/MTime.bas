@@ -152,9 +152,11 @@ End Function
 Public Function SystemTime_ToFileTime(aSt As SYSTEMTIME) As FILETIME
     SystemTimeToFileTime aSt, SystemTime_ToFileTime
 End Function
-
 Public Function SystemTime_ToUnixTime(aSt As SYSTEMTIME) As Double
     SystemTime_ToUnixTime = Date_ToUnixTime(SystemTime_ToDate(aSt))
+End Function
+Public Function SystemTime_ToDosTime(aSt As SYSTEMTIME) As DOSTIME
+    SystemTime_ToDosTime = Date_ToDosTime(SystemTime_ToDate(aSt))
 End Function
 Public Function SystemTime_ToStr(aSt As SYSTEMTIME) As String
     With aSt
@@ -232,6 +234,9 @@ End Function
 Public Function UnixTime_ToFileTime(ByVal uts As Double) As FILETIME
     UnixTime_ToFileTime = Date_ToFileTime(UnixTime_ToDate(uts))
 End Function
+Public Function UnixTime_ToDosTime(ByVal uts As Double) As DOSTIME
+    UnixTime_ToDosTime = MTime.Date_ToDosTime(MTime.UnixTime_ToDate(uts))
+End Function
 Public Function UnixTime_ToStr(ByVal uts As Double) As String
     UnixTime_ToStr = CStr(uts)
 End Function
@@ -244,10 +249,18 @@ End Function
 Public Function DosTime_Now() As DOSTIME
     DosTime_Now = FileTime_ToDosTime(Date_ToFileTime(Date_Now))
 End Function
+Public Function DosTime_ToDate(aDosTime As DOSTIME) As Date
+    DosTime_ToDate = FileTime_ToDate(DosTime_ToFileTime(aDosTime))
+End Function
+Public Function DosTime_ToSystemTime(aDosTime As DOSTIME) As SYSTEMTIME
+    DosTime_ToSystemTime = FileTime_ToSystemTime(DosTime_ToFileTime(aDosTime))
+End Function
 Public Property Get DosTime_ToFileTime(aDosTime As DOSTIME) As FILETIME
     DosDateTimeToFileTime aDosTime.wDate, aDosTime.wTime, DosTime_ToFileTime
 End Property
-
+Public Function DosTime_ToUnixTime(aDosTime As DOSTIME) As Double
+    DosTime_ToUnixTime = Date_ToUnixTime(DosTime_ToDate(aDosTime))
+End Function
 Public Function DosTime_ToStr(aDt As DOSTIME) As String
     ' Bits    Description
     ' 0 - 4   Day of the month (1–31)
@@ -293,9 +306,9 @@ End Function
 'Function CyTime_FromDate(aDate As Date) As Currency
 '    'hmm müßte eigentlich sein Date_ToCyTime
 'End Function
-Public Function CyTime_ToStr(T As Currency) As String
+Public Function CyTime_ToStr(aCyTime As Currency) As String
     '1 day = 24 h =
-    Dim yy As Integer
+    Dim yy As Integer '=
     Dim mo As Integer
     Dim dd As Integer
     Dim hh As Integer
