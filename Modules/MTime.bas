@@ -205,6 +205,14 @@ End Function
 Public Property Get SystemTime_Now() As SYSTEMTIME
     GetSystemTime SystemTime_Now
 End Property
+
+Public Function SystemTime_ToTzSpecificLocalTime(aSt As SYSTEMTIME) As SYSTEMTIME
+    SystemTimeToTzSpecificLocalTime m_TZI, aSt, SystemTime_ToTzSpecificLocalTime
+End Function
+Public Function TzSpecificLocalTime_ToSystemTime(aSt As SYSTEMTIME) As SYSTEMTIME
+    TzSpecificLocalTimeToSystemTime m_TZI, aSt, TzSpecificLocalTime_ToSystemTime
+End Function
+
 Public Function SystemTime_ToDate(aSt As SYSTEMTIME) As Date
     With aSt
         SystemTime_ToDate = DateSerial(.wYear, .wMonth, .wDay) + TimeSerial(.wHour, .wMinute, .wSecond)
