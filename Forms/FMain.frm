@@ -12,10 +12,10 @@ Begin VB.Form FMain
    Begin VB.CommandButton Command7 
       Caption         =   "Command7"
       Height          =   495
-      Left            =   240
+      Left            =   120
       TabIndex        =   17
-      Top             =   3240
-      Width           =   1575
+      Top             =   3120
+      Width           =   1815
    End
    Begin VB.CommandButton Command5 
       Caption         =   "DosTime_Now"
@@ -213,12 +213,12 @@ End Sub
 
 Private Sub Command5_Click()
     
-    Dim dst As DOSTIME: dst = MTime.DosTime_Now
-    Label1.Caption = MTime.Date_ToStr(MTime.DosTime_ToDate(dst))
-    Label2.Caption = MTime.SystemTime_ToStr(MTime.DosTime_ToSystemTime(dst))
-    Label3.Caption = MTime.FileTime_ToStr(MTime.DosTime_ToFileTime(dst))
-    Label4.Caption = MTime.UnixTime_ToStr(MTime.DosTime_ToUnixTime(dst))
-    Label5.Caption = MTime.DosTime_ToStr(dst)
+    Dim Dst As DOSTIME: Dst = MTime.DosTime_Now
+    Label1.Caption = MTime.Date_ToStr(MTime.DosTime_ToDate(Dst))
+    Label2.Caption = MTime.SystemTime_ToStr(MTime.DosTime_ToSystemTime(Dst))
+    Label3.Caption = MTime.FileTime_ToStr(MTime.DosTime_ToFileTime(Dst))
+    Label4.Caption = MTime.UnixTime_ToStr(MTime.DosTime_ToUnixTime(Dst))
+    Label5.Caption = MTime.DosTime_ToStr(Dst)
     
 End Sub
 
@@ -262,7 +262,7 @@ Private Sub Command7_Click()
     Dim dat As Date: dat = Now
     MsgBox Date_ToStr(dat)
     Dim dtstmp As Long: dtstmp = Date_ToDateTimeStamp(dat)
-    'ist datetimestamp möglciherweise das gleich wie DosTime???
+    'ist datetimestamp möglicherweise das gleiche wie DosTime???
     MsgBox DateTimeStamp_ToStr(dtstmp)
 End Sub
 

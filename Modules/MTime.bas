@@ -60,14 +60,24 @@ Public Type DOSTIME
 End Type
 
 Private Type TIME_ZONE_INFORMATION
-    Bias         As Long
-    StandardName(0 To 31) As Integer
-    StandardDate As SYSTEMTIME
-    StandardBias As Long
-    DaylightName(0 To 31) As Integer
-    DaylightDate As SYSTEMTIME
-    DaylightBias As Long
+    Bias                  As Long
+    StandardName(1 To 64) As Byte
+    StandardDate          As SYSTEMTIME
+    StandardBias          As Long
+    DaylightName(1 To 64) As Byte
+    DaylightDate          As SYSTEMTIME
+    DaylightBias          As Long
 End Type
+Const TIME_ZONE_ID_UNKNOWN  As Long = &H0&
+Const TIME_ZONE_ID_STANDARD As Long = &H1&
+Const TIME_ZONE_ID_DAYLIGHT As Long = &H2&
+
+Private m_TZI As TIME_ZONE_INFORMATION
+Public IsSummerTime As Boolean
+
+Private Declare Function GetTimeZoneInformation Lib "kernel32" ( _
+    lpTimeZoneInformation As TIME_ZONE_INFORMATION) As Long
+    
 Private Declare Sub GetSystemTime Lib "kernel32" ( _
     lpSysTime As SYSTEMTIME)
 
@@ -77,14 +87,36 @@ Private Declare Function FileTimeToSystemTime Lib "kernel32" ( _
 Private Declare Function SystemTimeToFileTime Lib "kernel32" ( _
     lpSysTime As SYSTEMTIME, lpFilTime As FILETIME) As Long
 
-Private Declare Function FileTimeToLocalFileTime Lib "kernel32" ( _
-    lpFilTime As FILETIME, lpLocFilTime As FILETIME) As Long
+'Private Declare Function FileTimeToLocalFileTime Lib "kernel32" ( _
+'    lpFilTime As FILETIME, lpLocFilTime As FILETIME) As Long
+'Private Declare Function LocalFileTimeToFileTime Lib "kernel32" ( _
+'    lpLocFilTime As FILETIME, lpFilTime As FILETIME) As Long
+
+Private Declare Function SystemTimeToTzSpecificLocalTime Lib "kernel32" ( _
+     ByRef lpTimeZoneInformation As TIME_ZONE_INFORMATION, _
+     ByRef lpUniversalTime As SYSTEMTIME, _
+     ByRef lpLocalTime As SYSTEMTIME) As Long
+
+Private Declare Function TzSpecificLocalTimeToSystemTime Lib "kernel32" ( _
+     ByRef lpTimeZoneInformation As TIME_ZONE_INFORMATION, _
+     ByRef lpLocalTime As SYSTEMTIME, _
+     ByRef lpUniversalTime As SYSTEMTIME) As Long
 
 Private Declare Function FileTimeToDosDateTime Lib "kernel32" ( _
     lpFileTime As FILETIME, ByVal lpFatDate As Long, ByVal lpFatTime As Long) As Long
 
 Private Declare Function DosDateTimeToFileTime Lib "kernel32" ( _
     ByVal wFatDate As Long, ByVal wFatTime As Long, lpFilTime As FILETIME) As Long
+
+Public Sub Init()
+    Dim ret As Long: ret = GetTimeZoneInformation(m_TZI)
+    Select Case ret
+    Case TIME_ZONE_ID_UNKNOWN:  IsSummerTime = False
+    Case TIME_ZONE_ID_STANDARD: IsSummerTime = False
+    Case TIME_ZONE_ID_DAYLIGHT: IsSummerTime = True
+    Case Else:                  MsgBox ("Error trying to get time-zone-imfo!"): Exit Sub
+    End Select
+End Sub
 
 ' ############################## '    DateTimeStamp    ' ############################## '
 'can e.g. be found in executable files, exe, dll
@@ -183,8 +215,21 @@ End Function
 Public Property Get FileTime_Now() As FILETIME
     FileTime_Now = SystemTime_ToFileTime(SystemTime_Now)
 End Property
+
 Public Function FileTime_ToLocalFileTime(aFt As FILETIME) As FILETIME
-    FileTimeToLocalFileTime aFt, FileTime_ToLocalFileTime
+'    FileTimeToLocalFileTime aFt, FileTime_ToLocalFileTime
+    Dim st_in As SYSTEMTIME: st_in = FileTime_ToSystemTime(aFt)
+    Dim stout As SYSTEMTIME
+    SystemTimeToTzSpecificLocalTime m_TZI, st_in, stout
+    FileTime_ToLocalFileTime = SystemTime_ToFileTime(stout)
+End Function
+
+Public Function LocalFileTime_ToFileTime(aFt As FILETIME) As FILETIME
+'    LocalFileTimeToFileTime aFt, LocalFileTime_ToFileTime
+    Dim st_in As SYSTEMTIME: st_in = FileTime_ToSystemTime(aFt)
+    Dim stout As SYSTEMTIME
+    TzSpecificLocalTimeToSystemTime m_TZI, st_in, stout
+    LocalFileTime_ToFileTime = SystemTime_ToFileTime(stout)
 End Function
 
 Public Property Get FileTime_ToDosTime(aFt As FILETIME) As DOSTIME
