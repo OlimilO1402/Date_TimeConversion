@@ -118,6 +118,35 @@ Public Sub Init()
     End Select
 End Sub
 
+Public Function TimeZoneInfo_ToStr() As String
+    Dim s As String, s1 As String
+    With m_TZI
+        s = s & "Bias         : " & .Bias & vbCrLf
+        
+        s1 = Trim0(.StandardName)
+        
+        s = s & "StandardName : " & s1 & vbCrLf
+        s = s & "StandardDate : " & SystemTime_ToDate(.StandardDate) & vbCrLf
+        s = s & "StandardBias : " & .StandardBias & vbCrLf
+        
+        s1 = Trim0(.DaylightName)
+        
+        s = s & "DaylightName : " & s1 & vbCrLf
+        s = s & "DaylightDate : " & SystemTime_ToDate(.DaylightDate) & vbCrLf
+        s = s & "DaylightBias : " & .DaylightBias & vbCrLf
+    End With
+    TimeZoneInfo_ToStr = s
+End Function
+
+Function Trim0(ByVal s As String) As String
+    Trim0 = Trim(s)
+    If Right(Trim0, 1) = vbNullChar Then
+        Trim0 = Left(Trim0, Len(Trim0) - 1)
+        Trim0 = Trim0(Trim0)
+    Else
+        Exit Function
+    End If
+End Function
 ' ############################## '    DateTimeStamp    ' ############################## '
 'can e.g. be found in executable files, exe, dll
 Public Function DateTimeStamp_ToStr(ByVal DTStamp As Long) As String

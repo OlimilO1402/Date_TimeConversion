@@ -1,17 +1,17 @@
 VERSION 5.00
 Begin VB.Form FMain 
    Caption         =   "Datetime-Conversions"
-   ClientHeight    =   4455
+   ClientHeight    =   5055
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   8415
    LinkTopic       =   "Form1"
-   ScaleHeight     =   4455
+   ScaleHeight     =   5055
    ScaleWidth      =   8415
    StartUpPosition =   3  'Windows-Standard
    Begin VB.CommandButton Command7 
-      Caption         =   "Command7"
-      Height          =   495
+      Caption         =   "IsSummerTime"
+      Height          =   375
       Left            =   120
       TabIndex        =   17
       Top             =   3120
@@ -26,12 +26,22 @@ Begin VB.Form FMain
       Width           =   1815
    End
    Begin VB.TextBox Text1 
-      Height          =   1695
+      BeginProperty Font 
+         Name            =   "Consolas"
+         Size            =   9.75
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   2415
       Left            =   2040
       MultiLine       =   -1  'True
+      ScrollBars      =   3  'Beides
       TabIndex        =   9
       Top             =   2640
-      Width           =   6255
+      Width           =   6375
    End
    Begin VB.CommandButton Command6 
       Caption         =   "Some UnixTime tests"
@@ -162,6 +172,7 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private Sub Form_Load()
+    MTime.Init
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
     Command1_Click
     Command5_Click
@@ -259,10 +270,15 @@ Private Sub Command6_Click()
 End Sub
 
 Private Sub Command7_Click()
-    Dim dat As Date: dat = Now
-    MsgBox Date_ToStr(dat)
-    Dim dtstmp As Long: dtstmp = Date_ToDateTimeStamp(dat)
-    'ist datetimestamp möglicherweise das gleiche wie DosTime???
-    MsgBox DateTimeStamp_ToStr(dtstmp)
+'    Dim dat As Date: dat = Now
+'    MsgBox Date_ToStr(dat)
+'    Dim dtstmp As Long: dtstmp = Date_ToDateTimeStamp(dat)
+'    'ist datetimestamp möglicherweise das gleiche wie DosTime???
+'    MsgBox DateTimeStamp_ToStr(dtstmp)
+    Dim s As String
+    s = "Is summer time? " & MTime.IsSummerTime & vbCrLf
+    s = s & MTime.TimeZoneInfo_ToStr
+    Text1.Text = s
+    
 End Sub
 
