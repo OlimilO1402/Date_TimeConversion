@@ -282,3 +282,10 @@ Private Sub Command7_Click()
     
 End Sub
 
+Private Sub Form_Resize()
+    Dim L As Single: L = Text1.Left
+    Dim T As Single: T = Text1.Top
+    Dim W As Single: W = Me.ScaleWidth - L
+    Dim H As Single: H = Me.ScaleHeight - T
+    If W > 0 And H > 0 Then Text1.Move L, T, W, H
+End Sub
