@@ -24,6 +24,7 @@ Public Type FILETIME
     dwHighDateTime As Long ' 4
 End Type               'Sum: 8
 
+'https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime
 'typedef struct _SYSTEMTIME {
 '  WORD wYear;
 '  WORD wMonth;
