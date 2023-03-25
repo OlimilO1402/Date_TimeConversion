@@ -1,10 +1,10 @@
-# Date_TimeConversion
-## Converts between Date, SystemTime, FileTime, UnixTime  
+# Date_TimeConversion  
+## Converts between Date, SystemTime, FileTime, UnixTime, DosTime, WindowsFoundationDateTime  
 
 [![GitHub](https://img.shields.io/github/license/OlimilO1402/Date_TimeConversion?style=plastic)](https://github.com/OlimilO1402/Date_TimeConversion/blob/master/LICENSE) 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/OlimilO1402/Date_TimeConversion?style=plastic)](https://github.com/OlimilO1402/Date_TimeConversion/releases/latest)
-[![Github All Releases](https://img.shields.io/github/downloads/OlimilO1402/Date_TimeConversion/total.svg)](https://github.com/OlimilO1402/Date_TimeConversion/releases/download/v1.0.6/TimeConv_v1.0.6.zip)
-[![Follow](https://img.shields.io/github/followers/OlimilO1402.svg?style=social&label=Follow&maxAge=2592000)](https://github.com/OlimilO1402/Date_TimeConversion/watchers)
+[![Github All Releases](https://img.shields.io/github/downloads/OlimilO1402/Date_TimeConversion/total.svg)](https://github.com/OlimilO1402/Date_TimeConversion/releases/download/v2023.3.25/TimeConv_v2023.3.25.zip)
+![GitHub followers](https://img.shields.io/github/followers/OlimilO1402?style=social)
 
 project started in jan.2021  
 
