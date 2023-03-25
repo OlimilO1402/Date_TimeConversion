@@ -490,29 +490,22 @@ End Function
 'UniversalTime: A 64-bit signed integer that represents a point in time as the number of 100-nanosecond intervals prior to or after midnight on January 1, 1601 (according to the Gregorian Calendar).
 
 Public Function WindowsFoundationDateTime_Now() As WindowsFoundationDateTime
-    'LSet WindowsFoundationDateTime_ToFileTime = this
-    'If ToLocalFileTime Then WindowsFoundationDateTime_ToFileTime = FileTime_ToLocalFileTime(WindowsFoundationDateTime_ToFileTime)
-    'GetSystemTimePreciseAsFileTimeCy WindowsFoundationDateTime_Now.UniversalTime
-    Dim ft As FILETIME: ft = FileTime_Now
-    LSet WindowsFoundationDateTime_Now = ft
+    LSet WindowsFoundationDateTime_Now = FileTime_Now
 End Function
 
 Public Function WindowsFoundationDateTime_ToFileTime(this As WindowsFoundationDateTime) As FILETIME
     LSet WindowsFoundationDateTime_ToFileTime = this
-    'WindowsFoundationDateTime_ToFileTime = FileTime_ToLocalFileTime(WindowsFoundationDateTime_ToFileTime)
 End Function
 
 Public Function WindowsFoundationDateTime_ToSystemTime(this As WindowsFoundationDateTime) As SYSTEMTIME
     WindowsFoundationDateTime_ToSystemTime = FileTime_ToSystemTime(WindowsFoundationDateTime_ToFileTime(this))
-    'FileTimeToSystemTime WindowsFoundationDateTime_ToFileTime(this, ToLocalFileTime), WindowsFoundationDateTime_ToSystemTime
 End Function
 
 Public Function WindowsFoundationDateTime_ToDate(this As WindowsFoundationDateTime) As Date
     WindowsFoundationDateTime_ToDate = FileTime_ToDate(WindowsFoundationDateTime_ToFileTime(this))
-    'WindowsFoundationDateTime_ToDate = SystemTime_ToDate(WindowsFoundationDateTime_ToSystemTime(this, ToLocalFileTime))
 End Function
-'11644473600
 
+'11644473600
 Public Function WindowsFoundationDateTime_ToUnixTime(this As WindowsFoundationDateTime) As Double
     WindowsFoundationDateTime_ToUnixTime = FileTime_ToUnixTime(WindowsFoundationDateTime_ToFileTime(this))
 End Function
@@ -525,3 +518,8 @@ Public Function WindowsFoundationDateTime_ToStr(this As WindowsFoundationDateTim
     Dim ft As FILETIME: LSet ft = this
     WindowsFoundationDateTime_ToStr = Date_ToStr(FileTime_ToDate(ft))
 End Function
+
+Public Function WindowsFoundationDateTime_Equals(this As WindowsFoundationDateTime, other As WindowsFoundationDateTime) As Boolean
+    WindowsFoundationDateTime_Equals = this.UniversalTime = other.UniversalTime
+End Function
+
