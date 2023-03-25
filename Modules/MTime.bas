@@ -28,7 +28,8 @@ Public Type FILETIME
 End Type               'Sum: 8
 
 'https://learn.microsoft.com/de-de/uwp/api/windows.foundation.datetime?view=winrt-22621
-'UniversalTime: A 64-bit signed integer that represents a point in time as the number of 100-nanosecond intervals prior to or after midnight on January 1, 1601 (according to the Gregorian Calendar).
+'UniversalTime: A 64-bit signed integer that represents a point in time as the number of 100-nanosecond intervals prior
+'to or after midnight on January 1, 1601 (according to the Gregorian Calendar).
 Public Type WindowsFoundationDateTime
     UniversalTime As Currency
 End Type
@@ -115,7 +116,7 @@ Public Sub Init()
     Dim ret As Long: ret = GetTimeZoneInformation(m_TZI)
     IsSummerTime = ret = TIME_ZONE_ID_DAYLIGHT
     If IsSummerTime Or ret = TIME_ZONE_ID_STANDARD Or ret = TIME_ZONE_ID_UNKNOWN Then Exit Sub
-    MsgBox "Error trying to get time-zone-imfo!"
+    MsgBox "Error trying to get time-zone-info!"
     'Select Case ret
     'Case TIME_ZONE_ID_UNKNOWN:  IsSummerTime = False
     'Case TIME_ZONE_ID_STANDARD: IsSummerTime = False
