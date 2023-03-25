@@ -516,8 +516,7 @@ Public Function WindowsFoundationDateTime_ToDosTime(this As WindowsFoundationDat
 End Function
 
 Public Function WindowsFoundationDateTime_ToStr(this As WindowsFoundationDateTime) As String
-    Dim ft As FILETIME: LSet ft = this
-    WindowsFoundationDateTime_ToStr = Date_ToStr(FileTime_ToDate(ft))
+    WindowsFoundationDateTime_ToStr = Date_ToStr(FileTime_ToDate(WindowsFoundationDateTime_ToFileTime(this)))
 End Function
 
 Public Function WindowsFoundationDateTime_Equals(this As WindowsFoundationDateTime, other As WindowsFoundationDateTime) As Boolean
