@@ -1,32 +1,76 @@
 VERSION 5.00
 Begin VB.Form FMain 
    Caption         =   "Datetime-Conversions"
-   ClientHeight    =   6135
+   ClientHeight    =   6015
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   8415
    LinkTopic       =   "Form1"
-   ScaleHeight     =   6135
+   ScaleHeight     =   6015
    ScaleWidth      =   8415
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton Command7 
+      Caption         =   "DateTimeStamp_Now"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   375
+      Left            =   0
+      TabIndex        =   21
+      Top             =   3000
+      Width           =   1935
+   End
    Begin VB.CommandButton Command6 
       Caption         =   "WinFndDateTime_Now"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
       Left            =   0
       TabIndex        =   18
       Top             =   2520
       Width           =   1935
    End
-   Begin VB.CommandButton Command8 
+   Begin VB.CommandButton Command9 
       Caption         =   "IsSummerTime"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
       Left            =   0
       TabIndex        =   17
-      Top             =   3480
+      Top             =   4080
       Width           =   1935
    End
    Begin VB.CommandButton Command5 
       Caption         =   "DosTime_Now"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
       Left            =   0
       TabIndex        =   14
@@ -48,19 +92,37 @@ Begin VB.Form FMain
       MultiLine       =   -1  'True
       ScrollBars      =   3  'Beides
       TabIndex        =   9
-      Top             =   3000
+      Top             =   3600
       Width           =   6375
    End
-   Begin VB.CommandButton Command7 
+   Begin VB.CommandButton Command8 
       Caption         =   "Some UnixTime tests"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
       Left            =   0
       TabIndex        =   8
-      Top             =   3000
+      Top             =   3600
       Width           =   1935
    End
    Begin VB.CommandButton Command4 
       Caption         =   "UnixTime_Now"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
       Left            =   0
       TabIndex        =   7
@@ -69,6 +131,15 @@ Begin VB.Form FMain
    End
    Begin VB.CommandButton Command3 
       Caption         =   "FileTime_Now"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
       Left            =   0
       TabIndex        =   6
@@ -77,6 +148,15 @@ Begin VB.Form FMain
    End
    Begin VB.CommandButton Command2 
       Caption         =   "SystemTime_Now"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
       Left            =   0
       TabIndex        =   5
@@ -85,107 +165,265 @@ Begin VB.Form FMain
    End
    Begin VB.CommandButton Command1 
       Caption         =   "Date_Now"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
       Left            =   0
       TabIndex        =   0
       Top             =   120
       Width           =   1935
    End
-   Begin VB.Label Label16 
-      Caption         =   "WinRt.DateTime:"
+   Begin VB.Label Label7 
+      Caption         =   "Label7"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   9
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
+      Left            =   3480
+      TabIndex        =   23
+      Top             =   3000
+      Width           =   4815
+   End
+   Begin VB.Label Label17 
+      AutoSize        =   -1  'True
+      Caption         =   "DateTimeStamp:"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   195
+      Left            =   2040
+      TabIndex        =   22
+      Top             =   3000
+      Width           =   1245
+   End
+   Begin VB.Label Label16 
+      AutoSize        =   -1  'True
+      Caption         =   "WinRt.DateTime:"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   195
       Left            =   2040
       TabIndex        =   20
       Top             =   2520
-      Width           =   1215
+      Width           =   1290
    End
    Begin VB.Label Label6 
       Caption         =   "Label6"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   9
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
-      Left            =   3360
+      Left            =   3480
       TabIndex        =   19
       Top             =   2520
-      Width           =   4935
+      Width           =   4815
    End
    Begin VB.Label Label5 
       Caption         =   "Label5"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   9
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
-      Left            =   3360
+      Left            =   3480
       TabIndex        =   16
       Top             =   2040
-      Width           =   4935
+      Width           =   4815
    End
    Begin VB.Label Labe15 
+      AutoSize        =   -1  'True
       Caption         =   "DosTime:"
-      Height          =   375
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   195
       Left            =   2040
       TabIndex        =   15
       Top             =   2040
-      Width           =   1215
+      Width           =   705
    End
    Begin VB.Label Label14 
+      AutoSize        =   -1  'True
       Caption         =   "UnixTime:"
-      Height          =   375
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   195
       Left            =   2040
       TabIndex        =   13
       Top             =   1560
-      Width           =   1215
+      Width           =   750
    End
    Begin VB.Label Label13 
+      AutoSize        =   -1  'True
       Caption         =   "FileTime:"
-      Height          =   375
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   195
       Left            =   2040
       TabIndex        =   12
       Top             =   1080
-      Width           =   1215
+      Width           =   675
    End
    Begin VB.Label Labe12 
+      AutoSize        =   -1  'True
       Caption         =   "SystemTime:"
-      Height          =   375
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   195
       Left            =   2040
       TabIndex        =   11
       Top             =   600
-      Width           =   1215
+      Width           =   930
    End
    Begin VB.Label Label11 
+      AutoSize        =   -1  'True
       Caption         =   "Date:"
-      Height          =   375
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   195
       Left            =   2040
       TabIndex        =   10
       Top             =   120
-      Width           =   1215
+      Width           =   405
    End
    Begin VB.Label Label1 
       Caption         =   "Label1"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   9
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
-      Left            =   3360
+      Left            =   3480
       TabIndex        =   4
       Top             =   120
-      Width           =   4935
+      Width           =   4815
    End
    Begin VB.Label Label4 
       Caption         =   "Label4"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   9
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
-      Left            =   3360
+      Left            =   3480
       TabIndex        =   3
       Top             =   1560
-      Width           =   4935
+      Width           =   4815
    End
    Begin VB.Label Label3 
       Caption         =   "Label3"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   9
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
-      Left            =   3360
+      Left            =   3480
       TabIndex        =   2
       Top             =   1080
-      Width           =   4935
+      Width           =   4815
    End
    Begin VB.Label Label2 
       Caption         =   "Label2"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   9
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
       Height          =   375
-      Left            =   3360
+      Left            =   3480
       TabIndex        =   1
       Top             =   600
-      Width           =   4935
+      Width           =   4815
    End
 End
 Attribute VB_Name = "FMain"
@@ -211,6 +449,7 @@ Private Sub Command1_Click()
     Label4.Caption = MTime.UnixTime_ToStr(MTime.Date_ToUnixTime(dat))
     Label5.Caption = MTime.DosTime_ToStr(MTime.Date_ToDosTime(dat))
     Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.Date_ToWindowsFoundationDateTime(dat))
+    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.Date_ToDateTimeStamp(dat))
     
 End Sub
 
@@ -223,6 +462,7 @@ Private Sub Command2_Click()
     Label4.Caption = MTime.UnixTime_ToStr(MTime.SystemTime_ToUnixTime(syt))
     Label5.Caption = MTime.DosTime_ToStr(MTime.SystemTime_ToDosTime(syt))
     Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.SystemTime_ToWindowsFoundationDateTime(syt))
+    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.SystemTime_ToDateTimeStamp(syt))
     
 End Sub
 
@@ -235,6 +475,7 @@ Private Sub Command3_Click()
     Label4.Caption = MTime.UnixTime_ToStr(MTime.FileTime_ToUnixTime(fit))
     Label5.Caption = MTime.DosTime_ToStr(MTime.FileTime_ToDosTime(fit))
     Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.FileTime_ToWindowsFoundationDateTime(fit))
+    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.FileTime_ToDateTimeStamp(fit))
     
 End Sub
 
@@ -247,6 +488,7 @@ Private Sub Command4_Click()
     Label4.Caption = MTime.UnixTime_ToStr(uxt)
     Label5.Caption = MTime.DosTime_ToStr(MTime.UnixTime_ToDosTime(uxt))
     Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.UnixTime_ToWindowsFoundationDateTime(uxt))
+    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.UnixTime_ToDateTimeStamp(uxt))
     
 End Sub
 
@@ -259,6 +501,7 @@ Private Sub Command5_Click()
     Label4.Caption = MTime.UnixTime_ToStr(MTime.DosTime_ToUnixTime(Dst))
     Label5.Caption = MTime.DosTime_ToStr(Dst)
     Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.DosTime_ToWindowsFoundationDateTime(Dst))
+    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.DosTime_ToDateTimeStamp(Dst))
     
 End Sub
 
@@ -271,10 +514,24 @@ Private Sub Command6_Click()
     Label4.Caption = MTime.UnixTime_ToStr(MTime.WindowsFoundationDateTime_ToUnixTime(wfdt))
     Label5.Caption = MTime.DosTime_ToStr(MTime.WindowsFoundationDateTime_ToDosTime(wfdt))
     Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(wfdt)
+    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.WindowsFoundationDateTime_ToDateTimeStamp(wfdt))
     
 End Sub
 
 Private Sub Command7_Click()
+    
+    Dim dts As Long: dts = MTime.DateTimeStamp_Now
+    Label1.Caption = MTime.Date_ToStr(MTime.DateTimeStamp_ToDate(dts))
+    Label2.Caption = MTime.SystemTime_ToStr(MTime.DateTimeStamp_ToSystemTime(dts))
+    Label3.Caption = MTime.FileTime_ToStr(MTime.DateTimeStamp_ToFileTime(dts))
+    Label4.Caption = MTime.UnixTime_ToStr(MTime.DateTimeStamp_ToUnixTime(dts))
+    Label5.Caption = MTime.DosTime_ToStr(MTime.DateTimeStamp_ToDosTime(dts))
+    Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.DateTimeStamp_ToWindowsFoundationDateTime(dts))
+    Label7.Caption = MTime.DateTimeStamp_ToStr(dts)
+    
+End Sub
+
+Private Sub Command8_Click()
     
     Dim dat As Date
     Dim uxs As Double
@@ -310,17 +567,11 @@ Private Sub Command7_Click()
     
 End Sub
 
-Private Sub Command8_Click()
-'    Dim dat As Date: dat = Now
-'    MsgBox Date_ToStr(dat)
-'    Dim dtstmp As Long: dtstmp = Date_ToDateTimeStamp(dat)
-'    'ist datetimestamp möglicherweise das gleiche wie DosTime???
-'    MsgBox DateTimeStamp_ToStr(dtstmp)
+Private Sub Command9_Click()
     Dim s As String
     s = "Is summer time? " & MTime.IsSummerTime & vbCrLf
     s = s & MTime.TimeZoneInfo_ToStr
     Text1.Text = s
-    
 End Sub
 
 Private Sub Form_Resize()

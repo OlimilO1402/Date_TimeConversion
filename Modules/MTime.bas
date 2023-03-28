@@ -156,13 +156,9 @@ Function Trim0(ByVal s As String) As String
 End Function
 
 ' ############################## '    DateTimeStamp    ' ############################## '
-'can e.g. be found in executable files, exe, dll
-Public Function DateTimeStamp_ToStr(ByVal DTStamp As Long) As String
-    Dim l0  As Long:  l0 = DTStamp \ SecondsPerDay
-    Dim l1  As Long:  l1 = DTStamp - l0 * SecondsPerDay
-    Dim l2  As Long:  l2 = DateSerial(1970, 1, 2)
-    Dim gmt As Date: gmt = l0 + Sgn(l1) + l1 / SecondsPerDay + l2
-    DateTimeStamp_ToStr = Format$(gmt, "dd.mm.yyyy - hh:mm:ss")
+' e.g. can be found in executable files, exe, dll
+Public Function DateTimeStamp_Now() As Long
+    DateTimeStamp_Now = Date_ToDateTimeStamp(Date_Now)
 End Function
 
 Public Function DateTimeStamp_ToDate(ByVal DTStamp As Long) As Date
@@ -170,6 +166,35 @@ Public Function DateTimeStamp_ToDate(ByVal DTStamp As Long) As Date
     Dim l1  As Long:  l1 = DTStamp - l0 * SecondsPerDay
     Dim l2  As Long:  l2 = DateSerial(1970, 1, 2)
     DateTimeStamp_ToDate = l0 + Sgn(l1) + l1 / SecondsPerDay + l2
+End Function
+
+Public Function DateTimeStamp_ToSystemTime(ByVal DTStamp As Long) As SYSTEMTIME
+    DateTimeStamp_ToSystemTime = Date_ToSystemTime(DateTimeStamp_ToDate(DTStamp))
+End Function
+
+Public Function DateTimeStamp_ToFileTime(ByVal DTStamp As Long) As FILETIME
+    DateTimeStamp_ToFileTime = Date_ToFileTime(DateTimeStamp_ToDate(DTStamp))
+End Function
+
+Public Function DateTimeStamp_ToUnixTime(ByVal DTStamp As Long) As Double
+    DateTimeStamp_ToUnixTime = Date_ToUnixTime(DateTimeStamp_ToDate(DTStamp))
+End Function
+
+Public Function DateTimeStamp_ToDosTime(ByVal DTStamp As Long) As DOSTIME
+    DateTimeStamp_ToDosTime = Date_ToDosTime(DateTimeStamp_ToDate(DTStamp))
+End Function
+
+Public Function DateTimeStamp_ToWindowsFoundationDateTime(ByVal DTStamp As Long) As WindowsFoundationDateTime
+    DateTimeStamp_ToWindowsFoundationDateTime = Date_ToWindowsFoundationDateTime(DateTimeStamp_ToDate(DTStamp))
+End Function
+
+Public Function DateTimeStamp_ToStr(ByVal DTStamp As Long) As String
+    'Dim l0  As Long:  l0 = DTStamp \ SecondsPerDay
+    'Dim l1  As Long:  l1 = DTStamp - l0 * SecondsPerDay
+    'Dim l2  As Long:  l2 = DateSerial(1970, 1, 2)
+    'Dim gmt As Date: gmt = l0 + Sgn(l1) + l1 / SecondsPerDay + l2
+    'DateTimeStamp_ToStr = Format$(gmt, "yyyy.mm.dd - hh:mm:ss")
+    DateTimeStamp_ToStr = Format$(DateTimeStamp_ToDate(DTStamp), "yyyy.mm.dd - hh:mm:ss")
 End Function
 
 ' ############################## '        Date         ' ############################## '
@@ -203,7 +228,7 @@ Public Function Date_ToDosTime(aDate As Date) As DOSTIME
 End Function
 
 Public Function Date_ToDateTimeStamp(aDate As Date) As Long
-    Date_ToDateTimeStamp = DateDiff("s", aDate, DateSerial(1970, 1, 2))
+    Date_ToDateTimeStamp = DateDiff("s", DateSerial(1970, 1, 2), aDate)
 End Function
 
 Public Function Date_ToWindowsFoundationDateTime(aDate As Date) As WindowsFoundationDateTime
@@ -225,6 +250,7 @@ End Function
 ' ############################## '     SystemTime      ' ############################## '
 Public Property Get SystemTime_Now() As SYSTEMTIME
     GetSystemTime SystemTime_Now
+    SystemTime_Now = SystemTime_ToTzSpecificLocalTime(SystemTime_Now)
 End Property
 
 Public Function SystemTime_ToTzSpecificLocalTime(aSt As SYSTEMTIME) As SYSTEMTIME
@@ -254,6 +280,10 @@ End Function
 
 Public Function SystemTime_ToWindowsFoundationDateTime(aSt As SYSTEMTIME) As WindowsFoundationDateTime
     LSet SystemTime_ToWindowsFoundationDateTime = SystemTime_ToFileTime(aSt)
+End Function
+
+Public Function SystemTime_ToDateTimeStamp(aSt As SYSTEMTIME) As Long
+    SystemTime_ToDateTimeStamp = Date_ToDateTimeStamp(SystemTime_ToDate(aSt))
 End Function
 
 Public Function SystemTime_ToStr(aSt As SYSTEMTIME) As String
@@ -324,6 +354,10 @@ Public Function FileTime_ToWindowsFoundationDateTime(aFt As FILETIME) As Windows
     LSet FileTime_ToWindowsFoundationDateTime = aFt
 End Function
 
+Public Function FileTime_ToDateTimeStamp(aFt As FILETIME) As Long
+    FileTime_ToDateTimeStamp = Date_ToDateTimeStamp(FileTime_ToDate(aFt))
+End Function
+
 Public Function FileTime_ToStr(aFt As FILETIME) As String
     With aFt
         FileTime_ToStr = "lo: &&H" & Hex(.dwLowDateTime) & "; hi: &&H" & Hex(.dwHighDateTime)
@@ -340,10 +374,10 @@ Public Function FileTime_Equals(aFt As FILETIME, other As FILETIME) As Boolean
 End Function
 
 ' ############################## '      UnixTime       ' ############################## '
-'In Unix und Linux werden Datumsangaben intern immer als die Anzahl der Sekunden seit
-'dem 1. Januar 1970 um 00:00 Greenwhich Mean Time (GMT, heute UTC) dargestellt.
-'Dieses Urdatum wird manchmal auch "The Epoch" genannt. In manchen Situationen muss
-'man in Shellskripten die Unix-Zeit in ein normales Datum umrechnen und umgekehrt.
+' In Unix und Linux werden Datumsangaben intern immer als die Anzahl der Sekunden seit
+' dem 1. Januar 1970 um 00:00 Greenwhich Mean Time (GMT, heute UTC) dargestellt.
+' Dieses Urdatum wird manchmal auch "The Epoch" genannt. In manchen Situationen muss
+' man in Shellskripten die Unix-Zeit in ein normales Datum umrechnen und umgekehrt.
 Public Property Get UnixTime_Now() As Double
     UnixTime_Now = Date_ToUnixTime(Date_Now)
 End Property
@@ -366,6 +400,10 @@ End Function
 
 Public Function UnixTime_ToWindowsFoundationDateTime(ByVal uts As Double) As WindowsFoundationDateTime
     LSet UnixTime_ToWindowsFoundationDateTime = UnixTime_ToFileTime(uts)
+End Function
+
+Public Function UnixTime_ToDateTimeStamp(ByVal uts As Double) As Long
+    UnixTime_ToDateTimeStamp = Date_ToDateTimeStamp(UnixTime_ToDate(uts))
 End Function
 
 Public Function UnixTime_ToStr(ByVal uts As Double) As String
@@ -400,6 +438,10 @@ End Function
 
 Public Function DosTime_ToWindowsFoundationDateTime(aDosTime As DOSTIME) As WindowsFoundationDateTime
     LSet DosTime_ToWindowsFoundationDateTime = DosTime_ToFileTime(aDosTime)
+End Function
+
+Public Function DosTime_ToDateTimeStamp(aDosTime As DOSTIME) As Long
+    DosTime_ToDateTimeStamp = Date_ToDateTimeStamp(DosTime_ToDate(aDosTime))
 End Function
 
 Public Function DosTime_ToStr(aDt As DOSTIME) As String
@@ -513,6 +555,10 @@ End Function
 
 Public Function WindowsFoundationDateTime_ToDosTime(this As WindowsFoundationDateTime) As DOSTIME
     WindowsFoundationDateTime_ToDosTime = FileTime_ToDosTime(WindowsFoundationDateTime_ToFileTime(this))
+End Function
+
+Public Function WindowsFoundationDateTime_ToDateTimeStamp(this As WindowsFoundationDateTime) As Long
+    WindowsFoundationDateTime_ToDateTimeStamp = Date_ToDateTimeStamp(WindowsFoundationDateTime_ToDate(this))
 End Function
 
 Public Function WindowsFoundationDateTime_ToStr(this As WindowsFoundationDateTime) As String
