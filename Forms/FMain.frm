@@ -4,10 +4,10 @@ Begin VB.Form FMain
    ClientHeight    =   6015
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   8415
+   ClientWidth     =   13695
    LinkTopic       =   "Form1"
    ScaleHeight     =   6015
-   ScaleWidth      =   8415
+   ScaleWidth      =   13695
    StartUpPosition =   3  'Windows-Standard
    Begin VB.CommandButton Command7 
       Caption         =   "DateTimeStamp_Now"
@@ -93,7 +93,7 @@ Begin VB.Form FMain
       ScrollBars      =   3  'Beides
       TabIndex        =   9
       Top             =   3600
-      Width           =   6375
+      Width           =   11655
    End
    Begin VB.CommandButton Command8 
       Caption         =   "Some UnixTime tests"
@@ -181,9 +181,10 @@ Begin VB.Form FMain
       Width           =   1935
    End
    Begin VB.Label Label7 
+      AutoSize        =   -1  'True
       Caption         =   "Label7"
       BeginProperty Font 
-         Name            =   "Segoe UI"
+         Name            =   "Consolas"
          Size            =   9
          Charset         =   0
          Weight          =   400
@@ -191,11 +192,11 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   375
+      Height          =   210
       Left            =   3480
       TabIndex        =   23
       Top             =   3000
-      Width           =   4815
+      Width           =   630
    End
    Begin VB.Label Label17 
       AutoSize        =   -1  'True
@@ -234,9 +235,10 @@ Begin VB.Form FMain
       Width           =   1290
    End
    Begin VB.Label Label6 
+      AutoSize        =   -1  'True
       Caption         =   "Label6"
       BeginProperty Font 
-         Name            =   "Segoe UI"
+         Name            =   "Consolas"
          Size            =   9
          Charset         =   0
          Weight          =   400
@@ -244,16 +246,17 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   375
+      Height          =   210
       Left            =   3480
       TabIndex        =   19
       Top             =   2520
-      Width           =   4815
+      Width           =   630
    End
    Begin VB.Label Label5 
+      AutoSize        =   -1  'True
       Caption         =   "Label5"
       BeginProperty Font 
-         Name            =   "Segoe UI"
+         Name            =   "Consolas"
          Size            =   9
          Charset         =   0
          Weight          =   400
@@ -261,11 +264,11 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   375
+      Height          =   210
       Left            =   3480
       TabIndex        =   16
       Top             =   2040
-      Width           =   4815
+      Width           =   630
    End
    Begin VB.Label Labe15 
       AutoSize        =   -1  'True
@@ -358,9 +361,10 @@ Begin VB.Form FMain
       Width           =   405
    End
    Begin VB.Label Label1 
+      AutoSize        =   -1  'True
       Caption         =   "Label1"
       BeginProperty Font 
-         Name            =   "Segoe UI"
+         Name            =   "Consolas"
          Size            =   9
          Charset         =   0
          Weight          =   400
@@ -368,16 +372,17 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   375
+      Height          =   210
       Left            =   3480
       TabIndex        =   4
       Top             =   120
-      Width           =   4815
+      Width           =   630
    End
    Begin VB.Label Label4 
+      AutoSize        =   -1  'True
       Caption         =   "Label4"
       BeginProperty Font 
-         Name            =   "Segoe UI"
+         Name            =   "Consolas"
          Size            =   9
          Charset         =   0
          Weight          =   400
@@ -385,16 +390,17 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   375
+      Height          =   210
       Left            =   3480
       TabIndex        =   3
       Top             =   1560
-      Width           =   4815
+      Width           =   630
    End
    Begin VB.Label Label3 
+      AutoSize        =   -1  'True
       Caption         =   "Label3"
       BeginProperty Font 
-         Name            =   "Segoe UI"
+         Name            =   "Consolas"
          Size            =   9
          Charset         =   0
          Weight          =   400
@@ -402,16 +408,17 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   375
+      Height          =   210
       Left            =   3480
       TabIndex        =   2
       Top             =   1080
-      Width           =   4815
+      Width           =   630
    End
    Begin VB.Label Label2 
+      AutoSize        =   -1  'True
       Caption         =   "Label2"
       BeginProperty Font 
-         Name            =   "Segoe UI"
+         Name            =   "Consolas"
          Size            =   9
          Charset         =   0
          Weight          =   400
@@ -419,11 +426,11 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   375
+      Height          =   210
       Left            =   3480
       TabIndex        =   1
       Top             =   600
-      Width           =   4815
+      Width           =   630
    End
 End
 Attribute VB_Name = "FMain"
@@ -443,91 +450,91 @@ End Sub
 Private Sub Command1_Click()
     
     Dim dat As Date: dat = MTime.Date_Now
-    Label1.Caption = MTime.Date_ToStr(dat)
-    Label2.Caption = MTime.SystemTime_ToStr(MTime.Date_ToSystemTime(dat))
-    Label3.Caption = MTime.FileTime_ToStr(MTime.Date_ToFileTime(dat))
-    Label4.Caption = MTime.UnixTime_ToStr(MTime.Date_ToUnixTime(dat))
-    Label5.Caption = MTime.DosTime_ToStr(MTime.Date_ToDosTime(dat))
-    Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.Date_ToWindowsFoundationDateTime(dat))
-    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.Date_ToDateTimeStamp(dat))
+    Label1.Caption = MTime.Date_ToHexNStr(dat)
+    Label2.Caption = MTime.SystemTime_ToHexNStr(MTime.Date_ToSystemTime(dat))
+    Label3.Caption = MTime.FileTime_ToHexNStr(MTime.Date_ToFileTime(dat))
+    Label4.Caption = MTime.UnixTime_ToHexNStr(MTime.Date_ToUnixTime(dat))
+    Label5.Caption = MTime.DosTime_ToHexNStr(MTime.Date_ToDosTime(dat))
+    Label6.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.Date_ToWindowsFoundationDateTime(dat))
+    Label7.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.Date_ToDateTimeStamp(dat))
     
 End Sub
 
 Private Sub Command2_Click()
     
     Dim syt As SYSTEMTIME: syt = MTime.SystemTime_Now
-    Label1.Caption = MTime.Date_ToStr(MTime.SystemTime_ToDate(syt))
-    Label2.Caption = MTime.SystemTime_ToStr(syt)
-    Label3.Caption = MTime.FileTime_ToStr(MTime.SystemTime_ToFileTime(syt))
-    Label4.Caption = MTime.UnixTime_ToStr(MTime.SystemTime_ToUnixTime(syt))
-    Label5.Caption = MTime.DosTime_ToStr(MTime.SystemTime_ToDosTime(syt))
-    Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.SystemTime_ToWindowsFoundationDateTime(syt))
-    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.SystemTime_ToDateTimeStamp(syt))
+    Label1.Caption = MTime.Date_ToHexNStr(MTime.SystemTime_ToDate(syt))
+    Label2.Caption = MTime.SystemTime_ToHexNStr(syt)
+    Label3.Caption = MTime.FileTime_ToHexNStr(MTime.SystemTime_ToFileTime(syt))
+    Label4.Caption = MTime.UnixTime_ToHexNStr(MTime.SystemTime_ToUnixTime(syt))
+    Label5.Caption = MTime.DosTime_ToHexNStr(MTime.SystemTime_ToDosTime(syt))
+    Label6.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.SystemTime_ToWindowsFoundationDateTime(syt))
+    Label7.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.SystemTime_ToDateTimeStamp(syt))
     
 End Sub
 
 Private Sub Command3_Click()
     
     Dim fit As FILETIME: fit = MTime.FileTime_Now
-    Label1.Caption = MTime.Date_ToStr(MTime.FileTime_ToDate(fit))
-    Label2.Caption = MTime.SystemTime_ToStr(MTime.FileTime_ToSystemTime(fit))
-    Label3.Caption = MTime.FileTime_ToStr(fit)
-    Label4.Caption = MTime.UnixTime_ToStr(MTime.FileTime_ToUnixTime(fit))
-    Label5.Caption = MTime.DosTime_ToStr(MTime.FileTime_ToDosTime(fit))
-    Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.FileTime_ToWindowsFoundationDateTime(fit))
-    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.FileTime_ToDateTimeStamp(fit))
+    Label1.Caption = MTime.Date_ToHexNStr(MTime.FileTime_ToDate(fit))
+    Label2.Caption = MTime.SystemTime_ToHexNStr(MTime.FileTime_ToSystemTime(fit))
+    Label3.Caption = MTime.FileTime_ToHexNStr(fit)
+    Label4.Caption = MTime.UnixTime_ToHexNStr(MTime.FileTime_ToUnixTime(fit))
+    Label5.Caption = MTime.DosTime_ToHexNStr(MTime.FileTime_ToDosTime(fit))
+    Label6.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.FileTime_ToWindowsFoundationDateTime(fit))
+    Label7.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.FileTime_ToDateTimeStamp(fit))
     
 End Sub
 
 Private Sub Command4_Click()
     
     Dim uxt As Currency: uxt = MTime.UnixTime_Now
-    Label1.Caption = MTime.Date_ToStr(MTime.UnixTime_ToDate(uxt))
-    Label2.Caption = MTime.SystemTime_ToStr(MTime.UnixTime_ToSystemTime(uxt))
-    Label3.Caption = MTime.FileTime_ToStr(MTime.UnixTime_ToFileTime(uxt))
-    Label4.Caption = MTime.UnixTime_ToStr(uxt)
-    Label5.Caption = MTime.DosTime_ToStr(MTime.UnixTime_ToDosTime(uxt))
-    Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.UnixTime_ToWindowsFoundationDateTime(uxt))
-    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.UnixTime_ToDateTimeStamp(uxt))
+    Label1.Caption = MTime.Date_ToHexNStr(MTime.UnixTime_ToDate(uxt))
+    Label2.Caption = MTime.SystemTime_ToHexNStr(MTime.UnixTime_ToSystemTime(uxt))
+    Label3.Caption = MTime.FileTime_ToHexNStr(MTime.UnixTime_ToFileTime(uxt))
+    Label4.Caption = MTime.UnixTime_ToHexNStr(uxt)
+    Label5.Caption = MTime.DosTime_ToHexNStr(MTime.UnixTime_ToDosTime(uxt))
+    Label6.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.UnixTime_ToWindowsFoundationDateTime(uxt))
+    Label7.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.UnixTime_ToDateTimeStamp(uxt))
     
 End Sub
 
 Private Sub Command5_Click()
     
     Dim Dst As DOSTIME: Dst = MTime.DosTime_Now
-    Label1.Caption = MTime.Date_ToStr(MTime.DosTime_ToDate(Dst))
-    Label2.Caption = MTime.SystemTime_ToStr(MTime.DosTime_ToSystemTime(Dst))
-    Label3.Caption = MTime.FileTime_ToStr(MTime.DosTime_ToFileTime(Dst))
-    Label4.Caption = MTime.UnixTime_ToStr(MTime.DosTime_ToUnixTime(Dst))
-    Label5.Caption = MTime.DosTime_ToStr(Dst)
-    Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.DosTime_ToWindowsFoundationDateTime(Dst))
-    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.DosTime_ToDateTimeStamp(Dst))
+    Label1.Caption = MTime.Date_ToHexNStr(MTime.DosTime_ToDate(Dst))
+    Label2.Caption = MTime.SystemTime_ToHexNStr(MTime.DosTime_ToSystemTime(Dst))
+    Label3.Caption = MTime.FileTime_ToHexNStr(MTime.DosTime_ToFileTime(Dst))
+    Label4.Caption = MTime.UnixTime_ToHexNStr(MTime.DosTime_ToUnixTime(Dst))
+    Label5.Caption = MTime.DosTime_ToHexNStr(Dst)
+    Label6.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.DosTime_ToWindowsFoundationDateTime(Dst))
+    Label7.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.DosTime_ToDateTimeStamp(Dst))
     
 End Sub
 
 Private Sub Command6_Click()
     
     Dim wfdt As WindowsFoundationDateTime: wfdt = MTime.WindowsFoundationDateTime_Now
-    Label1.Caption = MTime.Date_ToStr(MTime.WindowsFoundationDateTime_ToDate(wfdt))
-    Label2.Caption = MTime.SystemTime_ToStr(MTime.WindowsFoundationDateTime_ToSystemTime(wfdt))
-    Label3.Caption = MTime.FileTime_ToStr(MTime.WindowsFoundationDateTime_ToFileTime(wfdt))
-    Label4.Caption = MTime.UnixTime_ToStr(MTime.WindowsFoundationDateTime_ToUnixTime(wfdt))
-    Label5.Caption = MTime.DosTime_ToStr(MTime.WindowsFoundationDateTime_ToDosTime(wfdt))
-    Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(wfdt)
-    Label7.Caption = MTime.DateTimeStamp_ToStr(MTime.WindowsFoundationDateTime_ToDateTimeStamp(wfdt))
+    Label1.Caption = MTime.Date_ToHexNStr(MTime.WindowsFoundationDateTime_ToDate(wfdt))
+    Label2.Caption = MTime.SystemTime_ToHexNStr(MTime.WindowsFoundationDateTime_ToSystemTime(wfdt))
+    Label3.Caption = MTime.FileTime_ToHexNStr(MTime.WindowsFoundationDateTime_ToFileTime(wfdt))
+    Label4.Caption = MTime.UnixTime_ToHexNStr(MTime.WindowsFoundationDateTime_ToUnixTime(wfdt))
+    Label5.Caption = MTime.DosTime_ToHexNStr(MTime.WindowsFoundationDateTime_ToDosTime(wfdt))
+    Label6.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(wfdt)
+    Label7.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.WindowsFoundationDateTime_ToDateTimeStamp(wfdt))
     
 End Sub
 
 Private Sub Command7_Click()
     
     Dim dts As Long: dts = MTime.DateTimeStamp_Now
-    Label1.Caption = MTime.Date_ToStr(MTime.DateTimeStamp_ToDate(dts))
-    Label2.Caption = MTime.SystemTime_ToStr(MTime.DateTimeStamp_ToSystemTime(dts))
-    Label3.Caption = MTime.FileTime_ToStr(MTime.DateTimeStamp_ToFileTime(dts))
-    Label4.Caption = MTime.UnixTime_ToStr(MTime.DateTimeStamp_ToUnixTime(dts))
-    Label5.Caption = MTime.DosTime_ToStr(MTime.DateTimeStamp_ToDosTime(dts))
-    Label6.Caption = MTime.WindowsFoundationDateTime_ToStr(MTime.DateTimeStamp_ToWindowsFoundationDateTime(dts))
-    Label7.Caption = MTime.DateTimeStamp_ToStr(dts)
+    Label1.Caption = MTime.Date_ToHexNStr(MTime.DateTimeStamp_ToDate(dts))
+    Label2.Caption = MTime.SystemTime_ToHexNStr(MTime.DateTimeStamp_ToSystemTime(dts))
+    Label3.Caption = MTime.FileTime_ToHexNStr(MTime.DateTimeStamp_ToFileTime(dts))
+    Label4.Caption = MTime.UnixTime_ToHexNStr(MTime.DateTimeStamp_ToUnixTime(dts))
+    Label5.Caption = MTime.DosTime_ToHexNStr(MTime.DateTimeStamp_ToDosTime(dts))
+    Label6.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.DateTimeStamp_ToWindowsFoundationDateTime(dts))
+    Label7.Caption = MTime.DateTimeStamp_ToHexNStr(dts)
     
 End Sub
 

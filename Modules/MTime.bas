@@ -31,8 +31,8 @@ End Type               'Sum: 8
 'UniversalTime: A 64-bit signed integer that represents a point in time as the number of 100-nanosecond intervals prior
 'to or after midnight on January 1, 1601 (according to the Gregorian Calendar).
 Public Type WindowsFoundationDateTime
-    UniversalTime As Currency
-End Type
+    UniversalTime As Currency ' 8
+End Type                 ' Sum: 8
 
 'https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime
 'typedef struct _SYSTEMTIME {
@@ -55,20 +55,21 @@ Public Type SYSTEMTIME
     wSecond       As Integer ' 2
     wMilliseconds As Integer ' 2
 End Type               ' Sum: 16
+
 Public Type DOSTIME
 'https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-dosdatetimetofiletime
     ' Bits    Description
     ' 0 - 4   Day of the month (1–31)
     ' 5 - 8   Month (1 = January, 2 = February, and so on)
     ' 9 -15   Year offset from 1980 (add 1980 to get actual year)
-    wDate As Integer
+    wDate As Integer ' 2
     
     ' Bits Description
     ' 0 - 4   Second divided by 2
     ' 5 -10   Minute (0–59)
     '11 -15   Hour (0–23 on a 24-hour clock)
-    wTime As Integer
-End Type
+    wTime As Integer ' 2
+End Type        ' Sum: 4
 
 Private Type TIME_ZONE_INFORMATION
     Bias                  As Long
@@ -79,6 +80,23 @@ Private Type TIME_ZONE_INFORMATION
     DaylightDate          As SYSTEMTIME
     DaylightBias          As Long
 End Type
+
+Private Type THexLng
+    Value As Long
+End Type
+
+Private Type THexDbl
+    Value As Double
+End Type
+
+Private Type THexDat
+    Value As Date
+End Type
+
+Private Type THexBytes
+    Value(0 To 15) As Byte
+End Type
+
 Const TIME_ZONE_ID_UNKNOWN  As Long = &H0&
 Const TIME_ZONE_ID_STANDARD As Long = &H1&
 Const TIME_ZONE_ID_DAYLIGHT As Long = &H2&
@@ -161,40 +179,50 @@ Public Function DateTimeStamp_Now() As Long
     DateTimeStamp_Now = Date_ToDateTimeStamp(Date_Now)
 End Function
 
-Public Function DateTimeStamp_ToDate(ByVal DTStamp As Long) As Date
-    Dim l0  As Long:  l0 = DTStamp \ SecondsPerDay
-    Dim l1  As Long:  l1 = DTStamp - l0 * SecondsPerDay
+Public Function DateTimeStamp_ToDate(ByVal DtStamp As Long) As Date
+    Dim l0  As Long:  l0 = DtStamp \ SecondsPerDay
+    Dim l1  As Long:  l1 = DtStamp - l0 * SecondsPerDay
     Dim l2  As Long:  l2 = DateSerial(1970, 1, 2)
     DateTimeStamp_ToDate = l0 + Sgn(l1) + l1 / SecondsPerDay + l2
 End Function
 
-Public Function DateTimeStamp_ToSystemTime(ByVal DTStamp As Long) As SYSTEMTIME
-    DateTimeStamp_ToSystemTime = Date_ToSystemTime(DateTimeStamp_ToDate(DTStamp))
+Public Function DateTimeStamp_ToSystemTime(ByVal DtStamp As Long) As SYSTEMTIME
+    DateTimeStamp_ToSystemTime = Date_ToSystemTime(DateTimeStamp_ToDate(DtStamp))
 End Function
 
-Public Function DateTimeStamp_ToFileTime(ByVal DTStamp As Long) As FILETIME
-    DateTimeStamp_ToFileTime = Date_ToFileTime(DateTimeStamp_ToDate(DTStamp))
+Public Function DateTimeStamp_ToFileTime(ByVal DtStamp As Long) As FILETIME
+    DateTimeStamp_ToFileTime = Date_ToFileTime(DateTimeStamp_ToDate(DtStamp))
 End Function
 
-Public Function DateTimeStamp_ToUnixTime(ByVal DTStamp As Long) As Double
-    DateTimeStamp_ToUnixTime = Date_ToUnixTime(DateTimeStamp_ToDate(DTStamp))
+Public Function DateTimeStamp_ToUnixTime(ByVal DtStamp As Long) As Double
+    DateTimeStamp_ToUnixTime = Date_ToUnixTime(DateTimeStamp_ToDate(DtStamp))
 End Function
 
-Public Function DateTimeStamp_ToDosTime(ByVal DTStamp As Long) As DOSTIME
-    DateTimeStamp_ToDosTime = Date_ToDosTime(DateTimeStamp_ToDate(DTStamp))
+Public Function DateTimeStamp_ToDosTime(ByVal DtStamp As Long) As DOSTIME
+    DateTimeStamp_ToDosTime = Date_ToDosTime(DateTimeStamp_ToDate(DtStamp))
 End Function
 
-Public Function DateTimeStamp_ToWindowsFoundationDateTime(ByVal DTStamp As Long) As WindowsFoundationDateTime
-    DateTimeStamp_ToWindowsFoundationDateTime = Date_ToWindowsFoundationDateTime(DateTimeStamp_ToDate(DTStamp))
+Public Function DateTimeStamp_ToWindowsFoundationDateTime(ByVal DtStamp As Long) As WindowsFoundationDateTime
+    DateTimeStamp_ToWindowsFoundationDateTime = Date_ToWindowsFoundationDateTime(DateTimeStamp_ToDate(DtStamp))
 End Function
 
-Public Function DateTimeStamp_ToStr(ByVal DTStamp As Long) As String
+Public Function DateTimeStamp_ToStr(ByVal DtStamp As Long) As String
     'Dim l0  As Long:  l0 = DTStamp \ SecondsPerDay
     'Dim l1  As Long:  l1 = DTStamp - l0 * SecondsPerDay
     'Dim l2  As Long:  l2 = DateSerial(1970, 1, 2)
     'Dim gmt As Date: gmt = l0 + Sgn(l1) + l1 / SecondsPerDay + l2
     'DateTimeStamp_ToStr = Format$(gmt, "yyyy.mm.dd - hh:mm:ss")
-    DateTimeStamp_ToStr = Format$(DateTimeStamp_ToDate(DTStamp), "yyyy.mm.dd - hh:mm:ss")
+    DateTimeStamp_ToStr = Format$(DateTimeStamp_ToDate(DtStamp), "yyyy.mm.dd - hh:mm:ss")
+    'DateTimeStamp_ToStr = "&&H" & Hex(DTStamp)
+End Function
+
+Public Function DateTimeStamp_ToHex(ByVal DtStamp As Long) As String
+    Dim th As THexBytes, tl As THexLng: tl.Value = DtStamp: LSet th = tl
+    DateTimeStamp_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function DateTimeStamp_ToHexNStr(ByVal DtStamp As Long) As String
+    DateTimeStamp_ToHexNStr = DateTimeStamp_ToHex(DtStamp) & "; " & DateTimeStamp_ToStr(DtStamp)
 End Function
 
 ' ############################## '        Date         ' ############################## '
@@ -236,7 +264,7 @@ Public Function Date_ToWindowsFoundationDateTime(aDate As Date) As WindowsFounda
 End Function
 
 Public Function Date_ToStr(aDate As Date) As String
-    Date_ToStr = FormatDateTime(aDate, VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(aDate, VbDateTimeFormat.vbLongTime)
+    Date_ToStr = FormatDateTime(aDate, VbDateTimeFormat.vbLongDate) & " - " & FormatDateTime(aDate, VbDateTimeFormat.vbLongTime)
 End Function
 
 Public Function GetSummerTimeCorrector() As Double
@@ -245,6 +273,15 @@ End Function
 
 Public Function Date_Equals(aDate As Date, other As Date) As Boolean
     Date_Equals = aDate = other
+End Function
+
+Public Function Date_ToHex(ByVal aDate As Date) As String
+    Dim th As THexBytes, td As THexDat: td.Value = aDate: LSet th = td
+    Date_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function Date_ToHexNStr(ByVal aDate As Date) As String
+    Date_ToHexNStr = Date_ToHex(aDate) & "; " & Date_ToStr(aDate)
 End Function
 
 ' ############################## '     SystemTime      ' ############################## '
@@ -308,6 +345,15 @@ Public Function SystemTime_Equals(aSt As SYSTEMTIME, other As SYSTEMTIME) As Boo
     SystemTime_Equals = b
 End Function
 
+Public Function SystemTime_ToHex(aSt As SYSTEMTIME) As String
+    Dim th As THexBytes: LSet th = aSt
+    SystemTime_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function SystemTime_ToHexNStr(aSt As SYSTEMTIME) As String
+    SystemTime_ToHexNStr = SystemTime_ToHex(aSt) & "; " & SystemTime_ToStr(aSt)
+End Function
+
 ' ############################## '      FileTime       ' ############################## '
 Public Property Get FileTime_Now() As FILETIME
     'FileTime_Now = SystemTime_ToFileTime(SystemTime_Now)
@@ -360,7 +406,7 @@ End Function
 
 Public Function FileTime_ToStr(aFt As FILETIME) As String
     With aFt
-        FileTime_ToStr = "lo: &&H" & Hex(.dwLowDateTime) & "; hi: &&H" & Hex(.dwHighDateTime)
+        FileTime_ToStr = "lo: " & CStr(.dwLowDateTime) & "; hi: " & CStr(.dwHighDateTime)
     End With
 End Function
 
@@ -371,6 +417,15 @@ Public Function FileTime_Equals(aFt As FILETIME, other As FILETIME) As Boolean
         b = .dwLowDateTime = other.dwLowDateTime ':   If Not b Then Exit Function
     End With
     FileTime_Equals = b
+End Function
+
+Public Function FileTime_ToHex(aFt As FILETIME) As String
+    Dim th As THexBytes: LSet th = aFt
+    FileTime_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function FileTime_ToHexNStr(aFt As FILETIME) As String
+    FileTime_ToHexNStr = FileTime_ToHex(aFt) & "; " & FileTime_ToStr(aFt)
 End Function
 
 ' ############################## '      UnixTime       ' ############################## '
@@ -410,8 +465,17 @@ Public Function UnixTime_ToStr(ByVal uts As Double) As String
     UnixTime_ToStr = CStr(uts)
 End Function
 
-Public Function UnixTime_Equals(uts As Double, other As Double) As Boolean
+Public Function UnixTime_Equals(ByVal uts As Double, ByVal other As Double) As Boolean
     UnixTime_Equals = uts = other
+End Function
+
+Public Function UnixTime_ToHex(ByVal uts As Double) As String
+    Dim th As THexBytes, td As THexDbl: td.Value = uts: LSet th = td
+    UnixTime_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function UnixTime_ToHexNStr(ByVal uts As Double) As String
+    UnixTime_ToHexNStr = UnixTime_ToHex(uts) & "; " & UnixTime_ToStr(uts)
 End Function
 
 ' ############################## '       DosTime       ' ############################## '
@@ -464,7 +528,7 @@ Public Function DosTime_ToStr(aDt As DOSTIME) As String
 '    Dim mi As Byte: mi = (aDt.wTime And &H7E0) \ 32
 '    Dim ho As Byte: ho = (aDt.wTime And &H7C00) \ 2048
 '    DosTime_ToStr = Str2(dm) & "." & Str2(mo) & "." & CStr(ye) & " " & Str2(ho) & ":" & Str2(mi) & ":" & Str2(se)
-    DosTime_ToStr = SystemTime_ToStr(FileTime_ToSystemTime(DosTime_ToFileTime(aDt)))
+    DosTime_ToStr = "wDate: " & CStr(aDt.wDate) & "; wTime: " & CStr(aDt.wTime)
 End Function
 
 'Private Function Str2(ByVal by As Byte) As String
@@ -477,6 +541,15 @@ Public Function DosTime_Equals(aDosTime As DOSTIME, other As DOSTIME) As Boolean
         b = .wTime = other.wTime ': If Not b Then Exit Function
     End With
     DosTime_Equals = b
+End Function
+
+Public Function DosTime_ToHex(aDosTime As DOSTIME) As String
+    Dim th As THexBytes: LSet th = aDosTime
+    DosTime_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function DosTime_ToHexNStr(aDosTime As DOSTIME) As String
+    DosTime_ToHexNStr = DosTime_ToHex(aDosTime) & "; " & DosTime_ToStr(aDosTime)
 End Function
 
 ' ############################## '       CyTime        ' ############################## '
@@ -562,10 +635,32 @@ Public Function WindowsFoundationDateTime_ToDateTimeStamp(this As WindowsFoundat
 End Function
 
 Public Function WindowsFoundationDateTime_ToStr(this As WindowsFoundationDateTime) As String
-    WindowsFoundationDateTime_ToStr = Date_ToStr(FileTime_ToDate(WindowsFoundationDateTime_ToFileTime(this)))
+    WindowsFoundationDateTime_ToStr = "UniversalTime: " & CStr(this.UniversalTime)
 End Function
 
 Public Function WindowsFoundationDateTime_Equals(this As WindowsFoundationDateTime, other As WindowsFoundationDateTime) As Boolean
     WindowsFoundationDateTime_Equals = this.UniversalTime = other.UniversalTime
+End Function
+
+Public Function WindowsFoundationDateTime_ToHex(this As WindowsFoundationDateTime) As String
+    Dim th As THexBytes: LSet th = this
+    WindowsFoundationDateTime_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function WindowsFoundationDateTime_ToHexNStr(this As WindowsFoundationDateTime) As String
+    WindowsFoundationDateTime_ToHexNStr = WindowsFoundationDateTime_ToHex(this) & "; " & WindowsFoundationDateTime_ToStr(this)
+End Function
+
+' ############################## '       THexBytes       ' ############################## '
+Private Function THexBytes_ToStr(this As THexBytes) As String
+    Dim s As String: s = "&&H"
+    Dim i As Long, u As Long: u = UBound(this.Value)
+    For i = u To 0 Step -1
+        s = s & Hex2(this.Value(i))
+    Next
+    THexBytes_ToStr = s
+End Function
+Private Function Hex2(ByVal b As Byte) As String
+    Hex2 = Hex(b): If Len(Hex2) < 2 Then Hex2 = "0" & Hex2
 End Function
 
