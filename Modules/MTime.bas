@@ -363,7 +363,7 @@ End Function
 
 Public Function SystemTime_ToStr(aSt As SYSTEMTIME) As String
     With aSt
-        SystemTime_ToStr = "y: " & CStr(.wYear) & "; m: " & CStr(.wMonth) & "; dow: " & CStr(.wDayOfWeek) & "; d: " & CStr(.wDay) & _
+        SystemTime_ToStr = "y: " & CStr(.wYear) & "; m: " & CStr(.wMonth) & "; d: " & CStr(.wDay) & "; dow: " & CStr(.wDayOfWeek) & _
                          "; h: " & CStr(.wHour) & "; min: " & CStr(.wMinute) & "; s: " & CStr(.wSecond) & "; ms: " & CStr(.wMilliseconds)
     End With
 End Function

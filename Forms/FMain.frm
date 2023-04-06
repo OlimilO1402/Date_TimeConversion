@@ -9,14 +9,6 @@ Begin VB.Form FMain
    ScaleHeight     =   6015
    ScaleWidth      =   13695
    StartUpPosition =   3  'Windows-Standard
-   Begin VB.CommandButton Command12 
-      Caption         =   "Command12"
-      Height          =   255
-      Left            =   2640
-      TabIndex        =   28
-      Top             =   3240
-      Width           =   1335
-   End
    Begin VB.CommandButton Command11 
       Caption         =   "GetPCStartNewDate"
       BeginProperty Font 
@@ -131,7 +123,7 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   2415
+      Height          =   2535
       Left            =   2040
       MultiLine       =   -1  'True
       ScrollBars      =   3  'Beides
@@ -529,8 +521,11 @@ Private Sub Command11_Click()
 End Sub
 
 Private Sub Command12_Click()
-    Dim d As Date
-    Text1.Text = FormatDateTime(d, VBA.VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongTime)
+    Dim s As String, d As Date ' empty Date
+    s = s & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongTime)
+    d = VBA.DateTime.Now
+    s = s & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongTime)
+    Text1.Text = s
 End Sub
 
 Private Sub Form_Load()
