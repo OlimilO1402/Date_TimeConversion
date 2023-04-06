@@ -1,10 +1,20 @@
 Attribute VB_Name = "MTime"
 Option Explicit
 
-Private Const HoursPerDay      As Long = 24&
-Private Const MinutesPerHour   As Long = 60&
-Private Const SecondsPerMinute As Long = 60&
-Private Const SecondsPerDay    As Long = HoursPerDay * MinutesPerHour * SecondsPerMinute '86400
+Public Const HoursPerDay      As Long = 24&
+Public Const MinutesPerHour   As Long = 60&
+Public Const SecondsPerMinute As Long = 60&
+Public Const SecondsPerHour   As Long = SecondsPerMinute * MinutesPerHour '  3600
+Public Const SecondsPerDay    As Long = SecondsPerHour * HoursPerDay      ' 86400
+Public Const MillisecondsPerSecond     As Long = 1000&
+Public Const MillisecondsPerMinute     As Long = MillisecondsPerSecond * SecondsPerMinute '   60000
+Public Const MillisecondsPerHour       As Long = MillisecondsPerSecond * SecondsPerHour   ' 3600000
+Public Const MillisecondsPerDay        As Long = MillisecondsPerHour * HoursPerDay
+Public Const NanosecondsPerMillisecond As Long = 1000000    ' = 1 million
+Public Const NanosecondsPerSecond      As Long = 1000000000 ' = 1 billion 'deutsch: 1 Milliarde
+Public Const NanosecondsPerTick        As Long = 100&
+Public Const TicksPerMillisecond       As Long = 10000&    'ten-thousand zehntausend
+Public Const TicksPerSecond            As Long = 10000000 'MillisecondsPerSecond * TicksPerMillisecond ' = 1 000 * 10 000 = 10 000 000 ' = 10 millions
 
 ' Date:
 ' Enthält IEEE-64-Bit(8-Byte)-Werte, die Datumsangaben im Bereich vom 1. Januar des Jahres 0001 bis zum 31. Dezember
@@ -129,6 +139,8 @@ Private Declare Function DosDateTimeToFileTime Lib "kernel32" (ByVal wFatDate As
 Private Declare Sub GetSystemTimePreciseAsFileTime Lib "kernel32" (lpSystemTimeAsFileTime As FILETIME)
 'Private Declare Sub GetSystemTimePreciseAsFileTimeCy Lib "kernel32" Alias "GetSystemTimePreciseAsFileTime" (lpSystemTimeAsFileTime As Currency)
 
+Private Declare Function QueryPerformanceCounter Lib "kernel32" (ByRef lpPerformanceCount_out As Currency) As Long
+'
 
 Public Sub Init()
     Dim ret As Long: ret = GetTimeZoneInformation(m_TZI)
@@ -142,6 +154,32 @@ Public Sub Init()
     'Case Else: MsgBox "Error trying to get time-zone-imfo!"
     'End Select
 End Sub
+
+'Public Function GetSystemUpTime() As Date
+Public Function GetSystemUpTime() As String
+    'Returns the timespan since the last new start of your pc
+    Dim ms As Currency 'milliseconds since system new start
+    QueryPerformanceCounter ms
+    Dim d As Long: d = ms \ MillisecondsPerDay:     ms = ms - CCur(d) * CCur(MillisecondsPerDay)
+    Dim h As Long: h = ms \ MillisecondsPerHour:    ms = ms - h * MillisecondsPerHour
+    Dim m As Long: m = ms \ MillisecondsPerMinute:  ms = ms - m * MillisecondsPerMinute
+    Dim s As Long: s = ms \ MillisecondsPerSecond:  ms = ms - s * MillisecondsPerSecond
+    GetSystemUpTime = d & ":" & Format(h, "00") & ":" & Format(m, "00") & ":" & Format(s, "00") & "." & Format(ms, "000")
+End Function
+
+'    Dim d As Date ' empty date!
+'    MsgBox FormatDateTime(d, VBA.VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongTime)
+'    'Samstag, 30. Dezember 1899 00:00:00
+
+Public Function GetPCStartTime() As Date
+    Dim ms As Currency 'milliseconds since system new start
+    QueryPerformanceCounter ms
+    Dim d As Long: d = ms \ MillisecondsPerDay:     ms = ms - d * MillisecondsPerDay
+    Dim h As Long: h = ms \ MillisecondsPerHour:    ms = ms - h * MillisecondsPerHour
+    Dim m As Long: m = ms \ MillisecondsPerMinute:  ms = ms - m * MillisecondsPerMinute
+    Dim s As Long: s = ms \ MillisecondsPerSecond:  ms = ms - s * MillisecondsPerSecond
+    GetPCStartTime = VBA.DateTime.Now - DateSerial(1900, 1, d - 1) - TimeSerial(h, m, s)
+End Function
 
 Public Function TimeZoneInfo_ToStr() As String
     Dim s As String, s1 As String

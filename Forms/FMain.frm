@@ -9,6 +9,50 @@ Begin VB.Form FMain
    ScaleHeight     =   6015
    ScaleWidth      =   13695
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton Command12 
+      Caption         =   "Command12"
+      Height          =   255
+      Left            =   2640
+      TabIndex        =   28
+      Top             =   3240
+      Width           =   1335
+   End
+   Begin VB.CommandButton Command11 
+      Caption         =   "GetPCStartNewDate"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   375
+      Left            =   0
+      TabIndex        =   27
+      ToolTipText     =   "Returns the date and time when your pc got started new"
+      Top             =   5160
+      Width           =   1935
+   End
+   Begin VB.CommandButton Command10 
+      Caption         =   "GetSystemUpTime"
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   375
+      Left            =   0
+      TabIndex        =   24
+      ToolTipText     =   "Returns the timespan since the last new start of your pc"
+      Top             =   4440
+      Width           =   1935
+   End
    Begin VB.CommandButton Command7 
       Caption         =   "DateTimeStamp_Now"
       BeginProperty Font 
@@ -57,7 +101,7 @@ Begin VB.Form FMain
       Height          =   375
       Left            =   0
       TabIndex        =   17
-      Top             =   4080
+      Top             =   3960
       Width           =   1935
    End
    Begin VB.CommandButton Command5 
@@ -92,7 +136,7 @@ Begin VB.Form FMain
       MultiLine       =   -1  'True
       ScrollBars      =   3  'Beides
       TabIndex        =   9
-      Top             =   3600
+      Top             =   3480
       Width           =   11655
    End
    Begin VB.CommandButton Command8 
@@ -109,7 +153,7 @@ Begin VB.Form FMain
       Height          =   375
       Left            =   0
       TabIndex        =   8
-      Top             =   3600
+      Top             =   3480
       Width           =   1935
    End
    Begin VB.CommandButton Command4 
@@ -179,6 +223,42 @@ Begin VB.Form FMain
       TabIndex        =   0
       Top             =   120
       Width           =   1935
+   End
+   Begin VB.Label Label9 
+      AutoSize        =   -1  'True
+      Caption         =   "PCStartNewDate..."
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   195
+      Left            =   120
+      TabIndex        =   26
+      Top             =   5640
+      Width           =   1395
+   End
+   Begin VB.Label Label8 
+      AutoSize        =   -1  'True
+      Caption         =   "SystemUpTime..."
+      BeginProperty Font 
+         Name            =   "Segoe UI"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   195
+      Left            =   120
+      TabIndex        =   25
+      Top             =   4920
+      Width           =   1245
    End
    Begin VB.Label Label7 
       AutoSize        =   -1  'True
@@ -440,6 +520,19 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Private Sub Command10_Click()
+    Label8.Caption = MTime.GetSystemUpTime ' GetPCStartTime
+End Sub
+
+Private Sub Command11_Click()
+    Label9.Caption = MTime.GetPCStartTime
+End Sub
+
+Private Sub Command12_Click()
+    Dim d As Date
+    Text1.Text = FormatDateTime(d, VBA.VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongTime)
+End Sub
+
 Private Sub Form_Load()
     MTime.Init
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
@@ -585,6 +678,6 @@ Private Sub Form_Resize()
     Dim L As Single: L = Text1.Left
     Dim T As Single: T = Text1.Top
     Dim W As Single: W = Me.ScaleWidth - L
-    Dim H As Single: H = Me.ScaleHeight - T
-    If W > 0 And H > 0 Then Text1.Move L, T, W, H
+    Dim h As Single: h = Me.ScaleHeight - T
+    If W > 0 And h > 0 Then Text1.Move L, T, W, h
 End Sub
