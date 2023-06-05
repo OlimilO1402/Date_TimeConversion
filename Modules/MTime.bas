@@ -170,22 +170,28 @@ Public Sub Init()
     
     ret = GetTimeZoneInformation(m_DynTZI.TZI)
     IsSummerTime = ret = TIME_ZONE_ID_DAYLIGHT
+    Debug.Print "----------"
+    Debug.Print TimeZoneInfo_ToStr
     
     ret = GetDynamicTimeZoneInformation(m_DynTZI)
     IsSummerTime = ret = TIME_ZONE_ID_DAYLIGHT
+    Debug.Print "----------"
+    Debug.Print TimeZoneInfo_ToStr
     
     Dim y As Integer: y = DateTime.Year(Now)
     ret = GetTimeZoneInformationForYear(y, m_DynTZI, m_DynTZI.TZI)
+    Debug.Print "----------"
+    Debug.Print TimeZoneInfo_ToStr
     
     If IsSummerTime Or ret = TIME_ZONE_ID_STANDARD Or ret = TIME_ZONE_ID_UNKNOWN Then Exit Sub
     MsgBox "Error trying to get time-zone-info!"
-
+    
 End Sub
 
 Public Function TimeZoneInfo_ConvertTimeToUtc(ByVal dat As Date) As Date
-    With m_DynTZI.TZI
-        TimeZoneInfo_ConvertTimeToUtc = DateTime.DateAdd("n", .Bias + .StandardBias + .DaylightBias, dat)
-    End With
+    'Dim st As SYSTEMTIME: st = Date_ToSystemTime(dat)
+    'st = MTime.TzSpecificLocalTime_ToSystemTime(Date_ToSystemTime(dat))
+    TimeZoneInfo_ConvertTimeToUtc = MTime.SystemTime_ToDate(TzSpecificLocalTime_ToSystemTime(Date_ToSystemTime(dat)))
 End Function
 
 Public Property Get TimeZoneInfo_Bias() As Long
@@ -220,7 +226,7 @@ Public Function TimeZoneInfo_ToStr() As String
         s1 = Trim0(.TimeZoneKeyName)
         s = s & "TimeZoneKeyName : " & s1 & vbCrLf
         s = s & "TimeZoneKeyName : " & .DynamicDaylightTimeDisabled & vbCrLf
-        
+        s = s & "IsSummerTime    : " & IsSummerTime & vbCrLf
     End With
     TimeZoneInfo_ToStr = s
 End Function

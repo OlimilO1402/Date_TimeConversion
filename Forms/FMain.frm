@@ -521,36 +521,20 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Sub Command10_Click()
-    Label8.Caption = MTime.GetSystemUpTime ' GetPCStartTime
-End Sub
-
-Private Sub Command11_Click()
-    Label9.Caption = MTime.GetPCStartTime
-End Sub
-
-Private Sub Command12_Click()
-    Dim s As String, d As Date ' empty Date
-    s = s & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongTime)
-    d = VBA.DateTime.Now
-    s = s & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongTime)
-    Text1.Text = s
-End Sub
-
-Private Sub Command13_Click()
-    MsgBox MTime.TimeZoneInfo_ToStr
-    Dim dt As Date: dt = DateTime.Now
-    Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(dt)
-    MsgBox dt & vbCrLf & utc
-    
-End Sub
-
 Private Sub Form_Load()
     MTime.Init
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
     Command1_Click
     Command5_Click
     Command9_Click
+End Sub
+
+Private Sub Form_Resize()
+    Dim L As Single: L = Text1.Left
+    Dim T As Single: T = Text1.Top
+    Dim W As Single: W = Me.ScaleWidth - L
+    Dim h As Single: h = Me.ScaleHeight - T
+    If W > 0 And h > 0 Then Text1.Move L, T, W, h
 End Sub
 
 Private Sub Command1_Click()
@@ -682,18 +666,33 @@ End Sub
 
 Private Sub Command9_Click()
     Dim s As String
-    s = "Is summer time? " & MTime.IsSummerTime & vbCrLf
-    s = s & MTime.TimeZoneInfo_ToStr
+    s = MTime.TimeZoneInfo_ToStr
     Dim dat As Date: dat = DateTime.Now
     Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(dat)
     s = s & "dat: " & CStr(dat) & vbCrLf & "utc: " & CStr(utc)
     Text1.Text = s
 End Sub
 
-Private Sub Form_Resize()
-    Dim L As Single: L = Text1.Left
-    Dim T As Single: T = Text1.Top
-    Dim W As Single: W = Me.ScaleWidth - L
-    Dim h As Single: h = Me.ScaleHeight - T
-    If W > 0 And h > 0 Then Text1.Move L, T, W, h
+Private Sub Command10_Click()
+    Label8.Caption = MTime.GetSystemUpTime ' GetPCStartTime
 End Sub
+
+Private Sub Command11_Click()
+    Label9.Caption = MTime.GetPCStartTime
+End Sub
+
+Private Sub Command12_Click()
+    Dim s As String, d As Date ' empty Date
+    s = s & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongTime)
+    d = VBA.DateTime.Now
+    s = s & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongDate) & " " & FormatDateTime(d, VBA.VbDateTimeFormat.vbLongTime)
+    Text1.Text = s
+End Sub
+
+Private Sub Command13_Click()
+    MsgBox MTime.TimeZoneInfo_ToStr
+    Dim dt As Date: dt = DateTime.Now
+    Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(dt)
+    MsgBox dt & vbCrLf & utc
+End Sub
+
