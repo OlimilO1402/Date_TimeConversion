@@ -82,13 +82,31 @@ Public Type DOSTIME
 End Type        ' Sum: 4
 
 Private Type TIME_ZONE_INFORMATION
-    Bias                  As Long
-    StandardName(1 To 64) As Byte
-    StandardDate          As SYSTEMTIME
-    StandardBias          As Long
-    DaylightName(1 To 64) As Byte
-    DaylightDate          As SYSTEMTIME
-    DaylightBias          As Long
+    Bias                        As Long
+    StandardName(1 To 64)       As Byte
+    StandardDate                As SYSTEMTIME
+    StandardBias                As Long
+    DaylightName(1 To 64)       As Byte
+    DaylightDate                As SYSTEMTIME
+    DaylightBias                As Long
+End Type
+
+'typedef struct _TIME_DYNAMIC_ZONE_INFORMATION {
+'  LONG       Bias;
+'  WCHAR      StandardName[32];
+'  SYSTEMTIME StandardDate;
+'  LONG       StandardBias;
+'  WCHAR      DaylightName[32];
+'  SYSTEMTIME DaylightDate;
+'  LONG       DaylightBias;
+'  WCHAR      TimeZoneKeyName[128];
+'  BOOLEAN    DynamicDaylightTimeDisabled;
+'} DYNAMIC_TIME_ZONE_INFORMATION, *PDYNAMIC_TIME_ZONE_INFORMATION;
+
+Private Type DYNAMIC_TIME_ZONE_INFORMATION
+    TZI                         As TIME_ZONE_INFORMATION
+    TimeZoneKeyName(1 To 256)   As Byte
+    DynamicDaylightTimeDisabled As Long
 End Type
 
 Private Type THexLng
@@ -111,11 +129,15 @@ Const TIME_ZONE_ID_UNKNOWN  As Long = &H0&
 Const TIME_ZONE_ID_STANDARD As Long = &H1&
 Const TIME_ZONE_ID_DAYLIGHT As Long = &H2&
 
-Private m_TZI As TIME_ZONE_INFORMATION
+'Private m_TZI    As TIME_ZONE_INFORMATION
+Private m_DynTZI As DYNAMIC_TIME_ZONE_INFORMATION
 Public IsSummerTime As Boolean
 
 Private Declare Function GetTimeZoneInformation Lib "kernel32" (lpTimeZoneInformation As TIME_ZONE_INFORMATION) As Long
-    
+Private Declare Function GetDynamicTimeZoneInformation Lib "kernel32" (pTimeZoneInformation As DYNAMIC_TIME_ZONE_INFORMATION) As Long
+Private Declare Function GetTimeZoneInformationForYear Lib "kernel32" (ByVal wYear As Integer, pdtzi As DYNAMIC_TIME_ZONE_INFORMATION, ptzi As TIME_ZONE_INFORMATION) As Long
+
+
 Private Declare Sub GetSystemTime Lib "kernel32" (lpSysTime As SYSTEMTIME)
 
 Private Declare Function FileTimeToSystemTime Lib "kernel32" (lpFilTime As FILETIME, lpSysTime As SYSTEMTIME) As Long
@@ -143,17 +165,75 @@ Private Declare Function QueryPerformanceCounter Lib "kernel32" (ByRef lpPerform
 '
 
 Public Sub Init()
-    Dim ret As Long: ret = GetTimeZoneInformation(m_TZI)
+    
+    Dim ret As Long
+    
+    ret = GetTimeZoneInformation(m_DynTZI.TZI)
     IsSummerTime = ret = TIME_ZONE_ID_DAYLIGHT
+    
+    ret = GetDynamicTimeZoneInformation(m_DynTZI)
+    IsSummerTime = ret = TIME_ZONE_ID_DAYLIGHT
+    
+    Dim y As Integer: y = DateTime.Year(Now)
+    ret = GetTimeZoneInformationForYear(y, m_DynTZI, m_DynTZI.TZI)
+    
     If IsSummerTime Or ret = TIME_ZONE_ID_STANDARD Or ret = TIME_ZONE_ID_UNKNOWN Then Exit Sub
     MsgBox "Error trying to get time-zone-info!"
-    'Select Case ret
-    'Case TIME_ZONE_ID_UNKNOWN:  IsSummerTime = False
-    'Case TIME_ZONE_ID_STANDARD: IsSummerTime = False
-    'Case TIME_ZONE_ID_DAYLIGHT: IsSummerTime = True
-    'Case Else: MsgBox "Error trying to get time-zone-imfo!"
-    'End Select
+
 End Sub
+
+Public Function TimeZoneInfo_ConvertTimeToUtc(ByVal dat As Date) As Date
+    With m_DynTZI.TZI
+        TimeZoneInfo_ConvertTimeToUtc = DateTime.DateAdd("n", .Bias + .StandardBias + .DaylightBias, dat)
+    End With
+End Function
+
+Public Property Get TimeZoneInfo_Bias() As Long
+    TimeZoneInfo_Bias = m_DynTZI.TZI.Bias
+End Property
+Public Property Get TimeZoneInfo_StandarBias() As Long
+    TimeZoneInfo_StandarBias = m_DynTZI.TZI.StandardBias
+End Property
+Public Property Get TimeZoneInfo_DaylightBias() As Long
+    TimeZoneInfo_DaylightBias = m_DynTZI.TZI.DaylightBias
+End Property
+
+Public Function TimeZoneInfo_ToStr() As String
+    Dim s As String, s1 As String
+    With m_DynTZI
+        With .TZI
+            s = s & "Bias         : " & .Bias & vbCrLf
+            
+            s1 = Trim0(.StandardName)
+            
+            s = s & "StandardName : " & s1 & vbCrLf
+            s = s & "StandardDate : " & SystemTime_ToDate(.StandardDate) & vbCrLf
+            s = s & "StandardBias : " & .StandardBias & vbCrLf
+            
+            s1 = Trim0(.DaylightName)
+            
+            s = s & "DaylightName : " & s1 & vbCrLf
+            s = s & "DaylightDate : " & SystemTime_ToDate(.DaylightDate) & vbCrLf
+            s = s & "DaylightBias : " & .DaylightBias & vbCrLf
+        End With
+        
+        s1 = Trim0(.TimeZoneKeyName)
+        s = s & "TimeZoneKeyName : " & s1 & vbCrLf
+        s = s & "TimeZoneKeyName : " & .DynamicDaylightTimeDisabled & vbCrLf
+        
+    End With
+    TimeZoneInfo_ToStr = s
+End Function
+
+Function Trim0(ByVal s As String) As String
+    Trim0 = Trim(s)
+    If Right(Trim0, 1) = vbNullChar Then
+        Trim0 = Left(Trim0, Len(Trim0) - 1)
+        Trim0 = Trim0(Trim0)
+    'Else
+    '    Exit Function
+    End If
+End Function
 
 'Public Function GetSystemUpTime() As Date
 Public Function GetSystemUpTime() As String
@@ -179,36 +259,6 @@ Public Function GetPCStartTime() As Date
     Dim m As Long: m = ms \ MillisecondsPerMinute:  ms = ms - m * MillisecondsPerMinute
     Dim s As Long: s = ms \ MillisecondsPerSecond:  ms = ms - s * MillisecondsPerSecond
     GetPCStartTime = VBA.DateTime.Now - DateSerial(1900, 1, d - 1) - TimeSerial(h, m, s)
-End Function
-
-Public Function TimeZoneInfo_ToStr() As String
-    Dim s As String, s1 As String
-    With m_TZI
-        s = s & "Bias         : " & .Bias & vbCrLf
-        
-        s1 = Trim0(.StandardName)
-        
-        s = s & "StandardName : " & s1 & vbCrLf
-        s = s & "StandardDate : " & SystemTime_ToDate(.StandardDate) & vbCrLf
-        s = s & "StandardBias : " & .StandardBias & vbCrLf
-        
-        s1 = Trim0(.DaylightName)
-        
-        s = s & "DaylightName : " & s1 & vbCrLf
-        s = s & "DaylightDate : " & SystemTime_ToDate(.DaylightDate) & vbCrLf
-        s = s & "DaylightBias : " & .DaylightBias & vbCrLf
-    End With
-    TimeZoneInfo_ToStr = s
-End Function
-
-Function Trim0(ByVal s As String) As String
-    Trim0 = Trim(s)
-    If Right(Trim0, 1) = vbNullChar Then
-        Trim0 = Left(Trim0, Len(Trim0) - 1)
-        Trim0 = Trim0(Trim0)
-    'Else
-    '    Exit Function
-    End If
 End Function
 
 ' ############################## '    DateTimeStamp    ' ############################## '
@@ -329,10 +379,10 @@ Public Property Get SystemTime_Now() As SYSTEMTIME
 End Property
 
 Public Function SystemTime_ToTzSpecificLocalTime(aSt As SYSTEMTIME) As SYSTEMTIME
-    SystemTimeToTzSpecificLocalTime m_TZI, aSt, SystemTime_ToTzSpecificLocalTime
+    SystemTimeToTzSpecificLocalTime m_DynTZI.TZI, aSt, SystemTime_ToTzSpecificLocalTime
 End Function
 Public Function TzSpecificLocalTime_ToSystemTime(aSt As SYSTEMTIME) As SYSTEMTIME
-    TzSpecificLocalTimeToSystemTime m_TZI, aSt, TzSpecificLocalTime_ToSystemTime
+    TzSpecificLocalTimeToSystemTime m_DynTZI.TZI, aSt, TzSpecificLocalTime_ToSystemTime
 End Function
 
 Public Function SystemTime_ToDate(aSt As SYSTEMTIME) As Date
@@ -403,7 +453,7 @@ Public Function FileTime_ToLocalFileTime(aFt As FILETIME) As FILETIME
 '    FileTimeToLocalFileTime aFt, FileTime_ToLocalFileTime
     Dim st_in As SYSTEMTIME: st_in = FileTime_ToSystemTime(aFt)
     Dim stout As SYSTEMTIME
-    SystemTimeToTzSpecificLocalTime m_TZI, st_in, stout
+    SystemTimeToTzSpecificLocalTime m_DynTZI.TZI, st_in, stout
     FileTime_ToLocalFileTime = SystemTime_ToFileTime(stout)
 End Function
 
@@ -411,7 +461,7 @@ Public Function LocalFileTime_ToFileTime(aFt As FILETIME) As FILETIME
 '    LocalFileTimeToFileTime aFt, LocalFileTime_ToFileTime
     Dim st_in As SYSTEMTIME: st_in = FileTime_ToSystemTime(aFt)
     Dim stout As SYSTEMTIME
-    TzSpecificLocalTimeToSystemTime m_TZI, st_in, stout
+    TzSpecificLocalTimeToSystemTime m_DynTZI.TZI, st_in, stout
     LocalFileTime_ToFileTime = SystemTime_ToFileTime(stout)
 End Function
 

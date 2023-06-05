@@ -1,12 +1,21 @@
 VERSION 5.00
 Begin VB.Form FMain 
    Caption         =   "Datetime-Conversions"
-   ClientHeight    =   6015
+   ClientHeight    =   6615
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   13695
+   BeginProperty Font 
+      Name            =   "Segoe UI"
+      Size            =   9
+      Charset         =   0
+      Weight          =   400
+      Underline       =   0   'False
+      Italic          =   0   'False
+      Strikethrough   =   0   'False
+   EndProperty
    LinkTopic       =   "Form1"
-   ScaleHeight     =   6015
+   ScaleHeight     =   6615
    ScaleWidth      =   13695
    StartUpPosition =   3  'Windows-Standard
    Begin VB.CommandButton Command11 
@@ -123,7 +132,7 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   2535
+      Height          =   3135
       Left            =   2040
       MultiLine       =   -1  'True
       ScrollBars      =   3  'Beides
@@ -528,11 +537,20 @@ Private Sub Command12_Click()
     Text1.Text = s
 End Sub
 
+Private Sub Command13_Click()
+    MsgBox MTime.TimeZoneInfo_ToStr
+    Dim dt As Date: dt = DateTime.Now
+    Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(dt)
+    MsgBox dt & vbCrLf & utc
+    
+End Sub
+
 Private Sub Form_Load()
     MTime.Init
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
     Command1_Click
     Command5_Click
+    Command9_Click
 End Sub
 
 Private Sub Command1_Click()
@@ -666,6 +684,9 @@ Private Sub Command9_Click()
     Dim s As String
     s = "Is summer time? " & MTime.IsSummerTime & vbCrLf
     s = s & MTime.TimeZoneInfo_ToStr
+    Dim dat As Date: dat = DateTime.Now
+    Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(dat)
+    s = s & "dat: " & CStr(dat) & vbCrLf & "utc: " & CStr(utc)
     Text1.Text = s
 End Sub
 
