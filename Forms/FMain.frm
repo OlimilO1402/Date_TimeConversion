@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin VB.Form FMain 
    Caption         =   "Datetime-Conversions"
-   ClientHeight    =   6615
+   ClientHeight    =   7095
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   13695
@@ -15,7 +15,7 @@ Begin VB.Form FMain
       Strikethrough   =   0   'False
    EndProperty
    LinkTopic       =   "Form1"
-   ScaleHeight     =   6615
+   ScaleHeight     =   7095
    ScaleWidth      =   13695
    StartUpPosition =   3  'Windows-Standard
    Begin VB.CommandButton Command11 
@@ -132,7 +132,7 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   3135
+      Height          =   3615
       Left            =   2040
       MultiLine       =   -1  'True
       ScrollBars      =   3  'Beides
@@ -669,7 +669,9 @@ Private Sub Command9_Click()
     s = MTime.TimeZoneInfo_ToStr
     Dim dat As Date: dat = DateTime.Now
     Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(dat)
-    s = s & "dat: " & CStr(dat) & vbCrLf & "utc: " & CStr(utc)
+    s = s & "dat: " & CStr(dat) & vbCrLf & "utc: " & CStr(utc) & vbCrLf
+    Dim BiasMin As Long: BiasMin = MTime.Date_BiasMinutesToUTC(dat)
+    s = s & "UtcBias (minutes): " & BiasMin & vbCrLf
     Text1.Text = s
 End Sub
 

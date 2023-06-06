@@ -1,5 +1,5 @@
 Attribute VB_Name = "MTime"
-Option Explicit
+Option Explicit 'Lines: 1190 06.jun.2023
 
 Public Enum ECalendar
     JulianCalendar
@@ -379,6 +379,11 @@ End Function
 
 Public Function Date_ToHexNStr(ByVal aDate As Date) As String
     Date_ToHexNStr = Date_ToHex(aDate) & "; " & Date_ToStr(aDate)
+End Function
+
+Public Function Date_BiasMinutesToUTC(ByVal aDate As Date) As Long
+    Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(aDate)
+    Date_BiasMinutesToUTC = DateDiff("n", utc, aDate)
 End Function
 
 ' ############################## '     SystemTime      ' ############################## '
