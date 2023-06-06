@@ -1073,13 +1073,17 @@ Public Function IsLeapYear(ByVal y As Long) As Boolean
     IsLeapYear = (((y Mod 4) = 0) And Not ((y Mod 100) = 0)) Or ((y Mod 400) = 0)
 End Function
 
-Public Function GetJulianDay(dt As Date) As Double
+Public Function Date_JulianDay(ByVal dt As Date) As Double
     Dim dat As Date: dat = DateSerial(year(dt), month(dt), Day(dt))
     Dim tim As Date: tim = TimeSerial(Hour(dt), Minute(dt), Second(dt))
-    Dim UtcOffset As Long: UtcOffset = 2
-    GetJulianDay = dat + 2415018.5 + tim - UtcOffset / 24
+    Dim UtcOffset As Double: UtcOffset = Date_BiasMinutesToUTC(dt) / 60
+    Date_JulianDay = dat + 2415018.5 + tim - UtcOffset / 24
 End Function
 
+Public Function Date_JulianCentury(ByVal dt As Date) As Double
+    Dim jd As Double: jd = Date_JulianDay(dt)
+    Date_JulianCentury = (jd - 2451545#) / 36525#
+End Function
 'https://docs.microsoft.com/de-de/dotnet/standard/base-types/standard-date-and-time-format-strings
 '
 'Formatbezeichner    Beschreibung    Beispiele
