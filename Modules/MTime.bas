@@ -134,11 +134,13 @@ Const TIME_ZONE_ID_UNKNOWN  As Long = &H0&
 Const TIME_ZONE_ID_STANDARD As Long = &H1&
 Const TIME_ZONE_ID_DAYLIGHT As Long = &H2&
 
-'Private m_TZI    As TIME_ZONE_INFORMATION
+Private m_TZI    As TIME_ZONE_INFORMATION
 Private m_DynTZI As DYNAMIC_TIME_ZONE_INFORMATION
 Public IsSummerTime As Boolean
 
+'https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-gettimezoneinformation
 Private Declare Function GetTimeZoneInformation Lib "kernel32" (lpTimeZoneInformation As TIME_ZONE_INFORMATION) As Long
+'
 Private Declare Function GetDynamicTimeZoneInformation Lib "kernel32" (pTimeZoneInformation As DYNAMIC_TIME_ZONE_INFORMATION) As Long
 Private Declare Function GetTimeZoneInformationForYear Lib "kernel32" (ByVal wYear As Integer, pdtzi As DYNAMIC_TIME_ZONE_INFORMATION, ptzi As TIME_ZONE_INFORMATION) As Long
 
@@ -172,21 +174,23 @@ Private Declare Function QueryPerformanceCounter Lib "kernel32" (ByRef lpPerform
 Public Sub Init()
     
     Dim ret As Long
-    
-    ret = GetTimeZoneInformation(m_DynTZI.TZI)
+    'm_TZI.DaylightDate = SystemTime_Now
+    'm_TZI.StandardDate = SystemTime_Now
+    ret = GetTimeZoneInformation(m_TZI)
     IsSummerTime = ret = TIME_ZONE_ID_DAYLIGHT
-    Debug.Print "----------"
-    Debug.Print TimeZoneInfo_ToStr
+    'Debug.Print "----------"
+    'Debug.Print PTimeZoneInfo_ToStr(m_TZI)
     
     ret = GetDynamicTimeZoneInformation(m_DynTZI)
     IsSummerTime = ret = TIME_ZONE_ID_DAYLIGHT
-    Debug.Print "----------"
-    Debug.Print TimeZoneInfo_ToStr
+    'Debug.Print "----------"
+    'Debug.Print PDynTimeZoneInfo_ToStr(m_DynTZI)
     
-    Dim y As Integer: y = DateTime.year(Now)
-    ret = GetTimeZoneInformationForYear(y, m_DynTZI, m_DynTZI.TZI)
-    Debug.Print "----------"
-    Debug.Print TimeZoneInfo_ToStr
+    Dim y As Integer: y = DateTime.Year(Now)
+    ret = GetTimeZoneInformationForYear(y, m_DynTZI, m_TZI)
+    'Debug.Print "----------"
+    'Debug.Print PTimeZoneInfo_ToStr(m_TZI)
+    'Debug.Print PDynTimeZoneInfo_ToStr(m_DynTZI)
     
     If IsSummerTime Or ret = TIME_ZONE_ID_STANDARD Or ret = TIME_ZONE_ID_UNKNOWN Then Exit Sub
     MsgBox "Error trying to get time-zone-info!"
@@ -208,30 +212,36 @@ Public Property Get TimeZoneInfo_DaylightBias() As Long
 End Property
 
 Public Function TimeZoneInfo_ToStr() As String
-    Dim s As String, s1 As String
-    With m_DynTZI
-        With .TZI
-            s = s & "Bias         : " & .Bias & vbCrLf
-            
-            s1 = Trim0(.StandardName)
-            
-            s = s & "StandardName : " & s1 & vbCrLf
-            s = s & "StandardDate : " & SystemTime_ToDate(.StandardDate) & vbCrLf
-            s = s & "StandardBias : " & .StandardBias & vbCrLf
-            
-            s1 = Trim0(.DaylightName)
-            
-            s = s & "DaylightName : " & s1 & vbCrLf
-            s = s & "DaylightDate : " & SystemTime_ToDate(.DaylightDate) & vbCrLf
-            s = s & "DaylightBias : " & .DaylightBias & vbCrLf
-        End With
-        
-        s1 = Trim0(.TimeZoneKeyName)
-        s = s & "TimeZoneKeyName : " & s1 & vbCrLf
+    TimeZoneInfo_ToStr = PTimeZoneInfo_ToStr(m_TZI)
+End Function
+
+Private Function PTimeZoneInfo_ToStr(this As TIME_ZONE_INFORMATION) As String
+    Dim s As String
+    With this
+        s = s & "Bias         : " & .Bias & vbCrLf
+        s = s & "StandardName : " & Trim0(.StandardName) & vbCrLf
+        s = s & "StandardDate : " & TimeZoneInfoSystemTime_ToDate(.StandardDate) & vbCrLf
+        s = s & "StandardBias : " & .StandardBias & vbCrLf
+        s = s & "DaylightName : " & Trim0(.DaylightName) & vbCrLf
+        s = s & "DaylightDate : " & TimeZoneInfoSystemTime_ToDate(.DaylightDate) & vbCrLf
+        s = s & "DaylightBias : " & .DaylightBias & vbCrLf
+    End With
+    PTimeZoneInfo_ToStr = s
+End Function
+
+Public Function DynTimeZoneInfo_ToStr() As String
+    DynTimeZoneInfo_ToStr = PDynTimeZoneInfo_ToStr(m_DynTZI)
+End Function
+
+Private Function PDynTimeZoneInfo_ToStr(this As DYNAMIC_TIME_ZONE_INFORMATION) As String
+    Dim s As String
+    With this
+        s = s & PTimeZoneInfo_ToStr(.TZI)
+        s = s & "TimeZoneKeyName : " & Trim0(.TimeZoneKeyName) & vbCrLf
         s = s & "TimeZoneKeyName : " & .DynamicDaylightTimeDisabled & vbCrLf
         s = s & "IsSummerTime    : " & IsSummerTime & vbCrLf
     End With
-    TimeZoneInfo_ToStr = s
+    PDynTimeZoneInfo_ToStr = s
 End Function
 
 Function Trim0(ByVal s As String) As String
@@ -251,9 +261,9 @@ Public Function GetSystemUpTime() As String
     QueryPerformanceCounter ms
     Dim d As Long: d = ms \ MillisecondsPerDay:     ms = ms - CCur(d) * CCur(MillisecondsPerDay)
     Dim h As Long: h = ms \ MillisecondsPerHour:    ms = ms - h * MillisecondsPerHour
-    Dim M As Long: M = ms \ MillisecondsPerMinute:  ms = ms - M * MillisecondsPerMinute
+    Dim m As Long: m = ms \ MillisecondsPerMinute:  ms = ms - m * MillisecondsPerMinute
     Dim s As Long: s = ms \ MillisecondsPerSecond:  ms = ms - s * MillisecondsPerSecond
-    GetSystemUpTime = d & ":" & Format(h, "00") & ":" & Format(M, "00") & ":" & Format(s, "00") & "." & Format(ms, "000")
+    GetSystemUpTime = d & ":" & Format(h, "00") & ":" & Format(m, "00") & ":" & Format(s, "00") & "." & Format(ms, "000")
 End Function
 
 '    Dim d As Date ' empty date!
@@ -265,9 +275,9 @@ Public Function GetPCStartTime() As Date
     QueryPerformanceCounter ms
     Dim d As Long: d = ms \ MillisecondsPerDay:     ms = ms - d * MillisecondsPerDay
     Dim h As Long: h = ms \ MillisecondsPerHour:    ms = ms - h * MillisecondsPerHour
-    Dim M As Long: M = ms \ MillisecondsPerMinute:  ms = ms - M * MillisecondsPerMinute
+    Dim m As Long: m = ms \ MillisecondsPerMinute:  ms = ms - m * MillisecondsPerMinute
     Dim s As Long: s = ms \ MillisecondsPerSecond:  ms = ms - s * MillisecondsPerSecond
-    GetPCStartTime = VBA.DateTime.Now - DateSerial(1900, 1, d - 1) - TimeSerial(h, M, s)
+    GetPCStartTime = VBA.DateTime.Now - DateSerial(1900, 1, d - 1) - TimeSerial(h, m, s)
 End Function
 
 ' ############################## '    DateTimeStamp    ' ############################## '
@@ -329,8 +339,8 @@ End Property
 
 Public Function Date_ToSystemTime(aDate As Date) As SYSTEMTIME
     With Date_ToSystemTime
-        .wYear = year(aDate)
-        .wMonth = month(aDate)
+        .wYear = Year(aDate)
+        .wMonth = Month(aDate)
         .wDayOfWeek = Weekday(aDate, vbUseSystemDayOfWeek)
         .wDay = Day(aDate)
         .wHour = Hour(aDate)
@@ -393,14 +403,19 @@ Public Property Get SystemTime_Now() As SYSTEMTIME
 End Property
 
 Public Function SystemTime_ToTzSpecificLocalTime(aSt As SYSTEMTIME) As SYSTEMTIME
+    'UTC to local time
     SystemTimeToTzSpecificLocalTime m_DynTZI.TZI, aSt, SystemTime_ToTzSpecificLocalTime
 End Function
 Public Function TzSpecificLocalTime_ToSystemTime(aSt As SYSTEMTIME) As SYSTEMTIME
+    'local time to UTC
     TzSpecificLocalTimeToSystemTime m_DynTZI.TZI, aSt, TzSpecificLocalTime_ToSystemTime
 End Function
 
 Public Function SystemTime_ToDate(aSt As SYSTEMTIME) As Date
     With aSt
+        If .wYear = 0 And .wMonth <> 0 Then
+            SystemTime_ToDate = TimeZoneInfoSystemTime_ToDate(aSt)
+        End If
         SystemTime_ToDate = DateSerial(.wYear, .wMonth, .wDay) + TimeSerial(.wHour, .wMinute, .wSecond)
     End With
 End Function
@@ -455,6 +470,106 @@ End Function
 Public Function SystemTime_ToHexNStr(aSt As SYSTEMTIME) As String
     SystemTime_ToHexNStr = SystemTime_ToHex(aSt) & "; " & SystemTime_ToStr(aSt)
 End Function
+
+' ############################## '      TimeZoneInfoSystemTime       ' ############################## '
+Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
+    
+    'the structure Time_Zone_Information has 2 Systemtime structures StandardDate and DaylightDate
+    'the date is not straight, it is indeed a rule
+    With this
+        
+        If .wYear <> 0 Then
+            TimeZoneInfoSystemTime_ToDate = SystemTime_ToDate(this)
+            Exit Function
+        End If
+        
+        If .wMonth = 0 Then
+            'If the time zone does not support daylight saving time or if the caller needs to disable
+            'daylight saving time, the wMonth member in the SYSTEMTIME structure must be zero
+            Exit Function
+        End If
+        
+        Dim y As Integer: y = Year(Now)
+        Dim m As Integer: m = .wMonth
+        Dim d As Integer: d = 1
+        'the date of the first day in month m
+        Dim dt As Date: dt = DateSerial(y, m, d)
+        
+        'the weekday of the first day in month m
+        Dim dow As Integer: dow = Weekday(dt) - 1 'the vbenum is one based
+        d = d + DaysUntilWeekday(dow, .wDayOfWeek)
+        
+        'the wDay member to indicate the occurrence of the day of the week within the month
+        '(1 to 5, where 5 indicates the final occurrence during the month if that day of the week does not occur 5 times)
+        
+        Dim idm As Integer: idm = MTime.DaysInMonth(y, .wMonth) - 7
+        Dim i As Long
+        For i = 1 To .wDay
+            If d < idm Then d = d + 7
+        Next
+        
+        TimeZoneInfoSystemTime_ToDate = DateSerial(y, m, d) + TimeSerial(.wHour, .wMinute, .wSecond)
+    End With
+End Function
+
+Public Function DaysUntilWeekday(ByVal wd0 As Integer, ByVal wd1 As Integer, Optional FirstDayOfWeek As VbDayOfWeek = VbDayOfWeek.vbUseSystemDayOfWeek) As Integer
+    'returns the number of days between different weekdays
+    'e.g. from thursday to tuesday there are 5 days
+    'if FirstdayOfWeek is vbUseSystemDayOfWeek the function assumes minday = 0 and maxday = 6 like in WinAPI or in .net
+    'if FirstdayOfWeek is vbSunday the function assumes minday = 1 and maxday = 7 like in VB6
+    If wd0 = wd1 Then Exit Function
+    
+    Dim min As Integer, max As Integer: max = 6
+    If FirstDayOfWeek = VbDayOfWeek.vbSunday Then
+        min = 1
+        max = 7
+    End If
+    If wd0 < min Or max < wd0 Then Exit Function
+    If wd1 < min Or max < wd1 Then Exit Function
+        
+    DaysUntilWeekday = wd1 - wd0
+    
+    If wd0 < wd1 Then Exit Function
+        
+    DaysUntilWeekday = 7 + DaysUntilWeekday
+    
+End Function
+
+'?DaysUntilWeekday(vbSunday, vbSunday,    FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 0
+'?DaysUntilWeekday(vbSunday, vbMonday,    FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 1
+'?DaysUntilWeekday(vbSunday, vbFriday,    FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 5
+'?DaysUntilWeekday(vbSunday, vbSaturday,  FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 6
+'
+'?DaysUntilWeekday(vbMonday, vbSunday,    FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 6
+'?DaysUntilWeekday(vbMonday, vbMonday,    FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 0
+'?DaysUntilWeekday(vbMonday, vbTuesday,   FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 1
+'?DaysUntilWeekday(vbMonday, vbFriday,    FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 4
+'?DaysUntilWeekday(vbMonday, vbSaturday,  FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 5
+'
+'?DaysUntilWeekday(vbTuesday, vbSunday,    FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 5
+'?DaysUntilWeekday(vbTuesday, vbMonday,    FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 6
+'?DaysUntilWeekday(vbTuesday, vbTuesday,   FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 0
+'?DaysUntilWeekday(vbTuesday, vbWednesday, FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 1
+'?DaysUntilWeekday(vbTuesday, vbSaturday,  FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 4
+'
+'?DaysUntilWeekday(vbWednesday, vbSunday,    FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 4
+'?DaysUntilWeekday(vbWednesday, vbTuesday,   FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 6
+'?DaysUntilWeekday(vbWednesday, vbWednesday, FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 0
+'?DaysUntilWeekday(vbWednesday, vbThursday,  FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 1
+'?DaysUntilWeekday(vbWednesday, vbSaturday,  FirstdayOfWeek:=VbDayOfWeek.vbSunday)    ' 3
+
+'?DaysUntilWeekday(0, 0)    ' 0
+'?DaysUntilWeekday(0, 1)    ' 1
+'?DaysUntilWeekday(0, 5)    ' 5
+'?DaysUntilWeekday(0, 6)    ' 6
+
+'?DaysUntilWeekday(1, 0)    ' 0
+'?DaysUntilWeekday(1, 1)    ' 1
+'?DaysUntilWeekday(1, 5)    ' 5
+'?DaysUntilWeekday(1, 6)    ' 6
+
+
+'?DaysUntilWeekday(6, 1)    ' 2
 
 ' ############################## '      FileTime       ' ############################## '
 Public Property Get FileTime_Now() As FILETIME
@@ -692,8 +807,8 @@ End Function
 Public Function StrTime_ToSYSTEMTIME(T As String) As SYSTEMTIME
     Dim sa() As String: sa = Split(T, ":")
     With StrTime_ToSYSTEMTIME
-        .wYear = year(Now)
-        .wMonth = month(Now)
+        .wYear = Year(Now)
+        .wMonth = Month(Now)
         .wDay = Day(Now)
         .wHour = sa(0)
         .wMinute = sa(1)
@@ -794,7 +909,7 @@ Public Function CalcEasterdateGauss1800(ByVal y As Long, Optional ByVal ecal As 
     Dim k As Long: k = y \ 100 'die Säkularzahl
     Dim p As Long
     Dim q As Long
-    Dim M As Long 'die säkulare Mondschaltung
+    Dim m As Long 'die säkulare Mondschaltung
     Dim d As Long 'der Keim für den ersten Vollmond im Frühling
     Dim N As Long
     Dim e As Long
@@ -803,14 +918,14 @@ Public Function CalcEasterdateGauss1800(ByVal y As Long, Optional ByVal ecal As 
     
     Select Case ecal
     Case ECalendar.JulianCalendar
-        M = 15
+        m = 15
     Case ECalendar.GregorianCalendar
         p = k \ 3
         q = k \ 4
-        M = (15 + k - p - q) Mod 30
+        m = (15 + k - p - q) Mod 30
     End Select
     
-    d = (19 * a + M) Mod 30
+    d = (19 * a + m) Mod 30
     
     Select Case ecal
     Case ECalendar.JulianCalendar
@@ -838,7 +953,7 @@ Public Function CalcEasterdateGauss1816(ByVal y As Long, Optional ByVal ecal As 
     Dim k As Long: k = y \ 100 'die Säkularzahl
     Dim p As Long
     Dim q As Long
-    Dim M As Long 'die säkulare Mondschaltung
+    Dim m As Long 'die säkulare Mondschaltung
     Dim d As Long 'der Keim für den ersten Vollmond im Frühling
     Dim N As Long
     Dim e As Long
@@ -847,14 +962,14 @@ Public Function CalcEasterdateGauss1816(ByVal y As Long, Optional ByVal ecal As 
     
     Select Case ecal
     Case ECalendar.JulianCalendar
-        M = 15
+        m = 15
     Case ECalendar.GregorianCalendar
         p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
         q = k \ 4
-        M = (15 + k - p - q) Mod 30
+        m = (15 + k - p - q) Mod 30
     End Select
     
-    d = (19 * a + M) Mod 30
+    d = (19 * a + m) Mod 30
     
     Select Case ecal
     Case ECalendar.JulianCalendar
@@ -890,7 +1005,7 @@ Public Function CalcEasterdateGaussCorrected1900(ByVal y As Long, Optional ByVal
     Dim k As Long: k = y \ 100 'die Säkularzahl
     Dim p As Long
     Dim q As Long
-    Dim M As Long 'die säkulare Mondschaltung
+    Dim m As Long 'die säkulare Mondschaltung
     Dim s As Long 'die säkulare Sonnenschaltung
     Dim d As Long 'der Keim für den ersten Vollmond im Frühling
     Dim r As Long 'die kalendarische Korrekturgröße
@@ -904,16 +1019,16 @@ Public Function CalcEasterdateGaussCorrected1900(ByVal y As Long, Optional ByVal
     
     Select Case ecal
     Case ECalendar.JulianCalendar
-        M = 15
+        m = 15
         s = 0
     Case ECalendar.GregorianCalendar
         p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
         q = (3 * k + 3) \ 4
-        M = 15 + q - p
+        m = 15 + q - p
         s = 2 - q
     End Select
     
-    d = (19 * a + M) Mod 30
+    d = (19 * a + m) Mod 30
     r = (d + a \ 11) \ 29
     OG = 21 + d - r
     SZ = 7 - (y + y \ 4 + s) Mod 7
@@ -933,22 +1048,22 @@ End Function
 Public Function OsternShort(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
     'code taken from CalcEasterdateGaussCorrected1900 + CorrectOSDay
     'and then shortened
-    Dim M As Long 'die säkulare Mondschaltung
+    Dim m As Long 'die säkulare Mondschaltung
     Dim s As Long 'die säkulare Sonnenschaltung
     Select Case ecal
     Case ECalendar.JulianCalendar
-        M = 15
+        m = 15
         s = 0
     Case ECalendar.GregorianCalendar
         Dim k As Long: k = y \ 100  'die Säkularzahl
         Dim p As Long: p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
         Dim q As Long: q = (3 * k + 3) \ 4
-        M = 15 + q - p
+        m = 15 + q - p
         s = 2 - q
     End Select
     
     Dim a       As Long:  a = y Mod 19                   'der Mondparameter / Gaußsche Zykluszahl
-    Dim d       As Long:  d = (19 * a + M) Mod 30       'der Keim für den ersten Vollmond im Frühling
+    Dim d       As Long:  d = (19 * a + m) Mod 30       'der Keim für den ersten Vollmond im Frühling
     Dim r       As Long:  r = (d + a \ 11) \ 29         'die kalendarische Korrekturgröße
     Dim OG      As Long: OG = 21 + d - r                'die Ostergrenze
     Dim SZ      As Long: SZ = 7 - (y + y \ 4 + s) Mod 7 'der erste Sonntag im März
@@ -1030,7 +1145,6 @@ Public Function Date_ParseFromDayNumber(ByVal y As Integer, ByVal DayNr As Integ
     If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 12, DayNr): Exit Function
 End Function
 
-
 Public Function Date_TryParse(ByVal s As String, ByRef out_date As Date) As Boolean
 Try: On Error GoTo Catch
     If LCase(s) = "now" Or LCase(s) = "jetzt" Then s = Now
@@ -1041,20 +1155,91 @@ Catch:
     MsgBox Err.Number & " " & Err.Description
 End Function
 
-Public Function DayOfYear(d As Date) As Long
+Public Function Date_JulianDay(ByVal dt As Date) As Double
+    Dim dat As Date: dat = DateSerial(Year(dt), Month(dt), Day(dt))
+    Dim tim As Date: tim = TimeSerial(Hour(dt), Minute(dt), Second(dt))
+    Dim UtcOffset As Double: UtcOffset = Date_BiasMinutesToUTC(dt) / 60
+    Date_JulianDay = dat + 2415018.5 + tim - UtcOffset / 24
+End Function
+
+Public Function Date_JulianCentury(ByVal dt As Date) As Double
+    Dim jd As Double: jd = Date_JulianDay(dt)
+    Date_JulianCentury = (jd - 2451545#) / 36525#
+End Function
+
+'unsigned int GetDayOfWeek(unsigned int Year, unsigned int Month, unsigned int Day)
+'{
+'    unsigned int y, c;
+'
+'    if ((Month > 0) && (Month <= 12))
+'    {
+'        if ((Day > 0) && (Day <= GetMonthDayCount(Year, Month)))
+'        {
+'            y = (Year % 100);
+'            c = Year / 100;
+'
+'            if (Month > 2)
+'                Month -= 2;
+'            Else
+'            {
+'                Month += 10;
+'                if (y > 0)
+'                    y--;
+'                Else
+'                {
+'                    y = 99;
+'                    c--;
+'                }
+'            }
+'
+'            return static_cast<unsigned>(((static_cast<signed>(Day) + (26*static_cast<signed>(Month)-2) / 10 + static_cast<signed>(y) + static_cast<signed>(y)/4 + static_cast<signed>(c)/4 - 2*static_cast<signed>(c)) + 7000) % 7);
+'        }
+'    }
+'
+'    return 0;
+'}
+
+Public Function GetDayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day As Long) As Long
+    
+    GetDayOfWeek = -1
+    If (Month < 1) Or (12 < Month) Then Exit Function
+    
+    If (Day < 1) Or (DaysInMonth(Year, Month) < Day) Then Exit Function
+    
+    Dim y As Long: y = Year Mod 100
+    Dim c As Long: c = Year / 100
+    
+    If (Month > 2) Then
+        Month = Month - 2
+    Else
+        Month = Month + 10
+        If (y > 0) Then
+            y = y - 1
+        Else
+            y = 99
+            c = c - 1
+        End If
+    End If
+    
+    'return static_cast<unsigned>(((static_cast<signed>(Day) + (26*static_cast<signed>(Month)-2) / 10 + static_cast<signed>(y) + static_cast<signed>(y)/4 + static_cast<signed>(c)/4 - 2*static_cast<signed>(c)) + 7000) % 7);
+    GetDayOfWeek = ((Day + (26 * Month - 2) / 10 + y + y / 4 + c / 4 - 2 * c) + 7000) Mod 7
+    
+End Function
+
+Public Function DayOfYear(ByVal d As Date) As Long
     Dim y As Long
     Dim i As Long
-    y = year(d)
-    For i = 1 To month(d) - 1
+    y = Year(d)
+    For i = 1 To Month(d) - 1
         DayOfYear = DayOfYear + DaysInMonth(y, i)
     Next
     DayOfYear = DayOfYear + Day(d) 'Day(d)=DayOfMonth
 End Function
 
-Public Function DaysInMonth(ByVal year As Long, ByVal month As Long) As Long
-    Select Case month
+Public Function DaysInMonth(ByVal Year As Long, ByVal Month As Long) As Long
+    Select Case Month
     Case 1, 3, 5, 7, 8, 10, 12: DaysInMonth = 31
-    Case 2: If IsLeapYear(year) Then DaysInMonth = 29 Else DaysInMonth = 28
+    Case 2: If IsLeapYear(Year) Then DaysInMonth = 29 Else DaysInMonth = 28
     Case 4, 6, 9, 11: DaysInMonth = 30
     End Select
 End Function
@@ -1073,17 +1258,6 @@ Public Function IsLeapYear(ByVal y As Long) As Boolean
     IsLeapYear = (((y Mod 4) = 0) And Not ((y Mod 100) = 0)) Or ((y Mod 400) = 0)
 End Function
 
-Public Function Date_JulianDay(ByVal dt As Date) As Double
-    Dim dat As Date: dat = DateSerial(year(dt), month(dt), Day(dt))
-    Dim tim As Date: tim = TimeSerial(Hour(dt), Minute(dt), Second(dt))
-    Dim UtcOffset As Double: UtcOffset = Date_BiasMinutesToUTC(dt) / 60
-    Date_JulianDay = dat + 2415018.5 + tim - UtcOffset / 24
-End Function
-
-Public Function Date_JulianCentury(ByVal dt As Date) As Double
-    Dim jd As Double: jd = Date_JulianDay(dt)
-    Date_JulianCentury = (jd - 2451545#) / 36525#
-End Function
 'https://docs.microsoft.com/de-de/dotnet/standard/base-types/standard-date-and-time-format-strings
 '
 'Formatbezeichner    Beschreibung    Beispiele
