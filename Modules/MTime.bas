@@ -489,7 +489,7 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
             Exit Function
         End If
         
-        Dim y As Integer: y = Year(Now)
+        Dim y As Integer: y = 2018 'Year(Now)
         Dim m As Integer: m = .wMonth
         Dim d As Integer: d = 1
         'the date of the first day in month m
@@ -505,7 +505,7 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
         Dim idm As Integer: idm = MTime.DaysInMonth(y, .wMonth) - 7
         Dim i As Long
         For i = 1 To .wDay
-            If d < idm Then d = d + 7
+            If d <= idm Then d = d + 7
         Next
         
         TimeZoneInfoSystemTime_ToDate = DateSerial(y, m, d) + TimeSerial(.wHour, .wMinute, .wSecond)
@@ -1167,6 +1167,7 @@ Public Function Date_JulianCentury(ByVal dt As Date) As Double
     Date_JulianCentury = (jd - 2451545#) / 36525#
 End Function
 
+'Many thanks to idiv alias Chris for the following function
 'unsigned int GetDayOfWeek(unsigned int Year, unsigned int Month, unsigned int Day)
 '{
 '    unsigned int y, c;
@@ -1198,7 +1199,6 @@ End Function
 '
 '    return 0;
 '}
-
 Public Function GetDayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day As Long) As Long
     
     GetDayOfWeek = -1
@@ -1207,7 +1207,7 @@ Public Function GetDayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day 
     If (Day < 1) Or (DaysInMonth(Year, Month) < Day) Then Exit Function
     
     Dim y As Long: y = Year Mod 100
-    Dim c As Long: c = Year / 100
+    Dim c As Long: c = Year \ 100
     
     If (Month > 2) Then
         Month = Month - 2
@@ -1222,7 +1222,7 @@ Public Function GetDayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day 
     End If
     
     'return static_cast<unsigned>(((static_cast<signed>(Day) + (26*static_cast<signed>(Month)-2) / 10 + static_cast<signed>(y) + static_cast<signed>(y)/4 + static_cast<signed>(c)/4 - 2*static_cast<signed>(c)) + 7000) % 7);
-    GetDayOfWeek = ((Day + (26 * Month - 2) / 10 + y + y / 4 + c / 4 - 2 * c) + 7000) Mod 7
+    GetDayOfWeek = ((Day + (26 * Month - 2) \ 10 + y + y \ 4 + c \ 4 - 2 * c) + 7000) Mod 7
     
 End Function
 

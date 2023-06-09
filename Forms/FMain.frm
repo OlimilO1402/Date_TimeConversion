@@ -521,6 +521,34 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Private Sub Command14_Click()
+'    For i = 1970 To 2023
+'        If IsLeapYear(i) Then
+'            Debug.Print i & " leap year"
+'        Else
+'            Debug.Print i
+'        End If
+'    Next
+'    Exit Sub
+    Dim i As Long
+    Dim y As Integer, m As Integer, d As Integer
+    For i = 0 To 1000
+        y = 1970 + Rnd * (2023 - 1970)
+        m = 1 + Rnd * 11
+        d = 1 + Rnd * (DaysInMonth(y, m) - 1)
+        CheckOneDate y, m, d
+    Next
+End Sub
+
+Private Sub CheckOneDate(ByVal y As Integer, ByVal m As Integer, ByVal d As Integer)
+    Dim dt  As Date:     dt = DateSerial(y, m, d)
+    Dim wkd As Integer: wkd = Weekday(dt) - 1
+    Dim dow As Integer: dow = GetDayOfWeek(y, m, d)
+    If wkd <> dow Then
+        Debug.Print "wkd = " & wkd & " <> " & "dow = " & dow & " " & dt
+    End If
+End Sub
+
 Private Sub Form_Load()
     MTime.Init
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
