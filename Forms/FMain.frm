@@ -18,6 +18,22 @@ Begin VB.Form FMain
    ScaleHeight     =   7095
    ScaleWidth      =   13695
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton Command16 
+      Caption         =   "Easter sunday?"
+      Height          =   375
+      Left            =   0
+      TabIndex        =   27
+      Top             =   5280
+      Width           =   1935
+   End
+   Begin VB.CommandButton Command15 
+      Caption         =   "Is it a leap year?"
+      Height          =   375
+      Left            =   0
+      TabIndex        =   26
+      Top             =   4920
+      Width           =   1935
+   End
    Begin VB.CommandButton Command11 
       Caption         =   "GetPCStartNewDate"
       BeginProperty Font 
@@ -31,9 +47,9 @@ Begin VB.Form FMain
       EndProperty
       Height          =   375
       Left            =   0
-      TabIndex        =   27
+      TabIndex        =   25
       ToolTipText     =   "Returns the date and time when your pc got started new"
-      Top             =   5160
+      Top             =   4560
       Width           =   1935
    End
    Begin VB.CommandButton Command10 
@@ -51,7 +67,7 @@ Begin VB.Form FMain
       Left            =   0
       TabIndex        =   24
       ToolTipText     =   "Returns the timespan since the last new start of your pc"
-      Top             =   4440
+      Top             =   4200
       Width           =   1935
    End
    Begin VB.CommandButton Command7 
@@ -102,7 +118,7 @@ Begin VB.Form FMain
       Height          =   375
       Left            =   0
       TabIndex        =   17
-      Top             =   3960
+      Top             =   3840
       Width           =   1935
    End
    Begin VB.CommandButton Command5 
@@ -224,42 +240,6 @@ Begin VB.Form FMain
       TabIndex        =   0
       Top             =   120
       Width           =   1935
-   End
-   Begin VB.Label Label9 
-      AutoSize        =   -1  'True
-      Caption         =   "PCStartNewDate..."
-      BeginProperty Font 
-         Name            =   "Segoe UI"
-         Size            =   8.25
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      Height          =   195
-      Left            =   120
-      TabIndex        =   26
-      Top             =   5640
-      Width           =   1395
-   End
-   Begin VB.Label Label8 
-      AutoSize        =   -1  'True
-      Caption         =   "SystemUpTime..."
-      BeginProperty Font 
-         Name            =   "Segoe UI"
-         Size            =   8.25
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      Height          =   195
-      Left            =   120
-      TabIndex        =   25
-      Top             =   4920
-      Width           =   1245
    End
    Begin VB.Label Label7 
       AutoSize        =   -1  'True
@@ -521,34 +501,6 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Sub Command14_Click()
-'    For i = 1970 To 2023
-'        If IsLeapYear(i) Then
-'            Debug.Print i & " leap year"
-'        Else
-'            Debug.Print i
-'        End If
-'    Next
-'    Exit Sub
-    Dim i As Long
-    Dim y As Integer, m As Integer, d As Integer
-    For i = 0 To 1000
-        y = 1970 + Rnd * (2023 - 1970)
-        m = 1 + Rnd * 11
-        d = 1 + Rnd * (DaysInMonth(y, m) - 1)
-        CheckOneDate y, m, d
-    Next
-End Sub
-
-Private Sub CheckOneDate(ByVal y As Integer, ByVal m As Integer, ByVal d As Integer)
-    Dim dt  As Date:     dt = DateSerial(y, m, d)
-    Dim wkd As Integer: wkd = Weekday(dt) - 1
-    Dim dow As Integer: dow = GetDayOfWeek(y, m, d)
-    If wkd <> dow Then
-        Debug.Print "wkd = " & wkd & " <> " & "dow = " & dow & " " & dt
-    End If
-End Sub
-
 Private Sub Form_Load()
     MTime.Init
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
@@ -667,13 +619,24 @@ Private Sub Command8_Click()
     
     'user@linux> date -d @1234567890
     'Sa 14. Feb 00:31:30 CET 2009
-    dat = DateSerial(2009, 2, 14) + TimeSerial(0, 31, 30)
+    Dim d As Integer, h As Integer
+    If IsSummerTime Then
+        d = 13: h = 23
+    Else
+        d = 14: h = 0
+    End If
+    dat = DateSerial(2009, 2, d) + TimeSerial(h, 31, 30)
     uxs = Date_ToUnixTime(dat)
     s = s & "1234567890 = " & uxs & " : " & CBool(1234567890 = uxs) & vbCrLf
     
-    'user@ linux > Date - d '2008-12-18 12:34:00' +%s
+    'user@linux > Date - d '2008-12-18 12:34:00' +%s
     '1229600040
-    dat = DateSerial(2008, 12, 18) + TimeSerial(12, 34, 0)
+    If IsSummerTime Then
+        h = 11
+    Else
+        h = 12
+    End If
+    dat = DateSerial(2008, 12, 18) + TimeSerial(h, 34, 0)
     uxs = Date_ToUnixTime(dat)
     s = s & "1229600040 = " & uxs & " : " & CBool(1229600040 = uxs) & vbCrLf
     
@@ -685,8 +648,8 @@ Private Sub Command8_Click()
     
     'convert from unixtime to date
     uxs = 1234567890
-    dat = UnixTime_ToDate(uxs)
-    s = s & "The unixtimestamp: " & uxs & " stands for the date: " & Date_ToStr(dat) & vbCrLf
+    'dat = UnixTime_ToDate(uxs)
+    s = s & "The unixtimestamp: " & uxs & " stands for the date: " & Date_ToStr(UnixTime_ToDate(uxs)) & vbCrLf
     
     Text1.Text = s
     
@@ -694,7 +657,7 @@ End Sub
 
 Private Sub Command9_Click()
     Dim s As String
-    s = MTime.TimeZoneInfo_ToStr
+    s = MTime.DynTimeZoneInfo_ToStr
     Dim dat As Date: dat = DateTime.Now
     Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(dat)
     s = s & "dat: " & CStr(dat) & vbCrLf & "utc: " & CStr(utc) & vbCrLf
@@ -704,11 +667,13 @@ Private Sub Command9_Click()
 End Sub
 
 Private Sub Command10_Click()
-    Label8.Caption = MTime.GetSystemUpTime ' GetPCStartTime
+    'Label8.Caption = MTime.GetSystemUpTime ' GetPCStartTime
+    Text1.Text = MTime.GetSystemUpTime
 End Sub
 
 Private Sub Command11_Click()
-    Label9.Caption = MTime.GetPCStartTime
+    'Label9.Caption = MTime.GetPCStartTime
+    Text1.Text = MTime.GetPCStartTime
 End Sub
 
 Private Sub Command12_Click()
@@ -724,5 +689,50 @@ Private Sub Command13_Click()
     Dim dt As Date: dt = DateTime.Now
     Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(dt)
     MsgBox dt & vbCrLf & utc
+End Sub
+
+Private Sub Command14_Click()
+'    For i = 1970 To 2023
+'        If IsLeapYear(i) Then
+'            Debug.Print i & " leap year"
+'        Else
+'            Debug.Print i
+'        End If
+'    Next
+'    Exit Sub
+    Dim i As Long
+    Dim y As Integer, m As Integer, d As Integer
+    For i = 0 To 1000
+        y = 1970 + Rnd * (2023 - 1970)
+        m = 1 + Rnd * 11
+        d = 1 + Rnd * (DaysInMonth(y, m) - 1)
+        CheckOneDate y, m, d
+    Next
+End Sub
+
+Private Sub CheckOneDate(ByVal y As Integer, ByVal m As Integer, ByVal d As Integer)
+    Dim dt  As Date:     dt = DateSerial(y, m, d)
+    Dim wkd As Integer: wkd = Weekday(dt) - 1
+    Dim dow As Integer: dow = GetDayOfWeek(y, m, d)
+    If wkd <> dow Then
+        Debug.Print "wkd = " & wkd & " <> " & "dow = " & dow & " " & dt
+    End If
+End Sub
+
+Private Sub Command15_Click()
+    Dim s As String: s = InputBox("Year:", "Calculates if the year is a leap-year", Year(Now))
+    If StrPtr(s) = 0 Then Exit Sub
+    If Not IsNumeric(s) Then Exit Sub
+    Dim y As Long: y = CLng(Int(Val(s)))
+    Text1.Text = "The year " & y & " is " & IIf(Not MTime.IsLeapYear(y), "not ", "") & "a leap year."
+End Sub
+
+Private Sub Command16_Click()
+    Dim s As String: s = InputBox("Year:", "Calculates the easter sunday for the year", Year(Now))
+    If StrPtr(s) = 0 Then Exit Sub
+    If Not IsNumeric(s) Then Exit Sub
+    Dim y As Long: y = CLng(Int(Val(s)))
+    Dim dat As Date: dat = MTime.OsternShort2(y)
+    Text1.Text = "The eastern sunday in the year " & y & " is " & Date_ToStr(dat)
 End Sub
 

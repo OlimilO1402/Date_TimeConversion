@@ -193,7 +193,7 @@ Public Sub Init()
     'Debug.Print PDynTimeZoneInfo_ToStr(m_DynTZI)
     
     If IsSummerTime Or ret = TIME_ZONE_ID_STANDARD Or ret = TIME_ZONE_ID_UNKNOWN Then Exit Sub
-    MsgBox "Error trying to get time-zone-info!"
+    MsgBox "Error trying to get time-zone-info!" & vbCrLf & ret
     
 End Sub
 
