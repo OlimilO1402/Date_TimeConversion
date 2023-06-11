@@ -489,7 +489,7 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
             Exit Function
         End If
         
-        Dim y As Integer: y = 2018 'Year(Now)
+        Dim y As Integer: y = Year(Now)
         Dim m As Integer: m = .wMonth
         Dim d As Integer: d = 1
         'the date of the first day in month m
