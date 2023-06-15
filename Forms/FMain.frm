@@ -18,6 +18,14 @@ Begin VB.Form FMain
    ScaleHeight     =   7095
    ScaleWidth      =   13695
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton Command17 
+      Caption         =   "Command17"
+      Height          =   375
+      Left            =   0
+      TabIndex        =   28
+      Top             =   5760
+      Width           =   1935
+   End
    Begin VB.CommandButton Command16 
       Caption         =   "Easter sunday?"
       Height          =   375
@@ -734,5 +742,12 @@ Private Sub Command16_Click()
     Dim y As Long: y = CLng(Int(Val(s)))
     Dim dat As Date: dat = MTime.OsternShort2(y)
     Text1.Text = "The eastern sunday in the year " & y & " is " & Date_ToStr(dat)
+End Sub
+
+Private Sub Command17_Click()
+    Dim dd As DOSTIME
+    dd.wDate = 22222 'this was today 14.jun.2023
+    dd.wTime = 22222
+    MsgBox DosTime_ToDate(dd)
 End Sub
 

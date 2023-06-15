@@ -1,5 +1,5 @@
 Attribute VB_Name = "MTime"
-Option Explicit 'Lines: 1190 06.jun.2023
+Option Explicit 'Lines: 1402 14.jun.2023
 
 Public Enum ECalendar
     JulianCalendar
@@ -138,38 +138,71 @@ Private m_TZI    As TIME_ZONE_INFORMATION
 Private m_DynTZI As DYNAMIC_TIME_ZONE_INFORMATION
 Public IsSummerTime As Boolean
 
-'https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-gettimezoneinformation
-Private Declare Function GetTimeZoneInformation Lib "kernel32" (lpTimeZoneInformation As TIME_ZONE_INFORMATION) As Long
-'
-Private Declare Function GetDynamicTimeZoneInformation Lib "kernel32" (pTimeZoneInformation As DYNAMIC_TIME_ZONE_INFORMATION) As Long
-Private Declare Function GetTimeZoneInformationForYear Lib "kernel32" (ByVal wYear As Integer, pdtzi As DYNAMIC_TIME_ZONE_INFORMATION, ptzi As TIME_ZONE_INFORMATION) As Long
-
-
-Private Declare Sub GetSystemTime Lib "kernel32" (lpSysTime As SYSTEMTIME)
-
-Private Declare Function FileTimeToSystemTime Lib "kernel32" (lpFilTime As FILETIME, lpSysTime As SYSTEMTIME) As Long
-
-Private Declare Function SystemTimeToFileTime Lib "kernel32" (lpSysTime As SYSTEMTIME, lpFilTime As FILETIME) As Long
-
-'Private Declare Function FileTimeToLocalFileTime Lib "kernel32" (lpFilTime As FILETIME, lpLocFilTime As FILETIME) As Long
-'Private Declare Function LocalFileTimeToFileTime Lib "kernel32" (lpLocFilTime As FILETIME, lpFilTime As FILETIME) As Long
-
-Private Declare Function SystemTimeToTzSpecificLocalTime Lib "kernel32" (ByRef lpTimeZoneInformation As TIME_ZONE_INFORMATION, ByRef lpUniversalTime As SYSTEMTIME, ByRef lpLocalTime As SYSTEMTIME) As Long
-
-Private Declare Function TzSpecificLocalTimeToSystemTime Lib "kernel32" (ByRef lpTimeZoneInformation As TIME_ZONE_INFORMATION, ByRef lpLocalTime As SYSTEMTIME, ByRef lpUniversalTime As SYSTEMTIME) As Long
-
-Private Declare Function FileTimeToDosDateTime Lib "kernel32" (lpFileTime As FILETIME, ByVal lpFatDate As Long, ByVal lpFatTime As Long) As Long
-
-Private Declare Function DosDateTimeToFileTime Lib "kernel32" (ByVal wFatDate As Long, ByVal wFatTime As Long, lpFilTime As FILETIME) As Long
-
-'void GetSystemTimePreciseAsFileTime(
-'  [out] LPFILETIME lpSystemTimeAsFileTime
-');
-Private Declare Sub GetSystemTimePreciseAsFileTime Lib "kernel32" (lpSystemTimeAsFileTime As FILETIME)
-'Private Declare Sub GetSystemTimePreciseAsFileTimeCy Lib "kernel32" Alias "GetSystemTimePreciseAsFileTime" (lpSystemTimeAsFileTime As Currency)
-
-Private Declare Function QueryPerformanceCounter Lib "kernel32" (ByRef lpPerformanceCount_out As Currency) As Long
-'
+#If VBA7 Then
+    'https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-gettimezoneinformation
+    Private Declare PtrSafe Function GetTimeZoneInformation Lib "kernel32" (lpTimeZoneInformation As TIME_ZONE_INFORMATION) As Long
+    '
+    Private Declare PtrSafe Function GetDynamicTimeZoneInformation Lib "kernel32" (pTimeZoneInformation As DYNAMIC_TIME_ZONE_INFORMATION) As Long
+    Private Declare PtrSafe Function GetTimeZoneInformationForYear Lib "kernel32" (ByVal wYear As Integer, pdtzi As DYNAMIC_TIME_ZONE_INFORMATION, ptzi As TIME_ZONE_INFORMATION) As Long
+    
+    
+    Private Declare PtrSafe Sub GetSystemTime Lib "kernel32" (lpSysTime As SYSTEMTIME)
+    
+    Private Declare PtrSafe Function FileTimeToSystemTime Lib "kernel32" (lpFilTime As FILETIME, lpSysTime As SYSTEMTIME) As Long
+    
+    Private Declare PtrSafe Function SystemTimeToFileTime Lib "kernel32" (lpSysTime As SYSTEMTIME, lpFilTime As FILETIME) As Long
+    
+    'Private Declare Function FileTimeToLocalFileTime Lib "kernel32" (lpFilTime As FILETIME, lpLocFilTime As FILETIME) As Long
+    'Private Declare Function LocalFileTimeToFileTime Lib "kernel32" (lpLocFilTime As FILETIME, lpFilTime As FILETIME) As Long
+    
+    Private Declare PtrSafe Function SystemTimeToTzSpecificLocalTime Lib "kernel32" (lpTimeZoneInformation As TIME_ZONE_INFORMATION, lpUniversalTime As SYSTEMTIME, lpLocalTime As SYSTEMTIME) As Long
+    
+    Private Declare PtrSafe Function TzSpecificLocalTimeToSystemTime Lib "kernel32" (lpTimeZoneInformation As TIME_ZONE_INFORMATION, lpLocalTime As SYSTEMTIME, lpUniversalTime As SYSTEMTIME) As Long
+    
+    Private Declare PtrSafe Function FileTimeToDosDateTime Lib "kernel32" (lpFileTime As FILETIME, lpFatDate As Integer, lpFatTime As Integer) As Long
+    
+    Private Declare PtrSafe Function DosDateTimeToFileTime Lib "kernel32" (ByVal wFatDate As Long, ByVal wFatTime As Long, lpFilTime As FILETIME) As Long
+    
+    'void GetSystemTimePreciseAsFileTime(
+    '  [out] LPFILETIME lpSystemTimeAsFileTime
+    ');
+    Private Declare PtrSafe Sub GetSystemTimePreciseAsFileTime Lib "kernel32" (lpSystemTimeAsFileTime As FILETIME)
+    'Private Declare Sub GetSystemTimePreciseAsFileTimeCy Lib "kernel32" Alias "GetSystemTimePreciseAsFileTime" (lpSystemTimeAsFileTime As Currency)
+    
+    Private Declare PtrSafe Function QueryPerformanceCounter Lib "kernel32" (lpPerformanceCount_out As Currency) As Long
+#Else
+    'https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-gettimezoneinformation
+    Private Declare Function GetTimeZoneInformation Lib "kernel32" (lpTimeZoneInformation As TIME_ZONE_INFORMATION) As Long
+    '
+    Private Declare Function GetDynamicTimeZoneInformation Lib "kernel32" (pTimeZoneInformation As DYNAMIC_TIME_ZONE_INFORMATION) As Long
+    Private Declare Function GetTimeZoneInformationForYear Lib "kernel32" (ByVal wYear As Integer, pdtzi As DYNAMIC_TIME_ZONE_INFORMATION, ptzi As TIME_ZONE_INFORMATION) As Long
+    
+    
+    Private Declare Sub GetSystemTime Lib "kernel32" (lpSysTime As SYSTEMTIME)
+    
+    Private Declare Function FileTimeToSystemTime Lib "kernel32" (lpFilTime As FILETIME, lpSysTime As SYSTEMTIME) As Long
+    
+    Private Declare Function SystemTimeToFileTime Lib "kernel32" (lpSysTime As SYSTEMTIME, lpFilTime As FILETIME) As Long
+    
+    'Private Declare Function FileTimeToLocalFileTime Lib "kernel32" (lpFilTime As FILETIME, lpLocFilTime As FILETIME) As Long
+    'Private Declare Function LocalFileTimeToFileTime Lib "kernel32" (lpLocFilTime As FILETIME, lpFilTime As FILETIME) As Long
+    
+    Private Declare Function SystemTimeToTzSpecificLocalTime Lib "kernel32" (lpTimeZoneInformation As TIME_ZONE_INFORMATION, lpUniversalTime As SYSTEMTIME, lpLocalTime As SYSTEMTIME) As Long
+    
+    Private Declare Function TzSpecificLocalTimeToSystemTime Lib "kernel32" (lpTimeZoneInformation As TIME_ZONE_INFORMATION, lpLocalTime As SYSTEMTIME, lpUniversalTime As SYSTEMTIME) As Long
+    
+    Private Declare Function FileTimeToDosDateTime Lib "kernel32" (lpFileTime As FILETIME, lpFatDate As Integer, lpFatTime As Integer) As Long
+    
+    Private Declare Function DosDateTimeToFileTime Lib "kernel32" (ByVal wFatDate As Long, ByVal wFatTime As Long, lpFilTime As FILETIME) As Long
+    
+    'void GetSystemTimePreciseAsFileTime(
+    '  [out] LPFILETIME lpSystemTimeAsFileTime
+    ');
+    Private Declare Sub GetSystemTimePreciseAsFileTime Lib "kernel32" (lpSystemTimeAsFileTime As FILETIME)
+    'Private Declare Sub GetSystemTimePreciseAsFileTimeCy Lib "kernel32" Alias "GetSystemTimePreciseAsFileTime" (lpSystemTimeAsFileTime As Currency)
+    
+    Private Declare Function QueryPerformanceCounter Lib "kernel32" (lpPerformanceCount_out As Currency) As Long
+#End If
 
 Public Sub Init()
     
@@ -519,13 +552,13 @@ Public Function DaysUntilWeekday(ByVal wd0 As Integer, ByVal wd1 As Integer, Opt
     'if FirstdayOfWeek is vbSunday the function assumes minday = 1 and maxday = 7 like in VB6
     If wd0 = wd1 Then Exit Function
     
-    Dim min As Integer, max As Integer: max = 6
+    Dim Min As Integer, Max As Integer: Max = 6
     If FirstDayOfWeek = VbDayOfWeek.vbSunday Then
-        min = 1
-        max = 7
+        Min = 1
+        Max = 7
     End If
-    If wd0 < min Or max < wd0 Then Exit Function
-    If wd1 < min Or max < wd1 Then Exit Function
+    If wd0 < Min Or Max < wd0 Then Exit Function
+    If wd1 < Min Or Max < wd1 Then Exit Function
         
     DaysUntilWeekday = wd1 - wd0
     
@@ -595,8 +628,9 @@ Public Function LocalFileTime_ToFileTime(aFt As FILETIME) As FILETIME
 End Function
 
 Public Property Get FileTime_ToDosTime(aFt As FILETIME) As DOSTIME
-    Dim pdt As Long: pdt = VarPtr(FileTime_ToDosTime)
-    FileTimeToDosDateTime aFt, pdt, pdt + 2
+    Dim dt As DOSTIME
+    FileTimeToDosDateTime aFt, dt.wDate, dt.wTime
+    FileTime_ToDosTime = dt
 End Property
 
 Public Function FileTime_ToDate(aFt As FILETIME) As Date
