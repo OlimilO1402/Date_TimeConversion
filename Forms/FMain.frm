@@ -19,7 +19,7 @@ Begin VB.Form FMain
    ScaleWidth      =   13695
    StartUpPosition =   3  'Windows-Standard
    Begin VB.CommandButton Command17 
-      Caption         =   "Command17"
+      Caption         =   "DosDate{22222;22222}"
       Height          =   375
       Left            =   0
       TabIndex        =   28
@@ -748,6 +748,6 @@ Private Sub Command17_Click()
     Dim dd As DOSTIME
     dd.wDate = 22222 'this was today 14.jun.2023
     dd.wTime = 22222
-    MsgBox DosTime_ToDate(dd)
+    MsgBox "DosTime{" & dd.wDate & "; " & dd.wTime & "} = " & vbCrLf & DosTime_ToDate(dd)
 End Sub
 
