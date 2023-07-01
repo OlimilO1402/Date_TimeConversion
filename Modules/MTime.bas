@@ -829,8 +829,8 @@ End Function
 
 ' ############################## '       StrTime       ' ############################## '
 ' "hh:mm:ss.mls"
-Public Function StrTime_ToCyTime(T As String) As Currency
-    Dim sa() As String: sa = Split(T, ":")
+Public Function StrTime_ToCyTime(t As String) As Currency
+    Dim sa() As String: sa = Split(t, ":")
     'Dim h  As Integer:  h = sa(0)
     'Dim m  As Integer:  m = sa(1)
     'Dim s  As Integer:  s = Int(Val(sa(2)))
@@ -838,8 +838,8 @@ Public Function StrTime_ToCyTime(T As String) As Currency
     StrTime_ToCyTime = CLng(Split(sa(2), ".")(1)) + Int(Val(sa(2))) * 1000 + CLng(sa(1)) * 60 * 1000 + CLng(sa(0)) * 60 * 60 * 1000
 End Function
 
-Public Function StrTime_ToSYSTEMTIME(T As String) As SYSTEMTIME
-    Dim sa() As String: sa = Split(T, ":")
+Public Function StrTime_ToSYSTEMTIME(t As String) As SYSTEMTIME
+    Dim sa() As String: sa = Split(t, ":")
     With StrTime_ToSYSTEMTIME
         .wYear = Year(Now)
         .wMonth = Month(Now)
@@ -937,7 +937,7 @@ Public Function ECalendar_Parse(s As String) As ECalendar
 End Function
 
 Public Function CalcEasterdateGauss1800(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim a As Long: a = y Mod 19 'der Mondparameter
+    Dim A As Long: A = y Mod 19 'der Mondparameter
     Dim b As Long: b = y Mod 4
     Dim c As Long: c = y Mod 7
     Dim k As Long: k = y \ 100 'die Säkularzahl
@@ -959,7 +959,7 @@ Public Function CalcEasterdateGauss1800(ByVal y As Long, Optional ByVal ecal As 
         m = (15 + k - p - q) Mod 30
     End Select
     
-    d = (19 * a + m) Mod 30
+    d = (19 * A + m) Mod 30
     
     Select Case ecal
     Case ECalendar.JulianCalendar
@@ -981,7 +981,7 @@ Public Function CalcEasterdateGauss1800(ByVal y As Long, Optional ByVal ecal As 
 End Function
 
 Public Function CalcEasterdateGauss1816(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim a As Long: a = y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
+    Dim A As Long: A = y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
     Dim b As Long: b = y Mod 4
     Dim c As Long: c = y Mod 7
     Dim k As Long: k = y \ 100 'die Säkularzahl
@@ -1003,7 +1003,7 @@ Public Function CalcEasterdateGauss1816(ByVal y As Long, Optional ByVal ecal As 
         m = (15 + k - p - q) Mod 30
     End Select
     
-    d = (19 * a + m) Mod 30
+    d = (19 * A + m) Mod 30
     
     Select Case ecal
     Case ECalendar.JulianCalendar
@@ -1033,7 +1033,7 @@ End Function
 '10. das Datum des Ostersonntags als Märzdatum
 '    (32. März = 1. April usw.)                         OS = OG + OE
 Public Function CalcEasterdateGaussCorrected1900(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim a As Long: a = y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
+    Dim A As Long: A = y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
     'Dim b As Long: b = y Mod 4
     'Dim c As Long: c = y Mod 7
     Dim k As Long: k = y \ 100 'die Säkularzahl
@@ -1062,8 +1062,8 @@ Public Function CalcEasterdateGaussCorrected1900(ByVal y As Long, Optional ByVal
         s = 2 - q
     End Select
     
-    d = (19 * a + m) Mod 30
-    r = (d + a \ 11) \ 29
+    d = (19 * A + m) Mod 30
+    r = (d + A \ 11) \ 29
     OG = 21 + d - r
     SZ = 7 - (y + y \ 4 + s) Mod 7
     OE = 7 - (OG - SZ) Mod 7
@@ -1096,9 +1096,9 @@ Public Function OsternShort(ByVal y As Long, Optional ByVal ecal As ECalendar = 
         s = 2 - q
     End Select
     
-    Dim a       As Long:  a = y Mod 19                   'der Mondparameter / Gaußsche Zykluszahl
-    Dim d       As Long:  d = (19 * a + m) Mod 30       'der Keim für den ersten Vollmond im Frühling
-    Dim r       As Long:  r = (d + a \ 11) \ 29         'die kalendarische Korrekturgröße
+    Dim A       As Long:  A = y Mod 19                   'der Mondparameter / Gaußsche Zykluszahl
+    Dim d       As Long:  d = (19 * A + m) Mod 30       'der Keim für den ersten Vollmond im Frühling
+    Dim r       As Long:  r = (d + A \ 11) \ 29         'die kalendarische Korrekturgröße
     Dim OG      As Long: OG = 21 + d - r                'die Ostergrenze
     Dim SZ      As Long: SZ = 7 - (y + y \ 4 + s) Mod 7 'der erste Sonntag im März
     Dim OE      As Long: OE = 7 - (OG - SZ) Mod 7       'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
@@ -1116,11 +1116,11 @@ Public Function OsternShort2(ByVal y As Long) As Date
                                                                             '(8 * k + 13) \ 25 'hier unterschiedlich zu 1800
     Dim q  As Long:  q = (3 * k + 3) \ 4
                                                                             '2 - q '= die säkulare Sonnenschaltung
-    Dim a  As Long:  a = y Mod 19                                           'der Mondparameter / Gaußsche Zykluszahl
+    Dim A  As Long:  A = y Mod 19                                           'der Mondparameter / Gaußsche Zykluszahl
                                                                                       '15 + q - ((8 * k + 13) \ 25) '= die säkulare Mondschaltung
-    Dim d  As Long:  d = (19 * a + (15 + q - ((8 * k + 13) \ 25))) Mod 30   'der Keim für den ersten Vollmond im Frühling
+    Dim d  As Long:  d = (19 * A + (15 + q - ((8 * k + 13) \ 25))) Mod 30   'der Keim für den ersten Vollmond im Frühling
                                                                                       '(d + a \ 11) \ 29 'die kalendarische Korrekturgröße
-    Dim OG As Long: OG = 21 + d - (d + a \ 11) \ 29                         'die Ostergrenze
+    Dim OG As Long: OG = 21 + d - (d + A \ 11) \ 29                         'die Ostergrenze
                                                                                       '7 - (y + y \ 4 + (2 - q)) Mod 7  'der erste Sonntag im März
     Dim OE As Long: OE = 7 - (OG - (7 - (y + y \ 4 + (2 - q)) Mod 7)) Mod 7 'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
     Dim OS As Long: OS = OG + OE                                            'das Datum des Ostersonntags als Märzdatum
@@ -1184,6 +1184,32 @@ Try: On Error GoTo Catch
     If LCase(s) = "now" Or LCase(s) = "jetzt" Then s = Now
     out_date = CDate(s)
     Date_TryParse = True
+    Exit Function
+Catch:
+    MsgBox Err.Number & " " & Err.Description
+End Function
+
+Public Function Time_TryParse(ByVal s As String, out_time As Date) As Boolean
+Try: On Error GoTo Catch
+    If Len(s) = 0 Then Exit Function
+    If LCase(s) = "now" Or LCase(s) = "jetzt" Then s = Now
+    Dim sa() As String: sa = Split(s, ":")
+    Dim u As Long: u = UBound(sa)
+    Dim hh As String: hh = sa(0)
+    If u > 0 Then
+        Dim mm As String: mm = sa(1)
+        If u > 1 Then
+            Dim ss As String: ss = sa(2)
+            Dim hhh As Integer: hhh = CInt(hh)
+            Dim mmm As Integer: mmm = CInt(mm)
+            Dim sss As Integer: sss = CInt(ss)
+            out_time = TimeSerial(hhh, mmm, sss)
+            Time_TryParse = True
+            Exit Function
+        End If
+    End If
+    'out_date = CDate(s)
+    Time_TryParse = True
     Exit Function
 Catch:
     MsgBox Err.Number & " " & Err.Description
