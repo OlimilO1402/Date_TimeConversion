@@ -170,6 +170,8 @@ Public IsSummerTime As Boolean
     'Private Declare Sub GetSystemTimePreciseAsFileTimeCy Lib "kernel32" Alias "GetSystemTimePreciseAsFileTime" (lpSystemTimeAsFileTime As Currency)
     
     Private Declare PtrSafe Function QueryPerformanceCounter Lib "kernel32" (lpPerformanceCount_out As Currency) As Long
+    
+    Private Declare PtrSafe Function QueryPerformanceFrequency Lib "kernel32" (lpFrequency_out As Currency) As Long
 #Else
     'https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-gettimezoneinformation
     Private Declare Function GetTimeZoneInformation Lib "kernel32" (lpTimeZoneInformation As TIME_ZONE_INFORMATION) As Long
@@ -202,6 +204,8 @@ Public IsSummerTime As Boolean
     'Private Declare Sub GetSystemTimePreciseAsFileTimeCy Lib "kernel32" Alias "GetSystemTimePreciseAsFileTime" (lpSystemTimeAsFileTime As Currency)
     
     Private Declare Function QueryPerformanceCounter Lib "kernel32" (lpPerformanceCount_out As Currency) As Long
+    
+    Private Declare Function QueryPerformanceFrequency Lib "kernel32" (lpFrequency_out As Currency) As Long
 #End If
 
 Public Sub Init()
@@ -229,6 +233,13 @@ Public Sub Init()
     MsgBox "Error trying to get time-zone-info!" & vbCrLf & ret
     
 End Sub
+
+' get accurate timer
+Public Function GetTimer() As Double
+    Dim f As Currency: QueryPerformanceFrequency f
+    Dim N As Currency: QueryPerformanceCounter N
+    GetTimer = N / f
+End Function
 
 Public Function TimeZoneInfo_ConvertTimeToUtc(ByVal dat As Date) As Date
     TimeZoneInfo_ConvertTimeToUtc = SystemTime_ToDate(TzSpecificLocalTime_ToSystemTime(Date_ToSystemTime(dat)))
