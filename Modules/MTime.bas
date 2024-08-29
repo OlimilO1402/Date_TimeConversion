@@ -398,6 +398,18 @@ Public Function Date_ToFileTime(aDate As Date) As FILETIME
     SystemTimeToFileTime Date_ToSystemTime(aDate), Date_ToFileTime
 End Function
 
+Public Function Date_ToUniversalTimeCoordinated(aDate As Date) As SYSTEMTIME
+    With Date_ToUniversalTimeCoordinated
+        .wYear = Year(aDate)
+        .wMonth = Month(aDate)
+        .wDay = Day(aDate)
+        .wHour = Hour(aDate)
+        .wMinute = Minute(aDate)
+        .wSecond = Second(aDate)
+        '.wMilliseconds = millisecond(aDate)
+    End With
+End Function
+
 Public Function Date_ToUnixTime(aDate As Date) As Double
     Date_ToUnixTime = DateDiff("s", DateSerial(1970, 1, 1), aDate) - GetSummerTimeCorrector
 End Function
@@ -513,6 +525,23 @@ End Function
 
 Public Function SystemTime_ToHexNStr(aSt As SYSTEMTIME) As String
     SystemTime_ToHexNStr = SystemTime_ToHex(aSt) & "; " & SystemTime_ToStr(aSt)
+End Function
+
+' ############################## '      Coordinated Universal Time       ' ############################## '
+
+Public Function UniversalTimeCoordinated_Now() As SYSTEMTIME
+    GetSystemTime UniversalTimeCoordinated_Now
+End Function
+
+'Private m_TZI    As TIME_ZONE_INFORMATION
+'Private m_DynTZI As DYNAMIC_TIME_ZONE_INFORMATION
+'Public IsSummerTime As Boolean
+
+Public Function UniversalTimeCoordinated_ToDate(this As SYSTEMTIME) As Date
+    Dim dh As Integer: dh = (m_TZI.StandardBias + m_TZI.DaylightBias + m_TZI.Bias) / 60
+    With this
+        UniversalTimeCoordinated_ToDate = DateSerial(.wYear, .wMonth, .wDay) + TimeSerial(.wHour - dh, .wMinute, .wSecond)
+    End With
 End Function
 
 ' ############################## '      TimeZoneInfoSystemTime       ' ############################## '
