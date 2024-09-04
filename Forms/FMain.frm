@@ -14,6 +14,7 @@ Begin VB.Form FMain
       Italic          =   0   'False
       Strikethrough   =   0   'False
    EndProperty
+   Icon            =   "FMain.frx":0000
    LinkTopic       =   "Form1"
    ScaleHeight     =   7590
    ScaleWidth      =   13950
@@ -561,12 +562,20 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
+Private m_DateTime   As Date
+Private m_SystemTime As MTime.SYSTEMTIME
+Private m_UTCTime    As MTime.SYSTEMTIME
+Private m_FileTime   As MTime.FILETIME
+Private m_UnixTime   As Double
+Private m_DOSTime    As MTime.DOSTIME
+Private m_WndFndDTim As MTime.WindowsFoundationDateTime
+Private m_DTimeStamp As Long
 
 Private Sub Form_Load()
     MTime.Init
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
     Btn_Date_Now_Click
-    Btn_DosTime_Now_Click
+    'Btn_DosTime_Now_Click
     Btn_IsSummerTime_Click
 End Sub
 
@@ -580,123 +589,133 @@ End Sub
 
 Private Sub Btn_Date_Now_Click()
     
-    Dim dat As Date: dat = MTime.Date_Now
-    LblDateNow.Caption = MTime.Date_ToHexNStr(dat)
-    LblSystemTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.Date_ToSystemTime(dat))
-    LblUTCTimeNow.Caption = MTime.SystemTime_ToHexNStr(Date_ToUniversalTimeCoordinated(dat))
+    m_DateTime = MTime.Date_Now
     
-    LblFileTimeNow.Caption = MTime.FileTime_ToHexNStr(MTime.Date_ToFileTime(dat))
-    LblUnixTimeNow.Caption = MTime.UnixTime_ToHexNStr(MTime.Date_ToUnixTime(dat))
-    LblDosTimeNow.Caption = MTime.DosTime_ToHexNStr(MTime.Date_ToDosTime(dat))
-    LblWinRTTimeNow.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.Date_ToWindowsFoundationDateTime(dat))
-    LblDTStampNow.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.Date_ToDateTimeStamp(dat))
+    m_SystemTime = MTime.Date_ToSystemTime(m_DateTime)
+    m_UTCTime = MTime.Date_ToUniversalTimeCoordinated(m_DateTime)
+    m_FileTime = MTime.Date_ToFileTime(m_DateTime)
+    m_UnixTime = MTime.Date_ToUnixTime(m_DateTime)
+    m_DOSTime = MTime.Date_ToDosTime(m_DateTime)
+    m_WndFndDTim = MTime.Date_ToWindowsFoundationDateTime(m_DateTime)
+    m_DTimeStamp = MTime.Date_ToDateTimeStamp(m_DateTime)
     
+    UpdateView
 End Sub
 
 Private Sub Btn_SystemTime_Now_Click()
     
-    Dim syt As SYSTEMTIME: syt = MTime.SystemTime_Now
-    LblDateNow.Caption = MTime.Date_ToHexNStr(MTime.SystemTime_ToDate(syt))
-    LblSystemTimeNow.Caption = MTime.SystemTime_ToHexNStr(syt)
-    LblUTCTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.UniversalTimeCoordinated_Now)
+    m_SystemTime = MTime.SystemTime_Now
     
-    LblFileTimeNow.Caption = MTime.FileTime_ToHexNStr(MTime.SystemTime_ToFileTime(syt))
-    LblUnixTimeNow.Caption = MTime.UnixTime_ToHexNStr(MTime.SystemTime_ToUnixTime(syt))
-    LblDosTimeNow.Caption = MTime.DosTime_ToHexNStr(MTime.SystemTime_ToDosTime(syt))
-    LblWinRTTimeNow.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.SystemTime_ToWindowsFoundationDateTime(syt))
-    LblDTStampNow.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.SystemTime_ToDateTimeStamp(syt))
+    m_DateTime = MTime.SystemTime_ToDate(m_SystemTime)
+    m_UTCTime = MTime.SystemTime_ToUniversalTimeCoordinated(m_SystemTime)
+    m_FileTime = MTime.SystemTime_ToFileTime(m_SystemTime)
+    m_UnixTime = MTime.SystemTime_ToUnixTime(m_SystemTime)
+    m_DOSTime = MTime.SystemTime_ToDosTime(m_SystemTime)
+    m_WndFndDTim = MTime.SystemTime_ToWindowsFoundationDateTime(m_SystemTime)
+    m_DTimeStamp = MTime.SystemTime_ToDateTimeStamp(m_SystemTime)
     
+    UpdateView
 End Sub
 
 Private Sub Btn_UTCTime_Now_Click()
+        
+    m_UTCTime = MTime.UniversalTimeCoordinated_Now
     
-    Dim utc As SYSTEMTIME: utc = MTime.UniversalTimeCoordinated_Now
-    Dim dat As Date: dat = MTime.UniversalTimeCoordinated_ToDate(utc)
-    LblDateNow.Caption = MTime.Date_ToHexNStr(dat)
-    LblSystemTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.Date_ToSystemTime(dat))
-    LblUTCTimeNow.Caption = MTime.SystemTime_ToHexNStr(utc)
+    m_DateTime = MTime.UniversalTimeCoordinated_ToDate(m_UTCTime)
+    m_SystemTime = MTime.UniversalTimeCoordinated_ToSystemTime(m_UTCTime)
+    m_FileTime = MTime.UniversalTimeCoordinated_ToFileTime(m_UTCTime)
+    m_UnixTime = MTime.UniversalTimeCoordinated_ToUnixTime(m_UTCTime)
+    m_DOSTime = MTime.UniversalTimeCoordinated_ToDOSTime(m_UTCTime)
+    m_WndFndDTim = MTime.UniversalTimeCoordinated_ToWindowsFoundationDateTime(m_UTCTime)
+    m_DTimeStamp = MTime.UniversalTimeCoordinated_ToDateTimeStamp(m_UTCTime)
     
-    LblFileTimeNow.Caption = MTime.FileTime_ToHexNStr(MTime.Date_ToFileTime(dat))
-    LblUnixTimeNow.Caption = MTime.UnixTime_ToHexNStr(MTime.Date_ToUnixTime(dat))
-    LblDosTimeNow.Caption = MTime.DosTime_ToHexNStr(MTime.Date_ToDosTime(dat))
-    LblWinRTTimeNow.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.Date_ToWindowsFoundationDateTime(dat))
-    LblDTStampNow.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.Date_ToDateTimeStamp(dat))
-    
+    UpdateView
 End Sub
 
 Private Sub Btn_FileTime_Now_Click()
     
-    Dim fit As FILETIME: fit = MTime.FileTime_Now
-    LblDateNow.Caption = MTime.Date_ToHexNStr(MTime.FileTime_ToDate(fit))
-    LblSystemTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.FileTime_ToSystemTime(fit))
-    LblUTCTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.UniversalTimeCoordinated_Now)
+    m_FileTime = MTime.FileTime_Now
     
-    LblFileTimeNow.Caption = MTime.FileTime_ToHexNStr(fit)
-    LblUnixTimeNow.Caption = MTime.UnixTime_ToHexNStr(MTime.FileTime_ToUnixTime(fit))
-    LblDosTimeNow.Caption = MTime.DosTime_ToHexNStr(MTime.FileTime_ToDosTime(fit))
-    LblWinRTTimeNow.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.FileTime_ToWindowsFoundationDateTime(fit))
-    LblDTStampNow.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.FileTime_ToDateTimeStamp(fit))
+    m_DateTime = MTime.FileTime_ToDate(m_FileTime)
+    m_SystemTime = MTime.FileTime_ToSystemTime(m_FileTime)
+    m_UTCTime = MTime.FileTime_ToUniversalTimeCoordinated(m_FileTime)
+    m_UnixTime = MTime.FileTime_ToUnixTime(m_FileTime)
+    m_DOSTime = MTime.FileTime_ToDosTime(m_FileTime)
+    m_WndFndDTim = MTime.FileTime_ToWindowsFoundationDateTime(m_FileTime)
+    m_DTimeStamp = MTime.FileTime_ToDateTimeStamp(m_FileTime)
     
+    UpdateView
 End Sub
 
 Private Sub Btn_UnixTime_Now_Click()
     
-    Dim uxt As Currency: uxt = MTime.UnixTime_Now
-    LblDateNow.Caption = MTime.Date_ToHexNStr(MTime.UnixTime_ToDate(uxt))
-    LblSystemTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.UnixTime_ToSystemTime(uxt))
-    LblUTCTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.UniversalTimeCoordinated_Now)
+    m_UnixTime = MTime.UnixTime_Now
     
-    LblFileTimeNow.Caption = MTime.FileTime_ToHexNStr(MTime.UnixTime_ToFileTime(uxt))
-    LblUnixTimeNow.Caption = MTime.UnixTime_ToHexNStr(uxt)
-    LblDosTimeNow.Caption = MTime.DosTime_ToHexNStr(MTime.UnixTime_ToDosTime(uxt))
-    LblWinRTTimeNow.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.UnixTime_ToWindowsFoundationDateTime(uxt))
-    LblDTStampNow.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.UnixTime_ToDateTimeStamp(uxt))
+    m_DateTime = MTime.UnixTime_ToDate(m_UnixTime)
+    m_SystemTime = MTime.UnixTime_ToSystemTime(m_UnixTime)
+    m_UTCTime = MTime.UnixTime_ToUniversalTimeCoordinated(m_UnixTime)
+    m_FileTime = MTime.UnixTime_ToFileTime(m_UnixTime)
+    m_DOSTime = MTime.UnixTime_ToDosTime(m_UnixTime)
+    m_WndFndDTim = MTime.UnixTime_ToWindowsFoundationDateTime(m_UnixTime)
+    m_DTimeStamp = MTime.UnixTime_ToDateTimeStamp(m_UnixTime)
     
+    UpdateView
 End Sub
 
 Private Sub Btn_DosTime_Now_Click()
     
-    Dim Dst As DOSTIME: Dst = MTime.DosTime_Now
-    LblDateNow.Caption = MTime.Date_ToHexNStr(MTime.DosTime_ToDate(Dst))
-    LblSystemTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.DosTime_ToSystemTime(Dst))
-    LblUTCTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.UniversalTimeCoordinated_Now)
+    m_DOSTime = MTime.DosTime_Now
     
-    LblFileTimeNow.Caption = MTime.FileTime_ToHexNStr(MTime.DosTime_ToFileTime(Dst))
-    LblUnixTimeNow.Caption = MTime.UnixTime_ToHexNStr(MTime.DosTime_ToUnixTime(Dst))
-    LblDosTimeNow.Caption = MTime.DosTime_ToHexNStr(Dst)
-    LblWinRTTimeNow.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.DosTime_ToWindowsFoundationDateTime(Dst))
-    LblDTStampNow.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.DosTime_ToDateTimeStamp(Dst))
+    m_DateTime = MTime.DosTime_ToDate(m_DOSTime)
+    m_SystemTime = MTime.DosTime_ToSystemTime(m_DOSTime)
+    m_UTCTime = MTime.DosTime_ToUniversalTimeCoordinated(m_DOSTime)
+    m_FileTime = MTime.DosTime_ToFileTime(m_DOSTime)
+    m_UnixTime = MTime.DosTime_ToUnixTime(m_DOSTime)
+    m_WndFndDTim = MTime.DosTime_ToWindowsFoundationDateTime(m_DOSTime)
+    m_DTimeStamp = MTime.DosTime_ToDateTimeStamp(m_DOSTime)
     
+    UpdateView
 End Sub
 
 Private Sub Btn_WinFndDateTime_Now_Click()
     
-    Dim wfdt As WindowsFoundationDateTime: wfdt = MTime.WindowsFoundationDateTime_Now
-    LblDateNow.Caption = MTime.Date_ToHexNStr(MTime.WindowsFoundationDateTime_ToDate(wfdt))
-    LblSystemTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.WindowsFoundationDateTime_ToSystemTime(wfdt))
-    LblUTCTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.UniversalTimeCoordinated_Now)
+    m_WndFndDTim = MTime.WindowsFoundationDateTime_Now
+        
+    m_DateTime = MTime.WindowsFoundationDateTime_ToDate(m_WndFndDTim)
+    m_SystemTime = MTime.WindowsFoundationDateTime_ToSystemTime(m_WndFndDTim)
+    m_UTCTime = MTime.WindowsFoundationDateTime_ToUniversalTimeCoordinated(m_WndFndDTim)
+    m_FileTime = MTime.WindowsFoundationDateTime_ToFileTime(m_WndFndDTim)
+    m_UnixTime = MTime.WindowsFoundationDateTime_ToUnixTime(m_WndFndDTim)
+    m_DOSTime = MTime.WindowsFoundationDateTime_ToDosTime(m_WndFndDTim)
+    m_DTimeStamp = MTime.WindowsFoundationDateTime_ToDateTimeStamp(m_WndFndDTim)
     
-    LblFileTimeNow.Caption = MTime.FileTime_ToHexNStr(MTime.WindowsFoundationDateTime_ToFileTime(wfdt))
-    LblUnixTimeNow.Caption = MTime.UnixTime_ToHexNStr(MTime.WindowsFoundationDateTime_ToUnixTime(wfdt))
-    LblDosTimeNow.Caption = MTime.DosTime_ToHexNStr(MTime.WindowsFoundationDateTime_ToDosTime(wfdt))
-    LblWinRTTimeNow.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(wfdt)
-    LblDTStampNow.Caption = MTime.DateTimeStamp_ToHexNStr(MTime.WindowsFoundationDateTime_ToDateTimeStamp(wfdt))
-    
+    UpdateView
 End Sub
 
 Private Sub Btn_DateTimeStamp_Now_Click()
     
-    Dim dts As Long: dts = MTime.DateTimeStamp_Now
-    LblDateNow.Caption = MTime.Date_ToHexNStr(MTime.DateTimeStamp_ToDate(dts))
-    LblSystemTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.DateTimeStamp_ToSystemTime(dts))
-    LblUTCTimeNow.Caption = MTime.SystemTime_ToHexNStr(MTime.UniversalTimeCoordinated_Now)
+    m_DTimeStamp = MTime.DateTimeStamp_Now
     
-    LblFileTimeNow.Caption = MTime.FileTime_ToHexNStr(MTime.DateTimeStamp_ToFileTime(dts))
-    LblUnixTimeNow.Caption = MTime.UnixTime_ToHexNStr(MTime.DateTimeStamp_ToUnixTime(dts))
-    LblDosTimeNow.Caption = MTime.DosTime_ToHexNStr(MTime.DateTimeStamp_ToDosTime(dts))
-    LblWinRTTimeNow.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(MTime.DateTimeStamp_ToWindowsFoundationDateTime(dts))
-    LblDTStampNow.Caption = MTime.DateTimeStamp_ToHexNStr(dts)
+    m_DateTime = MTime.DateTimeStamp_ToDate(m_DTimeStamp)
+    m_SystemTime = MTime.DateTimeStamp_ToSystemTime(m_DTimeStamp)
+    m_UTCTime = MTime.DateTimeStamp_ToUniversalTimeCoordinated(m_DTimeStamp)
+    m_FileTime = MTime.DateTimeStamp_ToFileTime(m_DTimeStamp)
+    m_UnixTime = MTime.DateTimeStamp_ToUnixTime(m_DTimeStamp)
+    m_DOSTime = MTime.DateTimeStamp_ToDosTime(m_DTimeStamp)
+    m_WndFndDTim = MTime.DateTimeStamp_ToWindowsFoundationDateTime(m_DTimeStamp)
     
+    UpdateView
+End Sub
+
+Private Sub UpdateView()
+    LblDateNow.Caption = MTime.Date_ToHexNStr(m_DateTime)
+    LblSystemTimeNow.Caption = MTime.SystemTime_ToHexNStr(m_SystemTime)
+    LblUTCTimeNow.Caption = MTime.UniversalTimeCoordinated_ToHexNStr(m_UTCTime)
+    LblFileTimeNow.Caption = MTime.FileTime_ToHexNStr(m_FileTime)
+    LblUnixTimeNow.Caption = MTime.UnixTime_ToHexNStr(m_UnixTime)
+    LblDosTimeNow.Caption = MTime.DosTime_ToHexNStr(m_DOSTime)
+    LblWinRTTimeNow.Caption = MTime.WindowsFoundationDateTime_ToHexNStr(m_WndFndDTim)
+    LblDTStampNow.Caption = MTime.DateTimeStamp_ToHexNStr(m_DTimeStamp)
 End Sub
 
 Private Sub BtnSomeUnixTimeTests_Click()
@@ -759,12 +778,12 @@ End Sub
 
 Private Sub Command10_Click()
     'Label8.Caption = MTime.GetSystemUpTime ' GetPCStartTime
-    Text1.Text = MTime.GetSystemUpTime
+    Text1.Text = "SystemUpTime: " & MTime.GetSystemUpTime
 End Sub
 
 Private Sub Command11_Click()
     'Label9.Caption = MTime.GetPCStartTime
-    Text1.Text = MTime.GetPCStartTime
+    Text1.Text = "PCStartTime: " & MTime.GetPCStartTime
 End Sub
 
 Private Sub Command12_Click()

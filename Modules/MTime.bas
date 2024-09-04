@@ -326,6 +326,10 @@ End Function
 
 ' ############################## '    DateTimeStamp    ' ############################## '
 ' e.g. can be found in executable files, exe, dll
+Public Function DateTimeStamp(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As Long
+    DateTimeStamp = Date_ToDateTimeStamp(DDate(Year, Month, Day, Hour, Minute, Second))
+End Function
+
 Public Function DateTimeStamp_Now() As Long
     DateTimeStamp_Now = Date_ToDateTimeStamp(Date_Now)
 End Function
@@ -377,6 +381,10 @@ Public Function DateTimeStamp_ToHexNStr(ByVal DtStamp As Long) As String
 End Function
 
 ' ############################## '        Date         ' ############################## '
+Public Function DDate(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As Date
+    DDate = DateSerial(Year, Month, Day) + TimeSerial(Hour, Minute, Second)
+End Function
+
 Public Property Get Date_Now() As Date
     Date_Now = VBA.DateTime.Now
 End Property
@@ -394,20 +402,18 @@ Public Function Date_ToSystemTime(aDate As Date) As SYSTEMTIME
     End With
 End Function
 
+Public Function DateTimeStamp_ToUniversalTimeCoordinated(this As Long) As SYSTEMTIME
+    Dim syt As SYSTEMTIME: syt = DateTimeStamp_ToSystemTime(this)
+    DateTimeStamp_ToUniversalTimeCoordinated = MTime.SystemTime_ToUniversalTimeCoordinated(syt)
+End Function
+
 Public Function Date_ToFileTime(aDate As Date) As FILETIME
     SystemTimeToFileTime Date_ToSystemTime(aDate), Date_ToFileTime
 End Function
 
 Public Function Date_ToUniversalTimeCoordinated(aDate As Date) As SYSTEMTIME
-    With Date_ToUniversalTimeCoordinated
-        .wYear = Year(aDate)
-        .wMonth = Month(aDate)
-        .wDay = Day(aDate)
-        .wHour = Hour(aDate)
-        .wMinute = Minute(aDate)
-        .wSecond = Second(aDate)
-        '.wMilliseconds = millisecond(aDate)
-    End With
+    'Dim dat As Date: dat = TimeZoneInfo_ConvertTimeToUtc(aDate)
+    Date_ToUniversalTimeCoordinated = Date_ToSystemTime(TimeZoneInfo_ConvertTimeToUtc(aDate))
 End Function
 
 Public Function Date_ToUnixTime(aDate As Date) As Double
@@ -453,6 +459,19 @@ Public Function Date_BiasMinutesToUTC(ByVal aDate As Date) As Long
 End Function
 
 ' ############################## '     SystemTime      ' ############################## '
+'SystemTime here is timezonespecific local time, for Systemtime as UTC-time look next chapter “Universal Time Coordinated”
+Public Function SYSTEMTIME(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer, ByVal Millisecond As Integer) As SYSTEMTIME
+    With SYSTEMTIME
+        .wYear = Year
+        .wMonth = Month
+        .wDay = Day
+        .wHour = Hour
+        .wMinute = Minute
+        .wSecond = Second
+        .wMilliseconds = Millisecond
+    End With
+End Function
+
 Public Property Get SystemTime_Now() As SYSTEMTIME
     GetSystemTime SystemTime_Now
     SystemTime_Now = SystemTime_ToTzSpecificLocalTime(SystemTime_Now)
@@ -474,6 +493,10 @@ Public Function SystemTime_ToDate(aSt As SYSTEMTIME) As Date
         End If
         SystemTime_ToDate = DateSerial(.wYear, .wMonth, .wDay) + TimeSerial(.wHour, .wMinute, .wSecond)
     End With
+End Function
+
+Public Function SystemTime_ToUniversalTimeCoordinated(aSt As SYSTEMTIME) As SYSTEMTIME
+    SystemTime_ToUniversalTimeCoordinated = TzSpecificLocalTime_ToSystemTime(aSt)
 End Function
 
 Public Function SystemTime_ToFileTime(aSt As SYSTEMTIME) As FILETIME
@@ -528,20 +551,64 @@ Public Function SystemTime_ToHexNStr(aSt As SYSTEMTIME) As String
 End Function
 
 ' ############################## '      Coordinated Universal Time       ' ############################## '
+'SystemTime here is coordinated universal time
+Public Function UniversalTimeCoordinated(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer, ByVal Millisecond As Integer) As SYSTEMTIME
+    UniversalTimeCoordinated = SYSTEMTIME(Year, Month, Day, Hour, Minute, Second, Millisecond)
+End Function
 
 Public Function UniversalTimeCoordinated_Now() As SYSTEMTIME
     GetSystemTime UniversalTimeCoordinated_Now
 End Function
 
-'Private m_TZI    As TIME_ZONE_INFORMATION
-'Private m_DynTZI As DYNAMIC_TIME_ZONE_INFORMATION
-'Public IsSummerTime As Boolean
-
 Public Function UniversalTimeCoordinated_ToDate(this As SYSTEMTIME) As Date
-    Dim dh As Integer: dh = (m_TZI.StandardBias + m_TZI.DaylightBias + m_TZI.Bias) / 60
-    With this
-        UniversalTimeCoordinated_ToDate = DateSerial(.wYear, .wMonth, .wDay) + TimeSerial(.wHour - dh, .wMinute, .wSecond)
-    End With
+    Dim syt As SYSTEMTIME: syt = UniversalTimeCoordinated_ToSystemTime(this)
+    UniversalTimeCoordinated_ToDate = SystemTime_ToDate(syt)
+End Function
+
+Public Function UniversalTimeCoordinated_ToSystemTime(this As SYSTEMTIME) As SYSTEMTIME
+    UniversalTimeCoordinated_ToSystemTime = MTime.SystemTime_ToTzSpecificLocalTime(this)
+End Function
+
+Public Function UniversalTimeCoordinated_ToFileTime(this As SYSTEMTIME) As FILETIME
+    Dim syt As SYSTEMTIME: syt = UniversalTimeCoordinated_ToSystemTime(this)
+    UniversalTimeCoordinated_ToFileTime = SystemTime_ToFileTime(syt)
+End Function
+
+Public Function UniversalTimeCoordinated_ToUnixTime(this As SYSTEMTIME) As Double
+    Dim syt As SYSTEMTIME: syt = UniversalTimeCoordinated_ToSystemTime(this)
+    UniversalTimeCoordinated_ToUnixTime = SystemTime_ToUnixTime(syt)
+End Function
+
+Public Function UniversalTimeCoordinated_ToDOSTime(this As SYSTEMTIME) As DOSTIME
+    Dim syt As SYSTEMTIME: syt = UniversalTimeCoordinated_ToSystemTime(this)
+    UniversalTimeCoordinated_ToDOSTime = SystemTime_ToDosTime(syt)
+End Function
+    
+Public Function UniversalTimeCoordinated_ToWindowsFoundationDateTime(this As SYSTEMTIME) As WindowsFoundationDateTime
+    Dim syt As SYSTEMTIME: syt = UniversalTimeCoordinated_ToSystemTime(this)
+    UniversalTimeCoordinated_ToWindowsFoundationDateTime = MTime.SystemTime_ToWindowsFoundationDateTime(syt)
+End Function
+    
+Public Function UniversalTimeCoordinated_ToDateTimeStamp(this As SYSTEMTIME) As Long
+    Dim syt As SYSTEMTIME: syt = UniversalTimeCoordinated_ToSystemTime(this)
+    UniversalTimeCoordinated_ToDateTimeStamp = MTime.SystemTime_ToDateTimeStamp(syt)
+End Function
+
+Public Function UniversalTimeCoordinated_ToStr(this As SYSTEMTIME) As String
+    UniversalTimeCoordinated_ToStr = SystemTime_ToStr(this)
+End Function
+
+Public Function UniversalTimeCoordinated_Equals(this As SYSTEMTIME, other As SYSTEMTIME) As Boolean
+    UniversalTimeCoordinated_Equals = SystemTime_Equals(this, other)
+End Function
+
+Public Function UniversalTimeCoordinated_ToHex(this As SYSTEMTIME) As String
+    Dim th As THexBytes: LSet th = this
+    UniversalTimeCoordinated_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function UniversalTimeCoordinated_ToHexNStr(this As SYSTEMTIME) As String
+    UniversalTimeCoordinated_ToHexNStr = SystemTime_ToHexNStr(this)
 End Function
 
 ' ############################## '      TimeZoneInfoSystemTime       ' ############################## '
@@ -645,6 +712,10 @@ End Function
 '?DaysUntilWeekday(6, 1)    ' 2
 
 ' ############################## '      FileTime       ' ############################## '
+Public Function FILETIME(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer, ByVal Millisecond As Integer) As FILETIME
+    FILETIME = SystemTime_ToFileTime(SYSTEMTIME(Year, Month, Day, Hour, Minute, Second, Millisecond))
+End Function
+
 Public Property Get FileTime_Now() As FILETIME
     'FileTime_Now = SystemTime_ToFileTime(SystemTime_Now)
     GetSystemTimePreciseAsFileTime FileTime_Now
@@ -681,6 +752,11 @@ End Function
 
 Public Function FileTime_ToSystemTime(aFt As FILETIME) As SYSTEMTIME
     FileTimeToSystemTime aFt, FileTime_ToSystemTime
+End Function
+
+Public Function FileTime_ToUniversalTimeCoordinated(this As FILETIME) As SYSTEMTIME
+    Dim syt As SYSTEMTIME: syt = MTime.FileTime_ToSystemTime(this)
+    FileTime_ToUniversalTimeCoordinated = MTime.SystemTime_ToUniversalTimeCoordinated(syt)
 End Function
 
 Public Function FileTime_ToUnixTime(aFt As FILETIME) As Double
@@ -724,6 +800,10 @@ End Function
 ' dem 1. Januar 1970 um 00:00 Greenwhich Mean Time (GMT, heute UTC) dargestellt.
 ' Dieses Urdatum wird manchmal auch "The Epoch" genannt. In manchen Situationen muss
 ' man in Shellskripten die Unix-Zeit in ein normales Datum umrechnen und umgekehrt.
+Public Function UnixTime(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As Double
+    UnixTime = Date_ToUnixTime(DDate(Year, Month, Day, Hour, Minute, Second))
+End Function
+
 Public Property Get UnixTime_Now() As Double
     UnixTime_Now = Date_ToUnixTime(Date_Now)
 End Property
@@ -734,6 +814,11 @@ End Function
 
 Public Function UnixTime_ToSystemTime(ByVal uts As Double) As SYSTEMTIME
     UnixTime_ToSystemTime = Date_ToSystemTime(UnixTime_ToDate(uts))
+End Function
+
+Public Function UnixTime_ToUniversalTimeCoordinated(this As Double) As SYSTEMTIME
+    Dim syt As SYSTEMTIME: syt = MTime.UnixTime_ToSystemTime(this)
+    UnixTime_ToUniversalTimeCoordinated = MTime.SystemTime_ToUniversalTimeCoordinated(syt)
 End Function
 
 Public Function UnixTime_ToFileTime(ByVal uts As Double) As FILETIME
@@ -771,35 +856,44 @@ End Function
 
 ' ############################## '       DosTime       ' ############################## '
 ' oder auch FAT-Time also die Zeit die unter DOS in der FAT der Festplatte gespeichert wird
+Public Function DOSTIME(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As DOSTIME
+    DOSTIME = Date_ToDosTime(DDate(Year, Month, Day, Hour, Minute, Second))
+End Function
+
 Public Function DosTime_Now() As DOSTIME
     DosTime_Now = FileTime_ToDosTime(Date_ToFileTime(Date_Now))
 End Function
 
-Public Function DosTime_ToDate(aDosTime As DOSTIME) As Date
-    DosTime_ToDate = FileTime_ToDate(DosTime_ToFileTime(aDosTime))
+Public Function DosTime_ToDate(this As DOSTIME) As Date
+    DosTime_ToDate = FileTime_ToDate(DosTime_ToFileTime(this))
 End Function
 
-Public Function DosTime_ToSystemTime(aDosTime As DOSTIME) As SYSTEMTIME
-    DosTime_ToSystemTime = FileTime_ToSystemTime(DosTime_ToFileTime(aDosTime))
+Public Function DosTime_ToSystemTime(this As DOSTIME) As SYSTEMTIME
+    DosTime_ToSystemTime = FileTime_ToSystemTime(DosTime_ToFileTime(this))
 End Function
 
-Public Property Get DosTime_ToFileTime(aDosTime As DOSTIME) As FILETIME
-    DosDateTimeToFileTime aDosTime.wDate, aDosTime.wTime, DosTime_ToFileTime
+Public Function DosTime_ToUniversalTimeCoordinated(this As DOSTIME) As SYSTEMTIME
+    Dim syt As SYSTEMTIME: syt = MTime.DosTime_ToSystemTime(this)
+    DosTime_ToUniversalTimeCoordinated = SystemTime_ToUniversalTimeCoordinated(syt)
+End Function
+
+Public Property Get DosTime_ToFileTime(this As DOSTIME) As FILETIME
+    DosDateTimeToFileTime this.wDate, this.wTime, DosTime_ToFileTime
 End Property
 
-Public Function DosTime_ToUnixTime(aDosTime As DOSTIME) As Double
-    DosTime_ToUnixTime = Date_ToUnixTime(DosTime_ToDate(aDosTime))
+Public Function DosTime_ToUnixTime(this As DOSTIME) As Double
+    DosTime_ToUnixTime = Date_ToUnixTime(DosTime_ToDate(this))
 End Function
 
-Public Function DosTime_ToWindowsFoundationDateTime(aDosTime As DOSTIME) As WindowsFoundationDateTime
-    LSet DosTime_ToWindowsFoundationDateTime = DosTime_ToFileTime(aDosTime)
+Public Function DosTime_ToWindowsFoundationDateTime(this As DOSTIME) As WindowsFoundationDateTime
+    LSet DosTime_ToWindowsFoundationDateTime = DosTime_ToFileTime(this)
 End Function
 
-Public Function DosTime_ToDateTimeStamp(aDosTime As DOSTIME) As Long
-    DosTime_ToDateTimeStamp = Date_ToDateTimeStamp(DosTime_ToDate(aDosTime))
+Public Function DosTime_ToDateTimeStamp(this As DOSTIME) As Long
+    DosTime_ToDateTimeStamp = Date_ToDateTimeStamp(DosTime_ToDate(this))
 End Function
 
-Public Function DosTime_ToStr(aDt As DOSTIME) As String
+Public Function DosTime_ToStr(this As DOSTIME) As String
     ' Bits    Description
     ' 0 - 4   Day of the month (1–31)
     ' 5 - 8   Month (1 = January, 2 = February, and so on)
@@ -819,28 +913,28 @@ Public Function DosTime_ToStr(aDt As DOSTIME) As String
 '    Dim mi As Byte: mi = (aDt.wTime And &H7E0) \ 32
 '    Dim ho As Byte: ho = (aDt.wTime And &H7C00) \ 2048
 '    DosTime_ToStr = Str2(dm) & "." & Str2(mo) & "." & CStr(ye) & " " & Str2(ho) & ":" & Str2(mi) & ":" & Str2(se)
-    DosTime_ToStr = "wDate: " & CStr(aDt.wDate) & "; wTime: " & CStr(aDt.wTime)
+    DosTime_ToStr = "wDate: " & CStr(this.wDate) & "; wTime: " & CStr(this.wTime)
 End Function
 
 'Private Function Str2(ByVal by As Byte) As String
 '    Str2 = CStr(by): If Len(Str2) < 2 Then Str2 = "0" & Str2
 'End Function
-Public Function DosTime_Equals(aDosTime As DOSTIME, other As DOSTIME) As Boolean
+Public Function DosTime_Equals(this As DOSTIME, other As DOSTIME) As Boolean
     Dim b As Boolean
-    With aDosTime
+    With this
         b = .wDate = other.wDate: If Not b Then Exit Function
         b = .wTime = other.wTime ': If Not b Then Exit Function
     End With
     DosTime_Equals = b
 End Function
 
-Public Function DosTime_ToHex(aDosTime As DOSTIME) As String
-    Dim th As THexBytes: LSet th = aDosTime
+Public Function DosTime_ToHex(this As DOSTIME) As String
+    Dim th As THexBytes: LSet th = this
     DosTime_ToHex = THexBytes_ToStr(th)
 End Function
 
-Public Function DosTime_ToHexNStr(aDosTime As DOSTIME) As String
-    DosTime_ToHexNStr = DosTime_ToHex(aDosTime) & "; " & DosTime_ToStr(aDosTime)
+Public Function DosTime_ToHexNStr(this As DOSTIME) As String
+    DosTime_ToHexNStr = DosTime_ToHex(this) & "; " & DosTime_ToStr(this)
 End Function
 
 ' ############################## '       CyTime        ' ############################## '
@@ -895,6 +989,9 @@ End Function
 ' ############################## '       WindowsFoundationDateTime       ' ############################## '
 'https://learn.microsoft.com/de-de/uwp/api/windows.foundation.datetime?view=winrt-22621
 'UniversalTime: A 64-bit signed integer that represents a point in time as the number of 100-nanosecond intervals prior to or after midnight on January 1, 1601 (according to the Gregorian Calendar).
+Public Function WindowsFoundationDateTime(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As WindowsFoundationDateTime
+    WindowsFoundationDateTime = Date_ToWindowsFoundationDateTime(DDate(Year, Month, Day, Hour, Minute, Second))
+End Function
 
 Public Function WindowsFoundationDateTime_Now() As WindowsFoundationDateTime
     LSet WindowsFoundationDateTime_Now = FileTime_Now
@@ -906,6 +1003,10 @@ End Function
 
 Public Function WindowsFoundationDateTime_ToSystemTime(this As WindowsFoundationDateTime) As SYSTEMTIME
     WindowsFoundationDateTime_ToSystemTime = FileTime_ToSystemTime(WindowsFoundationDateTime_ToFileTime(this))
+End Function
+
+Public Function WindowsFoundationDateTime_ToUniversalTimeCoordinated(this As WindowsFoundationDateTime) As SYSTEMTIME
+    WindowsFoundationDateTime_ToUniversalTimeCoordinated = WindowsFoundationDateTime_ToSystemTime(this)
 End Function
 
 Public Function WindowsFoundationDateTime_ToDate(this As WindowsFoundationDateTime) As Date
