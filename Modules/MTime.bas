@@ -1,5 +1,5 @@
 Attribute VB_Name = "MTime"
-Option Explicit 'Lines: 1402 14.jun.2023
+Option Explicit 'Lines: 1402 14.jun.2023; 1603 16.sep.2024
 
 Public Enum ECalendar
     JulianCalendar
@@ -380,6 +380,9 @@ Public Function DateTimeStamp_ToHexNStr(ByVal DtStamp As Long) As String
     DateTimeStamp_ToHexNStr = DateTimeStamp_ToHex(DtStamp) & "; " & DateTimeStamp_ToStr(DtStamp)
 End Function
 
+Public Function DateTimeStamp_ToStrISO8601(ByVal DtStamp As Long) As String
+    '
+End Function
 ' ############################## '        Date         ' ############################## '
 Public Function DDate(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As Date
     DDate = DateSerial(Year, Month, Day) + TimeSerial(Hour, Minute, Second)
@@ -451,6 +454,10 @@ End Function
 
 Public Function Date_ToHexNStr(ByVal aDate As Date) As String
     Date_ToHexNStr = Date_ToHex(aDate) & "; " & Date_ToStr(aDate)
+End Function
+
+Public Function Date_ToStrISO8601(ByVal aDate As Date) As String
+    Date_ToStrISO8601 = Year(aDate) & "-" & Month(aDate) & "-" & Day(aDate) & "T" & Hour(aDate) & ":" & Minute(aDate) & ":" & Second(aDate)
 End Function
 
 Public Function Date_BiasMinutesToUTC(ByVal aDate As Date) As Long
@@ -546,6 +553,12 @@ Public Function SystemTime_ToHex(aSt As SYSTEMTIME) As String
     SystemTime_ToHex = THexBytes_ToStr(th)
 End Function
 
+Public Function SystemTime_ToStrISO8601(aSt As SYSTEMTIME) As String
+    With aSt
+        SystemTime_ToStrISO8601 = .wYear & "-" & .wMonth & "-" & .wDay & "T" & .wHour & ":" & .wMinute & ":" & .wSecond
+    End With
+End Function
+
 Public Function SystemTime_ToHexNStr(aSt As SYSTEMTIME) As String
     SystemTime_ToHexNStr = SystemTime_ToHex(aSt) & "; " & SystemTime_ToStr(aSt)
 End Function
@@ -605,6 +618,12 @@ End Function
 Public Function UniversalTimeCoordinated_ToHex(this As SYSTEMTIME) As String
     Dim th As THexBytes: LSet th = this
     UniversalTimeCoordinated_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function UniversalTimeCoordinated_ToStrISO8601(this As SYSTEMTIME) As String
+    With this
+        UniversalTimeCoordinated_ToStrISO8601 = .wYear & "-" & .wMonth & "-" & .wDay & "T" & .wHour & ":" & .wMinute & ":" & .wSecond
+    End With
 End Function
 
 Public Function UniversalTimeCoordinated_ToHexNStr(this As SYSTEMTIME) As String
@@ -791,6 +810,10 @@ Public Function FileTime_ToHex(aFt As FILETIME) As String
     FileTime_ToHex = THexBytes_ToStr(th)
 End Function
 
+Public Function FileTime_ToStrISO8601(aFt As FILETIME) As String
+    FileTime_ToStrISO8601 = SystemTime_ToStrISO8601(FileTime_ToSystemTime(aSt))
+End Function
+
 Public Function FileTime_ToHexNStr(aFt As FILETIME) As String
     FileTime_ToHexNStr = FileTime_ToHex(aFt) & "; " & FileTime_ToStr(aFt)
 End Function
@@ -848,6 +871,10 @@ End Function
 Public Function UnixTime_ToHex(ByVal uts As Double) As String
     Dim th As THexBytes, td As THexDbl: td.Value = uts: LSet th = td
     UnixTime_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function UnixTime_ToStrISO8601(ByVal uts As Double) As String
+    UnixTime_ToStrISO8601 = SystemTime_ToStrISO8601(UnixTime_ToSystemTime(aSt))
 End Function
 
 Public Function UnixTime_ToHexNStr(ByVal uts As Double) As String
@@ -931,6 +958,10 @@ End Function
 Public Function DosTime_ToHex(this As DOSTIME) As String
     Dim th As THexBytes: LSet th = this
     DosTime_ToHex = THexBytes_ToStr(th)
+End Function
+
+Public Function DosTime_ToStrISO8601(this As DOSTIME) As String
+    DosTime_ToStrISO8601 = SystemTime_ToStrISO8601(DosTime_ToSystemTime(uts))
 End Function
 
 Public Function DosTime_ToHexNStr(this As DOSTIME) As String
@@ -1043,6 +1074,10 @@ Public Function WindowsFoundationDateTime_ToHexNStr(this As WindowsFoundationDat
     WindowsFoundationDateTime_ToHexNStr = WindowsFoundationDateTime_ToHex(this) & "; " & WindowsFoundationDateTime_ToStr(this)
 End Function
 
+Public Function WindowsFoundationDateTime_ToStrISO8601(this As DOSTIME) As String
+    WindowsFoundationDateTime_ToStrISO8601 = SystemTime_ToStrISO8601(WindowsFoundationDateTime_ToSystemTime(this))
+End Function
+
 ' ############################## '       THexBytes       ' ############################## '
 Private Function THexBytes_ToStr(this As THexBytes) As String
     Dim s As String: s = "&&H"
@@ -1055,7 +1090,6 @@ End Function
 Private Function Hex2(ByVal b As Byte) As String
     Hex2 = Hex(b): If Len(Hex2) < 2 Then Hex2 = "0" & Hex2
 End Function
-
 
 ' ############################## '       MDate       ' ############################## '
 
