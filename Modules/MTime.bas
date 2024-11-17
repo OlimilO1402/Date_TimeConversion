@@ -223,8 +223,8 @@ Public Sub Init()
     'Debug.Print "----------"
     'Debug.Print PDynTimeZoneInfo_ToStr(m_DynTZI)
     
-    Dim y As Integer: y = DateTime.Year(Now)
-    ret = GetTimeZoneInformationForYear(y, m_DynTZI, m_TZI)
+    Dim Y As Integer: Y = DateTime.Year(Now)
+    ret = GetTimeZoneInformationForYear(Y, m_DynTZI, m_TZI)
     'Debug.Print "----------"
     'Debug.Print PTimeZoneInfo_ToStr(m_TZI)
     'Debug.Print PDynTimeZoneInfo_ToStr(m_DynTZI)
@@ -241,8 +241,8 @@ Public Function GetTimer() As Double
     GetTimer = N / f
 End Function
 
-Public Function TimeZoneInfo_ConvertTimeToUtc(ByVal dat As Date) As Date
-    TimeZoneInfo_ConvertTimeToUtc = SystemTime_ToDate(TzSpecificLocalTime_ToSystemTime(Date_ToSystemTime(dat)))
+Public Function TimeZoneInfo_ConvertTimeToUtc(ByVal this As Date) As Date
+    TimeZoneInfo_ConvertTimeToUtc = SystemTime_ToDate(TzSpecificLocalTime_ToSystemTime(Date_ToSystemTime(this)))
 End Function
 
 Public Property Get TimeZoneInfo_Bias() As Long
@@ -392,77 +392,97 @@ Public Property Get Date_Now() As Date
     Date_Now = VBA.DateTime.Now
 End Property
 
-Public Function Date_ToSystemTime(aDate As Date) As SYSTEMTIME
+Public Function Date_ToSystemTime(this As Date) As SYSTEMTIME
     With Date_ToSystemTime
-        .wYear = Year(aDate)
-        .wMonth = Month(aDate)
-        .wDayOfWeek = Weekday(aDate, vbUseSystemDayOfWeek)
-        .wDay = Day(aDate)
-        .wHour = Hour(aDate)
-        .wMinute = Minute(aDate)
-        .wSecond = Second(aDate)
+        .wYear = Year(this)
+        .wMonth = Month(this)
+        .wDayOfWeek = Weekday(this, vbUseSystemDayOfWeek)
+        .wDay = Day(this)
+        .wHour = Hour(this)
+        .wMinute = Minute(this)
+        .wSecond = Second(this)
         '.wMilliseconds = millisecond(aDate) 'nope
     End With
 End Function
 
-Public Function DateTimeStamp_ToUniversalTimeCoordinated(this As Long) As SYSTEMTIME
-    Dim syt As SYSTEMTIME: syt = DateTimeStamp_ToSystemTime(this)
+Public Function DateTimeStamp_ToUniversalTimeCoordinated(DtStamp As Long) As SYSTEMTIME
+    Dim syt As SYSTEMTIME: syt = DateTimeStamp_ToSystemTime(DtStamp)
     DateTimeStamp_ToUniversalTimeCoordinated = MTime.SystemTime_ToUniversalTimeCoordinated(syt)
 End Function
 
-Public Function Date_ToFileTime(aDate As Date) As FILETIME
-    SystemTimeToFileTime Date_ToSystemTime(aDate), Date_ToFileTime
+Public Function Date_ToFileTime(this As Date) As FILETIME
+    SystemTimeToFileTime Date_ToSystemTime(this), Date_ToFileTime
 End Function
 
-Public Function Date_ToUniversalTimeCoordinated(aDate As Date) As SYSTEMTIME
+Public Function Date_ToUniversalTimeCoordinated(this As Date) As SYSTEMTIME
     'Dim dat As Date: dat = TimeZoneInfo_ConvertTimeToUtc(aDate)
-    Date_ToUniversalTimeCoordinated = Date_ToSystemTime(TimeZoneInfo_ConvertTimeToUtc(aDate))
+    Date_ToUniversalTimeCoordinated = Date_ToSystemTime(TimeZoneInfo_ConvertTimeToUtc(this))
 End Function
 
-Public Function Date_ToUnixTime(aDate As Date) As Double
-    Date_ToUnixTime = DateDiff("s", DateSerial(1970, 1, 1), aDate) - GetSummerTimeCorrector
+Public Function Date_ToUnixTime(this As Date) As Double
+    Date_ToUnixTime = DateDiff("s", DateSerial(1970, 1, 1), this) - GetSummerTimeCorrector
 End Function
 
-Public Function Date_ToDosTime(aDate As Date) As DOSTIME
-    Date_ToDosTime = FileTime_ToDosTime(Date_ToFileTime(aDate))
+Public Function Date_ToDosTime(this As Date) As DOSTIME
+    Date_ToDosTime = FileTime_ToDosTime(Date_ToFileTime(this))
 End Function
 
-Public Function Date_ToDateTimeStamp(aDate As Date) As Long
-    Date_ToDateTimeStamp = DateDiff("s", DateSerial(1970, 1, 2), aDate)
+Public Function Date_ToDateTimeStamp(this As Date) As Long
+    Date_ToDateTimeStamp = DateDiff("s", DateSerial(1970, 1, 2), this)
 End Function
 
-Public Function Date_ToWindowsFoundationDateTime(aDate As Date) As WindowsFoundationDateTime
-    LSet Date_ToWindowsFoundationDateTime = Date_ToFileTime(aDate)
+Public Function Date_ToWindowsFoundationDateTime(this As Date) As WindowsFoundationDateTime
+    LSet Date_ToWindowsFoundationDateTime = Date_ToFileTime(this)
 End Function
 
-Public Function Date_ToStr(aDate As Date) As String
-    Date_ToStr = FormatDateTime(aDate, VbDateTimeFormat.vbLongDate) & " - " & FormatDateTime(aDate, VbDateTimeFormat.vbLongTime)
+Public Function Date_ToStr(this As Date) As String
+    Date_ToStr = FormatDateTime(this, VbDateTimeFormat.vbLongDate) & " - " & FormatDateTime(this, VbDateTimeFormat.vbLongTime)
 End Function
 
 Public Function GetSummerTimeCorrector() As Double
     GetSummerTimeCorrector = DateDiff("s", SystemTime_ToDate(SystemTime_Now), Now)
 End Function
 
-Public Function Date_Equals(aDate As Date, other As Date) As Boolean
-    Date_Equals = aDate = other
+Public Function Date_Equals(this As Date, other As Date) As Boolean
+    Date_Equals = this = other
 End Function
 
-Public Function Date_ToHex(ByVal aDate As Date) As String
-    Dim th As THexBytes, td As THexDat: td.Value = aDate: LSet th = td
+Public Function Date_ToHex(ByVal this As Date) As String
+    Dim th As THexBytes, td As THexDat: td.Value = this: LSet th = td
     Date_ToHex = THexBytes_ToStr(th)
 End Function
 
-Public Function Date_ToHexNStr(ByVal aDate As Date) As String
-    Date_ToHexNStr = Date_ToHex(aDate) & "; " & Date_ToStr(aDate)
+Public Function Date_ToHexNStr(ByVal this As Date) As String
+    Date_ToHexNStr = Date_ToHex(this) & "; " & Date_ToStr(this)
 End Function
 
-Public Function Date_ToStrISO8601(ByVal aDate As Date) As String
-    Date_ToStrISO8601 = Year(aDate) & "-" & Month(aDate) & "-" & Day(aDate) & "T" & Hour(aDate) & ":" & Minute(aDate) & ":" & Second(aDate)
+Public Function Date_ToStrISO8601(ByVal this As Date, Optional ByVal Format As String = "YYYY-MM-DDThh:mm:ss") As String
+    Dim i As Long, ch As String, s As String
+    Dim state As Long
+    
+    Do While i <= Len(Format): i = i + 1: ch = Mid(Format, i)
+        Select Case state
+        Case 0
+            If ch = "Y" Then
+                Do
+                    Select Case ch
+                    Case "Y"
+                    End Select
+                Loop
+            Else
+                'Fehler
+            End If
+        Case "Y": state = state + 1
+            Select Case state
+            Case 4
+        s = Year(this) & "-" & Month(this) & "-" & Day(this) & "T" & Hour(this) & ":" & Minute(this) & ":" & Second(this)
+    Loop
+    Date_ToStrISO8601 = s
 End Function
 
-Public Function Date_BiasMinutesToUTC(ByVal aDate As Date) As Long
-    Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(aDate)
-    Date_BiasMinutesToUTC = DateDiff("n", utc, aDate)
+Public Function Date_BiasMinutesToUTC(ByVal this As Date) As Long
+    Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(this)
+    Date_BiasMinutesToUTC = DateDiff("n", utc, this)
 End Function
 
 ' ############################## '     SystemTime      ' ############################## '
@@ -484,58 +504,58 @@ Public Property Get SystemTime_Now() As SYSTEMTIME
     SystemTime_Now = SystemTime_ToTzSpecificLocalTime(SystemTime_Now)
 End Property
 
-Public Function SystemTime_ToTzSpecificLocalTime(aSt As SYSTEMTIME) As SYSTEMTIME
+Public Function SystemTime_ToTzSpecificLocalTime(this As SYSTEMTIME) As SYSTEMTIME
     'UTC to local time
-    SystemTimeToTzSpecificLocalTime m_DynTZI.TZI, aSt, SystemTime_ToTzSpecificLocalTime
+    SystemTimeToTzSpecificLocalTime m_DynTZI.TZI, this, SystemTime_ToTzSpecificLocalTime
 End Function
-Public Function TzSpecificLocalTime_ToSystemTime(aSt As SYSTEMTIME) As SYSTEMTIME
+Public Function TzSpecificLocalTime_ToSystemTime(this As SYSTEMTIME) As SYSTEMTIME
     'local time to UTC
-    TzSpecificLocalTimeToSystemTime m_DynTZI.TZI, aSt, TzSpecificLocalTime_ToSystemTime
+    TzSpecificLocalTimeToSystemTime m_DynTZI.TZI, this, TzSpecificLocalTime_ToSystemTime
 End Function
 
-Public Function SystemTime_ToDate(aSt As SYSTEMTIME) As Date
-    With aSt
+Public Function SystemTime_ToDate(this As SYSTEMTIME) As Date
+    With this
         If .wYear = 0 And .wMonth <> 0 Then
-            SystemTime_ToDate = TimeZoneInfoSystemTime_ToDate(aSt)
+            SystemTime_ToDate = TimeZoneInfoSystemTime_ToDate(this)
         End If
         SystemTime_ToDate = DateSerial(.wYear, .wMonth, .wDay) + TimeSerial(.wHour, .wMinute, .wSecond)
     End With
 End Function
 
-Public Function SystemTime_ToUniversalTimeCoordinated(aSt As SYSTEMTIME) As SYSTEMTIME
-    SystemTime_ToUniversalTimeCoordinated = TzSpecificLocalTime_ToSystemTime(aSt)
+Public Function SystemTime_ToUniversalTimeCoordinated(this As SYSTEMTIME) As SYSTEMTIME
+    SystemTime_ToUniversalTimeCoordinated = TzSpecificLocalTime_ToSystemTime(this)
 End Function
 
-Public Function SystemTime_ToFileTime(aSt As SYSTEMTIME) As FILETIME
-    SystemTimeToFileTime aSt, SystemTime_ToFileTime
+Public Function SystemTime_ToFileTime(this As SYSTEMTIME) As FILETIME
+    SystemTimeToFileTime this, SystemTime_ToFileTime
 End Function
 
-Public Function SystemTime_ToUnixTime(aSt As SYSTEMTIME) As Double
-    SystemTime_ToUnixTime = Date_ToUnixTime(SystemTime_ToDate(aSt))
+Public Function SystemTime_ToUnixTime(this As SYSTEMTIME) As Double
+    SystemTime_ToUnixTime = Date_ToUnixTime(SystemTime_ToDate(this))
 End Function
 
-Public Function SystemTime_ToDosTime(aSt As SYSTEMTIME) As DOSTIME
-    SystemTime_ToDosTime = Date_ToDosTime(SystemTime_ToDate(aSt))
+Public Function SystemTime_ToDosTime(this As SYSTEMTIME) As DOSTIME
+    SystemTime_ToDosTime = Date_ToDosTime(SystemTime_ToDate(this))
 End Function
 
-Public Function SystemTime_ToWindowsFoundationDateTime(aSt As SYSTEMTIME) As WindowsFoundationDateTime
-    LSet SystemTime_ToWindowsFoundationDateTime = SystemTime_ToFileTime(aSt)
+Public Function SystemTime_ToWindowsFoundationDateTime(this As SYSTEMTIME) As WindowsFoundationDateTime
+    LSet SystemTime_ToWindowsFoundationDateTime = SystemTime_ToFileTime(this)
 End Function
 
-Public Function SystemTime_ToDateTimeStamp(aSt As SYSTEMTIME) As Long
-    SystemTime_ToDateTimeStamp = Date_ToDateTimeStamp(SystemTime_ToDate(aSt))
+Public Function SystemTime_ToDateTimeStamp(this As SYSTEMTIME) As Long
+    SystemTime_ToDateTimeStamp = Date_ToDateTimeStamp(SystemTime_ToDate(this))
 End Function
 
-Public Function SystemTime_ToStr(aSt As SYSTEMTIME) As String
-    With aSt
+Public Function SystemTime_ToStr(this As SYSTEMTIME) As String
+    With this
         SystemTime_ToStr = "y: " & CStr(.wYear) & "; m: " & CStr(.wMonth) & "; d: " & CStr(.wDay) & "; dow: " & CStr(.wDayOfWeek) & _
                          "; h: " & CStr(.wHour) & "; min: " & CStr(.wMinute) & "; s: " & CStr(.wSecond) & "; ms: " & CStr(.wMilliseconds)
     End With
 End Function
 
-Public Function SystemTime_Equals(aSt As SYSTEMTIME, other As SYSTEMTIME) As Boolean
+Public Function SystemTime_Equals(this As SYSTEMTIME, other As SYSTEMTIME) As Boolean
     Dim b As Boolean
-    With aSt
+    With this
         b = .wYear = other.wYear:                 If Not b Then Exit Function
         b = .wMonth = other.wMonth:               If Not b Then Exit Function
         b = .wDay = other.wDay:                   If Not b Then Exit Function
@@ -548,19 +568,19 @@ Public Function SystemTime_Equals(aSt As SYSTEMTIME, other As SYSTEMTIME) As Boo
     SystemTime_Equals = b
 End Function
 
-Public Function SystemTime_ToHex(aSt As SYSTEMTIME) As String
-    Dim th As THexBytes: LSet th = aSt
+Public Function SystemTime_ToHex(this As SYSTEMTIME) As String
+    Dim th As THexBytes: LSet th = this
     SystemTime_ToHex = THexBytes_ToStr(th)
 End Function
 
-Public Function SystemTime_ToStrISO8601(aSt As SYSTEMTIME) As String
-    With aSt
+Public Function SystemTime_ToStrISO8601(this As SYSTEMTIME) As String
+    With this
         SystemTime_ToStrISO8601 = .wYear & "-" & .wMonth & "-" & .wDay & "T" & .wHour & ":" & .wMinute & ":" & .wSecond
     End With
 End Function
 
-Public Function SystemTime_ToHexNStr(aSt As SYSTEMTIME) As String
-    SystemTime_ToHexNStr = SystemTime_ToHex(aSt) & "; " & SystemTime_ToStr(aSt)
+Public Function SystemTime_ToHexNStr(this As SYSTEMTIME) As String
+    SystemTime_ToHexNStr = SystemTime_ToHex(this) & "; " & SystemTime_ToStr(this)
 End Function
 
 ' ############################## '      Coordinated Universal Time       ' ############################## '
@@ -648,11 +668,11 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
             Exit Function
         End If
         
-        Dim y As Integer: y = Year(Now)
+        Dim Y As Integer: Y = Year(Now)
         Dim m As Integer: m = .wMonth
         Dim d As Integer: d = 1
         'the date of the first day in month m
-        Dim dt As Date: dt = DateSerial(y, m, d)
+        Dim dt As Date: dt = DateSerial(Y, m, d)
         
         'the weekday of the first day in month m
         Dim dow As Integer: dow = Weekday(dt) - 1 'the vbenum is one based
@@ -661,13 +681,13 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
         'the wDay member to indicate the occurrence of the day of the week within the month
         '(1 to 5, where 5 indicates the final occurrence during the month if that day of the week does not occur 5 times)
         
-        Dim idm As Integer: idm = MTime.DaysInMonth(y, .wMonth) - 7
+        Dim idm As Integer: idm = MTime.DaysInMonth(Y, .wMonth) - 7
         Dim i As Long
         For i = 1 To .wDay
             If d <= idm Then d = d + 7
         Next
         
-        TimeZoneInfoSystemTime_ToDate = DateSerial(y, m, d) + TimeSerial(.wHour, .wMinute, .wSecond)
+        TimeZoneInfoSystemTime_ToDate = DateSerial(Y, m, d) + TimeSerial(.wHour, .wMinute, .wSecond)
     End With
 End Function
 
@@ -741,36 +761,36 @@ Public Property Get FileTime_Now() As FILETIME
     FileTime_Now = FileTime_ToLocalFileTime(FileTime_Now)
 End Property
 
-Public Function FileTime_ToLocalFileTime(aFt As FILETIME) As FILETIME
+Public Function FileTime_ToLocalFileTime(this As FILETIME) As FILETIME
 '    FileTimeToLocalFileTime aFt, FileTime_ToLocalFileTime
-    Dim st_in As SYSTEMTIME: st_in = FileTime_ToSystemTime(aFt)
+    Dim st_in As SYSTEMTIME: st_in = FileTime_ToSystemTime(this)
     Dim stout As SYSTEMTIME
     SystemTimeToTzSpecificLocalTime m_DynTZI.TZI, st_in, stout
     FileTime_ToLocalFileTime = SystemTime_ToFileTime(stout)
 End Function
 
-Public Function LocalFileTime_ToFileTime(aFt As FILETIME) As FILETIME
+Public Function LocalFileTime_ToFileTime(this As FILETIME) As FILETIME
 '    LocalFileTimeToFileTime aFt, LocalFileTime_ToFileTime
-    Dim st_in As SYSTEMTIME: st_in = FileTime_ToSystemTime(aFt)
+    Dim st_in As SYSTEMTIME: st_in = FileTime_ToSystemTime(this)
     Dim stout As SYSTEMTIME
     TzSpecificLocalTimeToSystemTime m_DynTZI.TZI, st_in, stout
     LocalFileTime_ToFileTime = SystemTime_ToFileTime(stout)
 End Function
 
-Public Property Get FileTime_ToDosTime(aFt As FILETIME) As DOSTIME
+Public Property Get FileTime_ToDosTime(this As FILETIME) As DOSTIME
     Dim dt As DOSTIME
-    FileTimeToDosDateTime aFt, dt.wDate, dt.wTime
+    FileTimeToDosDateTime this, dt.wDate, dt.wTime
     FileTime_ToDosTime = dt
 End Property
 
-Public Function FileTime_ToDate(aFt As FILETIME) As Date
-    With FileTime_ToSystemTime(aFt) 'st
+Public Function FileTime_ToDate(this As FILETIME) As Date
+    With FileTime_ToSystemTime(this) 'st
         FileTime_ToDate = DateSerial(.wYear, .wMonth, .wDay) + TimeSerial(.wHour, .wMinute, .wSecond)
     End With
 End Function
 
-Public Function FileTime_ToSystemTime(aFt As FILETIME) As SYSTEMTIME
-    FileTimeToSystemTime aFt, FileTime_ToSystemTime
+Public Function FileTime_ToSystemTime(this As FILETIME) As SYSTEMTIME
+    FileTimeToSystemTime this, FileTime_ToSystemTime
 End Function
 
 Public Function FileTime_ToUniversalTimeCoordinated(this As FILETIME) As SYSTEMTIME
@@ -778,44 +798,44 @@ Public Function FileTime_ToUniversalTimeCoordinated(this As FILETIME) As SYSTEMT
     FileTime_ToUniversalTimeCoordinated = MTime.SystemTime_ToUniversalTimeCoordinated(syt)
 End Function
 
-Public Function FileTime_ToUnixTime(aFt As FILETIME) As Double
-    FileTime_ToUnixTime = Date_ToUnixTime(FileTime_ToDate(aFt))
+Public Function FileTime_ToUnixTime(this As FILETIME) As Double
+    FileTime_ToUnixTime = Date_ToUnixTime(FileTime_ToDate(this))
 End Function
 
-Public Function FileTime_ToWindowsFoundationDateTime(aFt As FILETIME) As WindowsFoundationDateTime
-    LSet FileTime_ToWindowsFoundationDateTime = aFt
+Public Function FileTime_ToWindowsFoundationDateTime(this As FILETIME) As WindowsFoundationDateTime
+    LSet FileTime_ToWindowsFoundationDateTime = this
 End Function
 
-Public Function FileTime_ToDateTimeStamp(aFt As FILETIME) As Long
-    FileTime_ToDateTimeStamp = Date_ToDateTimeStamp(FileTime_ToDate(aFt))
+Public Function FileTime_ToDateTimeStamp(this As FILETIME) As Long
+    FileTime_ToDateTimeStamp = Date_ToDateTimeStamp(FileTime_ToDate(this))
 End Function
 
-Public Function FileTime_ToStr(aFt As FILETIME) As String
-    With aFt
+Public Function FileTime_ToStr(this As FILETIME) As String
+    With this
         FileTime_ToStr = "lo: " & CStr(.dwLowDateTime) & "; hi: " & CStr(.dwHighDateTime)
     End With
 End Function
 
-Public Function FileTime_Equals(aFt As FILETIME, other As FILETIME) As Boolean
+Public Function FileTime_Equals(this As FILETIME, other As FILETIME) As Boolean
     Dim b As Boolean
-    With aFt
+    With this
         b = .dwHighDateTime = other.dwHighDateTime: If Not b Then Exit Function
         b = .dwLowDateTime = other.dwLowDateTime ':   If Not b Then Exit Function
     End With
     FileTime_Equals = b
 End Function
 
-Public Function FileTime_ToHex(aFt As FILETIME) As String
-    Dim th As THexBytes: LSet th = aFt
+Public Function FileTime_ToHex(this As FILETIME) As String
+    Dim th As THexBytes: LSet th = this
     FileTime_ToHex = THexBytes_ToStr(th)
 End Function
 
-Public Function FileTime_ToStrISO8601(aFt As FILETIME) As String
-    FileTime_ToStrISO8601 = SystemTime_ToStrISO8601(FileTime_ToSystemTime(aSt))
+Public Function FileTime_ToStrISO8601(this As FILETIME) As String
+    FileTime_ToStrISO8601 = SystemTime_ToStrISO8601(FileTime_ToSystemTime(this))
 End Function
 
-Public Function FileTime_ToHexNStr(aFt As FILETIME) As String
-    FileTime_ToHexNStr = FileTime_ToHex(aFt) & "; " & FileTime_ToStr(aFt)
+Public Function FileTime_ToHexNStr(this As FILETIME) As String
+    FileTime_ToHexNStr = FileTime_ToHex(this) & "; " & FileTime_ToStr(this)
 End Function
 
 ' ############################## '      UnixTime       ' ############################## '
@@ -864,17 +884,17 @@ Public Function UnixTime_ToStr(ByVal uts As Double) As String
     UnixTime_ToStr = CStr(uts)
 End Function
 
-Public Function UnixTime_Equals(ByVal uts As Double, ByVal other As Double) As Boolean
-    UnixTime_Equals = uts = other
+Public Function UnixTime_Equals(ByVal this As Double, ByVal other As Double) As Boolean
+    UnixTime_Equals = this = other
 End Function
 
-Public Function UnixTime_ToHex(ByVal uts As Double) As String
-    Dim th As THexBytes, td As THexDbl: td.Value = uts: LSet th = td
+Public Function UnixTime_ToHex(ByVal this As Double) As String
+    Dim th As THexBytes, td As THexDbl: td.Value = this: LSet th = td
     UnixTime_ToHex = THexBytes_ToStr(th)
 End Function
 
-Public Function UnixTime_ToStrISO8601(ByVal uts As Double) As String
-    UnixTime_ToStrISO8601 = SystemTime_ToStrISO8601(UnixTime_ToSystemTime(aSt))
+Public Function UnixTime_ToStrISO8601(ByVal this As Double) As String
+    UnixTime_ToStrISO8601 = SystemTime_ToStrISO8601(UnixTime_ToSystemTime(this))
 End Function
 
 Public Function UnixTime_ToHexNStr(ByVal uts As Double) As String
@@ -961,7 +981,7 @@ Public Function DosTime_ToHex(this As DOSTIME) As String
 End Function
 
 Public Function DosTime_ToStrISO8601(this As DOSTIME) As String
-    DosTime_ToStrISO8601 = SystemTime_ToStrISO8601(DosTime_ToSystemTime(uts))
+    DosTime_ToStrISO8601 = SystemTime_ToStrISO8601(DosTime_ToSystemTime(this))
 End Function
 
 Public Function DosTime_ToHexNStr(this As DOSTIME) As String
@@ -1074,7 +1094,7 @@ Public Function WindowsFoundationDateTime_ToHexNStr(this As WindowsFoundationDat
     WindowsFoundationDateTime_ToHexNStr = WindowsFoundationDateTime_ToHex(this) & "; " & WindowsFoundationDateTime_ToStr(this)
 End Function
 
-Public Function WindowsFoundationDateTime_ToStrISO8601(this As DOSTIME) As String
+Public Function WindowsFoundationDateTime_ToStrISO8601(this As WindowsFoundationDateTime) As String
     WindowsFoundationDateTime_ToStrISO8601 = SystemTime_ToStrISO8601(WindowsFoundationDateTime_ToSystemTime(this))
 End Function
 
@@ -1111,11 +1131,11 @@ Public Function ECalendar_Parse(s As String) As ECalendar
     ECalendar_Parse = e
 End Function
 
-Public Function CalcEasterdateGauss1800(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim A As Long: A = y Mod 19 'der Mondparameter
-    Dim b As Long: b = y Mod 4
-    Dim c As Long: c = y Mod 7
-    Dim k As Long: k = y \ 100 'die Säkularzahl
+Public Function CalcEasterdateGauss1800(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+    Dim A As Long: A = Y Mod 19 'der Mondparameter
+    Dim b As Long: b = Y Mod 4
+    Dim c As Long: c = Y Mod 7
+    Dim k As Long: k = Y \ 100 'die Säkularzahl
     Dim p As Long
     Dim q As Long
     Dim m As Long 'die säkulare Mondschaltung
@@ -1151,15 +1171,15 @@ Public Function CalcEasterdateGauss1800(ByVal y As Long, Optional ByVal ecal As 
         OS = OS - 31
         EasterMonth = 4
     End If
-    Dim easter As Date: easter = OS & "." & EasterMonth & "." & y
+    Dim easter As Date: easter = OS & "." & EasterMonth & "." & Y
     CalcEasterdateGauss1800 = easter
 End Function
 
-Public Function CalcEasterdateGauss1816(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim A As Long: A = y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
-    Dim b As Long: b = y Mod 4
-    Dim c As Long: c = y Mod 7
-    Dim k As Long: k = y \ 100 'die Säkularzahl
+Public Function CalcEasterdateGauss1816(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+    Dim A As Long: A = Y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
+    Dim b As Long: b = Y Mod 4
+    Dim c As Long: c = Y Mod 7
+    Dim k As Long: k = Y \ 100 'die Säkularzahl
     Dim p As Long
     Dim q As Long
     Dim m As Long 'die säkulare Mondschaltung
@@ -1191,7 +1211,7 @@ Public Function CalcEasterdateGauss1816(ByVal y As Long, Optional ByVal ecal As 
     
     OS = (22 + d + e)
     
-    CalcEasterdateGauss1816 = CorrectOSDay(OS, y)
+    CalcEasterdateGauss1816 = CorrectOSDay(OS, Y)
 End Function
 
 'Schritt     Bedeutung   Formel
@@ -1207,11 +1227,11 @@ End Function
 '    (Osterentfernung in Tagen)                         OE(OG,SZ) = 7 - (OG - SZ) mod 7
 '10. das Datum des Ostersonntags als Märzdatum
 '    (32. März = 1. April usw.)                         OS = OG + OE
-Public Function CalcEasterdateGaussCorrected1900(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim A As Long: A = y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
+Public Function CalcEasterdateGaussCorrected1900(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+    Dim A As Long: A = Y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
     'Dim b As Long: b = y Mod 4
     'Dim c As Long: c = y Mod 7
-    Dim k As Long: k = y \ 100 'die Säkularzahl
+    Dim k As Long: k = Y \ 100 'die Säkularzahl
     Dim p As Long
     Dim q As Long
     Dim m As Long 'die säkulare Mondschaltung
@@ -1240,21 +1260,21 @@ Public Function CalcEasterdateGaussCorrected1900(ByVal y As Long, Optional ByVal
     d = (19 * A + m) Mod 30
     r = (d + A \ 11) \ 29
     OG = 21 + d - r
-    SZ = 7 - (y + y \ 4 + s) Mod 7
+    SZ = 7 - (Y + Y \ 4 + s) Mod 7
     OE = 7 - (OG - SZ) Mod 7
     
     OS = OG + OE
     
-    CalcEasterdateGaussCorrected1900 = CorrectOSDay(OS, y)
+    CalcEasterdateGaussCorrected1900 = CorrectOSDay(OS, Y)
 End Function
 
-Public Function CorrectOSDay(ByVal OS_Mrz As Long, ByVal y As Long) As Date
+Public Function CorrectOSDay(ByVal OS_Mrz As Long, ByVal Y As Long) As Date
     Dim OSDay   As Long: OSDay = OS_Mrz + 31 * (OS_Mrz > 31)
     Dim OSMonth As Long: OSMonth = 3 - (OS_Mrz > 31)
-    CorrectOSDay = DateSerial(y, OSMonth, OSDay)
+    CorrectOSDay = DateSerial(Y, OSMonth, OSDay)
 End Function
 
-Public Function OsternShort(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+Public Function OsternShort(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
     'code taken from CalcEasterdateGaussCorrected1900 + CorrectOSDay
     'and then shortened
     Dim m As Long 'die säkulare Mondschaltung
@@ -1264,94 +1284,94 @@ Public Function OsternShort(ByVal y As Long, Optional ByVal ecal As ECalendar = 
         m = 15
         s = 0
     Case ECalendar.GregorianCalendar
-        Dim k As Long: k = y \ 100  'die Säkularzahl
+        Dim k As Long: k = Y \ 100  'die Säkularzahl
         Dim p As Long: p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
         Dim q As Long: q = (3 * k + 3) \ 4
         m = 15 + q - p
         s = 2 - q
     End Select
     
-    Dim A       As Long:  A = y Mod 19                   'der Mondparameter / Gaußsche Zykluszahl
+    Dim A       As Long:  A = Y Mod 19                   'der Mondparameter / Gaußsche Zykluszahl
     Dim d       As Long:  d = (19 * A + m) Mod 30       'der Keim für den ersten Vollmond im Frühling
     Dim r       As Long:  r = (d + A \ 11) \ 29         'die kalendarische Korrekturgröße
     Dim OG      As Long: OG = 21 + d - r                'die Ostergrenze
-    Dim SZ      As Long: SZ = 7 - (y + y \ 4 + s) Mod 7 'der erste Sonntag im März
+    Dim SZ      As Long: SZ = 7 - (Y + Y \ 4 + s) Mod 7 'der erste Sonntag im März
     Dim OE      As Long: OE = 7 - (OG - SZ) Mod 7       'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
     Dim OS      As Long: OS = OG + OE                   'das Datum des Ostersonntags als Märzdatum
     Dim OS_Mrz  As Long: OS_Mrz = OS
     Dim OSDay   As Long: OSDay = OS_Mrz + 31 * (OS_Mrz > 31)
     Dim OSMonth As Long: OSMonth = 3 - (OS_Mrz > 31)
-    OsternShort = DateSerial(y, OSMonth, OSDay)
+    OsternShort = DateSerial(Y, OSMonth, OSDay)
 End Function
 
-Public Function OsternShort2(ByVal y As Long) As Date
+Public Function OsternShort2(ByVal Y As Long) As Date
     'let's say we only want to have GregorianCalendar
     'code taken from CalcEasterdateGaussCorrected1900 and CorrectOSDay and then shortened it
-    Dim k  As Long:  k = y \ 100                                            'die Säkularzahl
+    Dim k  As Long:  k = Y \ 100                                            'die Säkularzahl
                                                                             '(8 * k + 13) \ 25 'hier unterschiedlich zu 1800
     Dim q  As Long:  q = (3 * k + 3) \ 4
                                                                             '2 - q '= die säkulare Sonnenschaltung
-    Dim A  As Long:  A = y Mod 19                                           'der Mondparameter / Gaußsche Zykluszahl
+    Dim A  As Long:  A = Y Mod 19                                           'der Mondparameter / Gaußsche Zykluszahl
                                                                                       '15 + q - ((8 * k + 13) \ 25) '= die säkulare Mondschaltung
     Dim d  As Long:  d = (19 * A + (15 + q - ((8 * k + 13) \ 25))) Mod 30   'der Keim für den ersten Vollmond im Frühling
                                                                                       '(d + a \ 11) \ 29 'die kalendarische Korrekturgröße
     Dim OG As Long: OG = 21 + d - (d + A \ 11) \ 29                         'die Ostergrenze
                                                                                       '7 - (y + y \ 4 + (2 - q)) Mod 7  'der erste Sonntag im März
-    Dim OE As Long: OE = 7 - (OG - (7 - (y + y \ 4 + (2 - q)) Mod 7)) Mod 7 'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
+    Dim OE As Long: OE = 7 - (OG - (7 - (Y + Y \ 4 + (2 - q)) Mod 7)) Mod 7 'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
     Dim OS As Long: OS = OG + OE                                            'das Datum des Ostersonntags als Märzdatum
-          OsternShort2 = DateSerial(y, (3 - (OS > 31)), (OS + 31 * (OS > 31)))
+          OsternShort2 = DateSerial(Y, (3 - (OS > 31)), (OS + 31 * (OS > 31)))
 End Function
 
 
-Public Function Date_ParseFromDayNumber(ByVal y As Integer, ByVal DayNr As Integer) As Date
+Public Function Date_ParseFromDayNumber(ByVal Y As Integer, ByVal DayNr As Integer) As Date
     Dim mds As Integer
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 1, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 1, DayNr): Exit Function
     DayNr = DayNr - mds
     
-    mds = 28 - CInt(IsLeapYear(y))
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 2, DayNr): Exit Function
+    mds = 28 - CInt(IsLeapYear(Y))
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 2, DayNr): Exit Function
     DayNr = DayNr - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 3, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 3, DayNr): Exit Function
     DayNr = DayNr - mds
     
     mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 4, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 4, DayNr): Exit Function
     DayNr = DayNr - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 5, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 5, DayNr): Exit Function
     DayNr = DayNr - mds
     
     mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 6, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 6, DayNr): Exit Function
     DayNr = DayNr - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 7, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 7, DayNr): Exit Function
     DayNr = DayNr - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 8, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 8, DayNr): Exit Function
     DayNr = DayNr - mds
     
     mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 9, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 9, DayNr): Exit Function
     DayNr = DayNr - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 10, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 10, DayNr): Exit Function
     DayNr = DayNr - mds
     
     mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 11, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 11, DayNr): Exit Function
     DayNr = DayNr - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 12, DayNr): Exit Function
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 12, DayNr): Exit Function
 End Function
 
 Public Function Date_TryParse(ByVal s As String, ByRef out_date As Date) As Boolean
@@ -1441,34 +1461,39 @@ Public Function GetDayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day 
     
     If (Day < 1) Or (DaysInMonth(Year, Month) < Day) Then Exit Function
     
-    Dim y As Long: y = Year Mod 100
+    Dim Y As Long: Y = Year Mod 100
     Dim c As Long: c = Year \ 100
     
     If (Month > 2) Then
         Month = Month - 2
     Else
         Month = Month + 10
-        If (y > 0) Then
-            y = y - 1
+        If (Y > 0) Then
+            Y = Y - 1
         Else
-            y = 99
+            Y = 99
             c = c - 1
         End If
     End If
     
     'return static_cast<unsigned>(((static_cast<signed>(Day) + (26*static_cast<signed>(Month)-2) / 10 + static_cast<signed>(y) + static_cast<signed>(y)/4 + static_cast<signed>(c)/4 - 2*static_cast<signed>(c)) + 7000) % 7);
-    GetDayOfWeek = ((Day + (26 * Month - 2) \ 10 + y + y \ 4 + c \ 4 - 2 * c) + 7000) Mod 7
+    GetDayOfWeek = ((Day + (26 * Month - 2) \ 10 + Y + Y \ 4 + c \ 4 - 2 * c) + 7000) Mod 7
     
 End Function
 
 Public Function DayOfYear(ByVal d As Date) As Long
-    Dim y As Long
+    Dim Y As Long
     Dim i As Long
-    y = Year(d)
+    Y = Year(d)
     For i = 1 To Month(d) - 1
-        DayOfYear = DayOfYear + DaysInMonth(y, i)
+        DayOfYear = DayOfYear + DaysInMonth(Y, i)
     Next
     DayOfYear = DayOfYear + Day(d) 'Day(d)=DayOfMonth
+End Function
+
+Public Function WeekOfYear(ByVal d As Date) As Long
+    Dim doy As Long: doy = DayOfYear(d)
+    WeekOfYear = doy / 7
 End Function
 
 Public Function DaysInMonth(ByVal Year As Long, ByVal Month As Long) As Long
@@ -1479,7 +1504,7 @@ Public Function DaysInMonth(ByVal Year As Long, ByVal Month As Long) As Long
     End Select
 End Function
 
-Public Function IsLeapYear(ByVal y As Long) As Boolean
+Public Function IsLeapYear(ByVal Y As Long) As Boolean
 'Schaltjahr (LeapYear)
 'a leap year is a year which is
 'either (i.)
@@ -1490,7 +1515,7 @@ Public Function IsLeapYear(ByVal y As Long) As Boolean
 'or (ii.)
 '    evenly divisible
 '        by 400
-    IsLeapYear = (((y Mod 4) = 0) And Not ((y Mod 100) = 0)) Or ((y Mod 400) = 0)
+    IsLeapYear = (((Y Mod 4) = 0) And Not ((Y Mod 100) = 0)) Or ((Y Mod 400) = 0)
 End Function
 
 'https://docs.microsoft.com/de-de/dotnet/standard/base-types/standard-date-and-time-format-strings

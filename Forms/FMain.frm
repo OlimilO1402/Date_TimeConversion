@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin VB.Form FMain 
    Caption         =   "Datetime-Conversions"
-   ClientHeight    =   7590
+   ClientHeight    =   8535
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   13950
@@ -16,9 +16,17 @@ Begin VB.Form FMain
    EndProperty
    Icon            =   "FMain.frx":0000
    LinkTopic       =   "Form1"
-   ScaleHeight     =   7590
+   ScaleHeight     =   8535
    ScaleWidth      =   13950
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton BtnEditDate 
+      Caption         =   "Edit Date"
+      Height          =   375
+      Left            =   0
+      TabIndex        =   32
+      Top             =   6600
+      Width           =   2175
+   End
    Begin VB.CommandButton Btn_UTCTime_Now 
       Caption         =   "Coordin.Univers.T.(UTC)"
       BeginProperty Font 
@@ -174,7 +182,7 @@ Begin VB.Form FMain
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   3615
+      Height          =   4575
       Left            =   2280
       MultiLine       =   -1  'True
       ScrollBars      =   3  'Beides
@@ -571,6 +579,12 @@ Private m_DOSTime    As MTime.DOSTIME
 Private m_WndFndDTim As MTime.WindowsFoundationDateTime
 Private m_DTimeStamp As Long
 
+Private Sub BtnEditDate_Click()
+    Dim dat As Date: dat = m_DateTime
+    If FEditDateTime.ShowDialog(Me, dat) = vbCancel Then Exit Sub
+    UpdateFromDate dat
+End Sub
+
 Private Sub Form_Load()
     MTime.Init
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
@@ -589,7 +603,13 @@ End Sub
 
 Private Sub Btn_Date_Now_Click()
     
-    m_DateTime = MTime.Date_Now
+    UpdateFromDate MTime.Date_Now
+    
+End Sub
+
+Private Sub UpdateFromDate(ByVal NewDate As Date)
+    
+    m_DateTime = NewDate
     
     m_SystemTime = MTime.Date_ToSystemTime(m_DateTime)
     m_UTCTime = MTime.Date_ToUniversalTimeCoordinated(m_DateTime)
@@ -773,6 +793,14 @@ Private Sub Btn_IsSummerTime_Click()
     s = s & "dat: " & CStr(dat) & vbCrLf & "utc: " & CStr(utc) & vbCrLf
     Dim BiasMin As Long: BiasMin = MTime.Date_BiasMinutesToUTC(dat)
     s = s & "UtcBias (minutes): " & BiasMin & vbCrLf
+    s = s & "SystemUpTime: " & MTime.GetSystemUpTime & vbCrLf
+    s = s & "PCStartTime : " & MTime.GetPCStartTime & vbCrLf
+    Dim y As Long: y = CLng(Int(Year(dat)))
+    
+    s = s & "The year " & y & " is " & IIf(Not MTime.IsLeapYear(y), "not ", "") & "a leap year." & vbCrLf
+    Dim esd As Date: esd = MTime.OsternShort2(y)
+    s = s & "The eastern sunday in the year " & y & " is " & FormatDateTime(esd, VBA.VbDateTimeFormat.vbShortDate) & vbCrLf
+
     Text1.Text = s
 End Sub
 
