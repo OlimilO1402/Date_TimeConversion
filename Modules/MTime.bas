@@ -223,8 +223,8 @@ Public Sub Init()
     'Debug.Print "----------"
     'Debug.Print PDynTimeZoneInfo_ToStr(m_DynTZI)
     
-    Dim Y As Integer: Y = DateTime.Year(Now)
-    ret = GetTimeZoneInformationForYear(Y, m_DynTZI, m_TZI)
+    Dim y As Integer: y = DateTime.Year(Now)
+    ret = GetTimeZoneInformationForYear(y, m_DynTZI, m_TZI)
     'Debug.Print "----------"
     'Debug.Print PTimeZoneInfo_ToStr(m_TZI)
     'Debug.Print PDynTimeZoneInfo_ToStr(m_DynTZI)
@@ -237,8 +237,8 @@ End Sub
 ' get accurate timer
 Public Function GetTimer() As Double
     Dim f As Currency: QueryPerformanceFrequency f
-    Dim N As Currency: QueryPerformanceCounter N
-    GetTimer = N / f
+    Dim n As Currency: QueryPerformanceCounter n
+    GetTimer = n / f
 End Function
 
 Public Function TimeZoneInfo_ConvertTimeToUtc(ByVal this As Date) As Date
@@ -327,7 +327,7 @@ End Function
 ' ############################## '    DateTimeStamp    ' ############################## '
 ' e.g. can be found in executable files, exe, dll
 Public Function DateTimeStamp(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As Long
-    DateTimeStamp = Date_ToDateTimeStamp(DDate(Year, Month, Day, Hour, Minute, Second))
+    DateTimeStamp = Date_ToDateTimeStamp(New_Date(Year, Month, Day, Hour, Minute, Second))
 End Function
 
 Public Function DateTimeStamp_Now() As Long
@@ -357,6 +357,11 @@ Public Function DateTimeStamp_ToDosTime(ByVal DtStamp As Long) As DOSTIME
     DateTimeStamp_ToDosTime = Date_ToDosTime(DateTimeStamp_ToDate(DtStamp))
 End Function
 
+Public Function DateTimeStamp_ToUniversalTimeCoordinated(DtStamp As Long) As SYSTEMTIME
+    Dim syt As SYSTEMTIME: syt = DateTimeStamp_ToSystemTime(DtStamp)
+    DateTimeStamp_ToUniversalTimeCoordinated = MTime.SystemTime_ToUniversalTimeCoordinated(syt)
+End Function
+
 Public Function DateTimeStamp_ToWindowsFoundationDateTime(ByVal DtStamp As Long) As WindowsFoundationDateTime
     DateTimeStamp_ToWindowsFoundationDateTime = Date_ToWindowsFoundationDateTime(DateTimeStamp_ToDate(DtStamp))
 End Function
@@ -383,9 +388,10 @@ End Function
 Public Function DateTimeStamp_ToStrISO8601(ByVal DtStamp As Long) As String
     '
 End Function
+
 ' ############################## '        Date         ' ############################## '
-Public Function DDate(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As Date
-    DDate = DateSerial(Year, Month, Day) + TimeSerial(Hour, Minute, Second)
+Public Function New_Date(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As Date
+    New_Date = DateSerial(Year, Month, Day) + TimeSerial(Hour, Minute, Second)
 End Function
 
 Public Property Get Date_Now() As Date
@@ -403,11 +409,6 @@ Public Function Date_ToSystemTime(this As Date) As SYSTEMTIME
         .wSecond = Second(this)
         '.wMilliseconds = millisecond(aDate) 'nope
     End With
-End Function
-
-Public Function DateTimeStamp_ToUniversalTimeCoordinated(DtStamp As Long) As SYSTEMTIME
-    Dim syt As SYSTEMTIME: syt = DateTimeStamp_ToSystemTime(DtStamp)
-    DateTimeStamp_ToUniversalTimeCoordinated = MTime.SystemTime_ToUniversalTimeCoordinated(syt)
 End Function
 
 Public Function Date_ToFileTime(this As Date) As FILETIME
@@ -443,6 +444,11 @@ Public Function GetSummerTimeCorrector() As Double
     GetSummerTimeCorrector = DateDiff("s", SystemTime_ToDate(SystemTime_Now), Now)
 End Function
 
+Public Function Date_BiasMinutesToUTC(ByVal this As Date) As Long
+    Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(this)
+    Date_BiasMinutesToUTC = DateDiff("n", utc, this)
+End Function
+
 Public Function Date_Equals(this As Date, other As Date) As Boolean
     Date_Equals = this = other
 End Function
@@ -456,34 +462,656 @@ Public Function Date_ToHexNStr(ByVal this As Date) As String
     Date_ToHexNStr = Date_ToHex(this) & "; " & Date_ToStr(this)
 End Function
 
-Public Function Date_ToStrISO8601(ByVal this As Date, Optional ByVal Format As String = "YYYY-MM-DDThh:mm:ss") As String
-    Dim i As Long, ch As String, s As String
-    Dim state As Long
-    
-    Do While i <= Len(Format): i = i + 1: ch = Mid(Format, i)
-        Select Case state
-        Case 0
-            If ch = "Y" Then
-                Do
-                    Select Case ch
-                    Case "Y"
-                    End Select
-                Loop
-            Else
-                'Fehler
-            End If
-        Case "Y": state = state + 1
-            Select Case state
-            Case 4
-        s = Year(this) & "-" & Month(this) & "-" & Day(this) & "T" & Hour(this) & ":" & Minute(this) & ":" & Second(this)
-    Loop
-    Date_ToStrISO8601 = s
+Public Function Date_FormatISO8601(ByVal this As Date, Optional doFormatDate As Boolean = True, Optional doFormatTime As Boolean = True, Optional ByVal DateSeparator As String = "-", Optional ByVal TimeSeparator As String = ":") As String
+    Dim fmt As String
+    If doFormatDate Then
+        fmt = "YYYY" & DateSeparator & "MM" & DateSeparator & "DD" & IIf(doFormatTime, "T", "")
+    End If
+    If doFormatTime Then
+        fmt = fmt & "hh" & TimeSeparator & "mm" & TimeSeparator & "ss"
+    End If
+    Date_FormatISO8601 = Format(this, fmt)
 End Function
 
-Public Function Date_BiasMinutesToUTC(ByVal this As Date) As Long
-    Dim utc As Date: utc = MTime.TimeZoneInfo_ConvertTimeToUtc(this)
-    Date_BiasMinutesToUTC = DateDiff("n", utc, this)
+Public Function Date_ParseFromISO8601(ByVal s As String) As Date
+    s = Trim$(s)
+    Dim ye As Integer, mo As Integer, da As Integer
+    Dim ho As Integer, mn As Integer, se As Integer
+    Dim DatTimSep As String: DatTimSep = GetDateTimeSeparator(s)
+    Dim sa() As String
+    If Len(DatTimSep) Then
+        sa = Split(s, DatTimSep)
+        Dim u As Long: u = UBound(sa)
+        Dim sDate As String: If u > 0 Then sDate = sa(0)
+        Dim sTime As String: If u > 0 Then sTime = sa(1)
+        Dim lDate As Long: lDate = Len(sDate)
+        Dim lTime As Long: lTime = Len(sTime)
+        'Dim dDate As Date: dDate = MTime.d
+        'Dim dTime As Date
+        If lDate Then
+            Dim DatSep As String: DatSep = GetDateSeparator(sDate)
+            If Len(DatSep) Then
+                sa = Split(sDate, DatSep)
+                Dim ud As Long: ud = UBound(sa)
+                If ud > 0 Then ye = CInt(sa(0))
+                If ud > 0 Then mo = CInt(sa(1))
+                If ud > 1 Then da = CInt(sa(2))
+            Else
+                If Not IsNumeric(sDate) Then Exit Function
+                Select Case lDate
+                Case 8: ye = CInt(Left(sDate, 4))
+                        mo = CInt(Mid(sDate, 5, 2))
+                        da = CInt(Mid(sDate, 7, 2))
+                Case 7: ye = CInt(Left(sDate, 4))
+                        Dim doy As Integer: doy = CLng(Mid(sDate, 5))
+                        If doy > 367 Then Exit Function
+                        Dim tmp As Date: tmp = Date_ParseFromDayNumber(ye, doy): Exit Function
+                        mo = Month(tmp)
+                        da = Day(tmp)
+                Case 6: ye = CLng(Left(sDate, 2))
+                        ye = ye + IIf(ye < 35, 2000, 1900)
+                        mo = CLng(Mid(sDate, 3, 2))
+                        da = CLng(Mid(sDate, 5, 2))
+                End Select
+            End If
+        End If
+        If lTime Then
+            Dim TimSep As String: TimSep = GetTimeSeparator(sTime)
+            If Len(TimSep) Then
+                sa = Split(sTime, TimSep)
+                Dim ut As Long: ut = UBound(sa)
+                If ut > 0 Then ho = CInt(sa(0))
+                If ut > 0 Then mn = CInt(sa(1))
+                If ut > 1 Then se = CInt(sa(2))
+            Else
+                If Not IsNumeric(sTime) Then Exit Function
+                If lTime > 1 Then ho = CInt(Left(sTime, 2))
+                If lTime > 3 Then mn = CInt(Mid(sTime, 3, 2))
+                If lTime > 5 Then se = CInt(Mid(sTime, 5, 2))
+            End If
+        End If
+    Else
+        If Not IsNumeric(s) Then Exit Function
+        If Len(s) > 3 Then ye = CInt(Left(s, 4))
+        If Len(s) > 5 Then mo = CInt(Mid(s, 5, 2))
+        If Len(s) > 7 Then da = CInt(Mid(s, 7, 2))
+        If Len(s) > 9 Then ho = CInt(Mid(s, 9, 2))
+        If Len(s) > 11 Then mn = CInt(Mid(s, 11, 2))
+        If Len(s) > 13 Then se = CInt(Mid(s, 13, 2))
+    End If
+    Date_ParseFromISO8601 = New_Date(ye, mo, da, ho, mn, se)
 End Function
+
+Private Function GetDateTimeSeparator(s As String) As String
+    GetDateTimeSeparator = " "
+    If Str_Contains(s, GetDateTimeSeparator) Then Exit Function
+    GetDateTimeSeparator = "T"
+    If Str_Contains(s, GetDateTimeSeparator) Then Exit Function
+    GetDateTimeSeparator = "P"
+    If Str_Contains(s, GetDateTimeSeparator) Then Exit Function
+    GetDateTimeSeparator = ""
+End Function
+
+Private Function GetDateSeparator(s As String) As String
+    GetDateSeparator = "-"
+    If Str_Contains(s, GetDateSeparator) Then Exit Function
+    GetDateSeparator = "."
+    If Str_Contains(s, GetDateSeparator) Then Exit Function
+    GetDateSeparator = "/"
+    If Str_Contains(s, GetDateSeparator) Then Exit Function
+    GetDateSeparator = "\"
+    If Str_Contains(s, GetDateSeparator) Then Exit Function
+    GetDateSeparator = ""
+    Dim i As Long, char As Long
+    For i = 1 To Len(s)
+        char = AscW(Mid(s, i, 1))
+        Select Case char
+        Case 48 To 57 '0-9
+        Case Else: GetDateSeparator = ChrW(char): Exit Function
+        End Select
+    Next
+End Function
+
+Private Function GetTimeSeparator(s As String) As String
+    GetTimeSeparator = ":"
+    If Str_Contains(s, GetTimeSeparator) Then Exit Function
+    GetTimeSeparator = "."
+    If Str_Contains(s, GetTimeSeparator) Then Exit Function
+    GetTimeSeparator = "/"
+    If Str_Contains(s, GetTimeSeparator) Then Exit Function
+    GetTimeSeparator = "\"
+    If Str_Contains(s, GetTimeSeparator) Then Exit Function
+    GetTimeSeparator = "-"
+    If Str_Contains(s, GetTimeSeparator) Then Exit Function
+    GetTimeSeparator = ""
+    Dim i As Long, char As Long
+    For i = 1 To Len(s)
+        char = AscW(Mid(s, i, 1))
+        Select Case char
+        Case 48 To 57 '0-9
+        Case Else: GetTimeSeparator = ChrW(char): Exit Function
+        End Select
+    Next
+End Function
+
+Private Function Str_Contains(this As String, ByVal Value As String) As Boolean
+    Str_Contains = InStr(1, this, Value) > 0
+End Function
+' ############################## '       MDate       ' ############################## '
+
+Public Function ECalendar_ToStr(e As ECalendar) As String
+    Dim s As String
+    Select Case e
+    Case ECalendar.GregorianCalendar: s = "GregorianCalendar"
+    Case ECalendar.JulianCalendar:    s = "JulianCalendar"
+    End Select
+    ECalendar_ToStr = s
+End Function
+
+Public Function ECalendar_Parse(s As String) As ECalendar
+    Dim e As ECalendar
+    Select Case s
+    Case "GregorianCalendar": e = ECalendar.GregorianCalendar
+    Case "JulianCalendar":    e = ECalendar.JulianCalendar
+    End Select
+    ECalendar_Parse = e
+End Function
+
+Public Function CalcEasterdateGauss1800(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+    Dim A As Long: A = y Mod 19 'der Mondparameter
+    Dim b As Long: b = y Mod 4
+    Dim c As Long: c = y Mod 7
+    Dim k As Long: k = y \ 100 'die Säkularzahl
+    Dim p As Long
+    Dim q As Long
+    Dim m As Long 'die säkulare Mondschaltung
+    Dim d As Long 'der Keim für den ersten Vollmond im Frühling
+    Dim n As Long
+    Dim e As Long
+    Dim OS As Long 'das Datum des Ostersonntags als Märzdatum
+    Dim EasterMonth As Long
+    
+    Select Case ecal
+    Case ECalendar.JulianCalendar
+        m = 15
+    Case ECalendar.GregorianCalendar
+        p = k \ 3
+        q = k \ 4
+        m = (15 + k - p - q) Mod 30
+    End Select
+    
+    d = (19 * A + m) Mod 30
+    
+    Select Case ecal
+    Case ECalendar.JulianCalendar
+        n = 6
+    Case ECalendar.GregorianCalendar
+        n = (4 + k - q) Mod 7
+    End Select
+    
+    e = (2 * b + 4 * c + 6 * d + n) Mod 7
+    
+    OS = (22 + d + e)
+    EasterMonth = 3
+    If OS > 31 Then
+        OS = OS - 31
+        EasterMonth = 4
+    End If
+    Dim easter As Date: easter = OS & "." & EasterMonth & "." & y
+    CalcEasterdateGauss1800 = easter
+End Function
+
+Public Function CalcEasterdateGauss1816(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+    Dim A As Long: A = y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
+    Dim b As Long: b = y Mod 4
+    Dim c As Long: c = y Mod 7
+    Dim k As Long: k = y \ 100 'die Säkularzahl
+    Dim p As Long
+    Dim q As Long
+    Dim m As Long 'die säkulare Mondschaltung
+    Dim d As Long 'der Keim für den ersten Vollmond im Frühling
+    Dim n As Long
+    Dim e As Long
+    Dim OS As Long 'das Datum des Ostersonntags als Märzdatum
+    Dim EasterMonth As Long
+    
+    Select Case ecal
+    Case ECalendar.JulianCalendar
+        m = 15
+    Case ECalendar.GregorianCalendar
+        p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
+        q = k \ 4
+        m = (15 + k - p - q) Mod 30
+    End Select
+    
+    d = (19 * A + m) Mod 30
+    
+    Select Case ecal
+    Case ECalendar.JulianCalendar
+        n = 6
+    Case ECalendar.GregorianCalendar
+        n = (4 + k - q) Mod 7
+    End Select
+    
+    e = (2 * b + 4 * c + 6 * d + n) Mod 7
+    
+    OS = (22 + d + e)
+    
+    CalcEasterdateGauss1816 = CorrectOSDay(OS, y)
+End Function
+
+'Schritt     Bedeutung   Formel
+'1.  die Säkularzahl                                    K(X) = X div 100
+'2.  die säkulare Mondschaltung                         M(K) = 15 + (3K + 3) div 4 - (8K + 13) div 25
+'3.  die säkulare Sonnenschaltung                       S(K) = 2 - (3K + 3) div 4
+'4.  den Mondparameter                                  A(X) = X mod 19
+'5.  den Keim für den ersten Vollmond im Frühling       D(A,M) = (19A + M) mod 30
+'6.  die kalendarische Korrekturgröße                   R(D,A) = (D + A div 11) div 29[13]
+'7.  die Ostergrenze                                    OG(D,R) = 21 + D - R
+'8.  den ersten Sonntag im März                         SZ(X,S) = 7 - (X + X div 4 + S) mod 7
+'9.  die Entfernung des Ostersonntags von der Ostergrenze
+'    (Osterentfernung in Tagen)                         OE(OG,SZ) = 7 - (OG - SZ) mod 7
+'10. das Datum des Ostersonntags als Märzdatum
+'    (32. März = 1. April usw.)                         OS = OG + OE
+Public Function CalcEasterdateGaussCorrected1900(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+    Dim A As Long: A = y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
+    'Dim b As Long: b = y Mod 4
+    'Dim c As Long: c = y Mod 7
+    Dim k As Long: k = y \ 100 'die Säkularzahl
+    Dim p As Long
+    Dim q As Long
+    Dim m As Long 'die säkulare Mondschaltung
+    Dim s As Long 'die säkulare Sonnenschaltung
+    Dim d As Long 'der Keim für den ersten Vollmond im Frühling
+    Dim r As Long 'die kalendarische Korrekturgröße
+    Dim OG As Long 'die Ostergrenze
+    Dim SZ As Long 'der erste Sonntag im März
+    Dim OE As Long 'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
+    Dim OS As Long 'das Datum des Ostersonntags als Märzdatum
+    Dim n As Long
+    Dim e As Long
+    Dim EasterMonth As Long
+    
+    Select Case ecal
+    Case ECalendar.JulianCalendar
+        m = 15
+        s = 0
+    Case ECalendar.GregorianCalendar
+        p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
+        q = (3 * k + 3) \ 4
+        m = 15 + q - p
+        s = 2 - q
+    End Select
+    
+    d = (19 * A + m) Mod 30
+    r = (d + A \ 11) \ 29
+    OG = 21 + d - r
+    SZ = 7 - (y + y \ 4 + s) Mod 7
+    OE = 7 - (OG - SZ) Mod 7
+    
+    OS = OG + OE
+    
+    CalcEasterdateGaussCorrected1900 = CorrectOSDay(OS, y)
+End Function
+
+Public Function CorrectOSDay(ByVal OS_Mrz As Long, ByVal y As Long) As Date
+    Dim OSDay   As Long: OSDay = OS_Mrz + 31 * (OS_Mrz > 31)
+    Dim OSMonth As Long: OSMonth = 3 - (OS_Mrz > 31)
+    CorrectOSDay = DateSerial(y, OSMonth, OSDay)
+End Function
+
+Public Function OsternShort(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+    'code taken from CalcEasterdateGaussCorrected1900 + CorrectOSDay
+    'and then shortened
+    Dim m As Long 'die säkulare Mondschaltung
+    Dim s As Long 'die säkulare Sonnenschaltung
+    Select Case ecal
+    Case ECalendar.JulianCalendar
+        m = 15
+        s = 0
+    Case ECalendar.GregorianCalendar
+        Dim k As Long: k = y \ 100  'die Säkularzahl
+        Dim p As Long: p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
+        Dim q As Long: q = (3 * k + 3) \ 4
+        m = 15 + q - p
+        s = 2 - q
+    End Select
+    
+    Dim A       As Long:  A = y Mod 19                   'der Mondparameter / Gaußsche Zykluszahl
+    Dim d       As Long:  d = (19 * A + m) Mod 30       'der Keim für den ersten Vollmond im Frühling
+    Dim r       As Long:  r = (d + A \ 11) \ 29         'die kalendarische Korrekturgröße
+    Dim OG      As Long: OG = 21 + d - r                'die Ostergrenze
+    Dim SZ      As Long: SZ = 7 - (y + y \ 4 + s) Mod 7 'der erste Sonntag im März
+    Dim OE      As Long: OE = 7 - (OG - SZ) Mod 7       'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
+    Dim OS      As Long: OS = OG + OE                   'das Datum des Ostersonntags als Märzdatum
+    Dim OS_Mrz  As Long: OS_Mrz = OS
+    Dim OSDay   As Long: OSDay = OS_Mrz + 31 * (OS_Mrz > 31)
+    Dim OSMonth As Long: OSMonth = 3 - (OS_Mrz > 31)
+    OsternShort = DateSerial(y, OSMonth, OSDay)
+End Function
+
+Public Function OsternShort2(ByVal y As Long) As Date
+    'let's say we only want to have GregorianCalendar
+    'code taken from CalcEasterdateGaussCorrected1900 and CorrectOSDay and then shortened it
+    Dim k  As Long:  k = y \ 100                                            'die Säkularzahl
+                                                                            '(8 * k + 13) \ 25 'hier unterschiedlich zu 1800
+    Dim q  As Long:  q = (3 * k + 3) \ 4
+                                                                            '2 - q '= die säkulare Sonnenschaltung
+    Dim A  As Long:  A = y Mod 19                                           'der Mondparameter / Gaußsche Zykluszahl
+                                                                                      '15 + q - ((8 * k + 13) \ 25) '= die säkulare Mondschaltung
+    Dim d  As Long:  d = (19 * A + (15 + q - ((8 * k + 13) \ 25))) Mod 30   'der Keim für den ersten Vollmond im Frühling
+                                                                                      '(d + a \ 11) \ 29 'die kalendarische Korrekturgröße
+    Dim OG As Long: OG = 21 + d - (d + A \ 11) \ 29                         'die Ostergrenze
+                                                                                      '7 - (y + y \ 4 + (2 - q)) Mod 7  'der erste Sonntag im März
+    Dim OE As Long: OE = 7 - (OG - (7 - (y + y \ 4 + (2 - q)) Mod 7)) Mod 7 'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
+    Dim OS As Long: OS = OG + OE                                            'das Datum des Ostersonntags als Märzdatum
+          OsternShort2 = DateSerial(y, (3 - (OS > 31)), (OS + 31 * (OS > 31)))
+End Function
+
+
+Public Function Date_ParseFromDayNumber(ByVal y As Integer, ByVal DayNr As Integer) As Date
+    Dim mds As Integer
+    
+    mds = 31
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 1, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 28 - CInt(IsLeapYear(y))
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 2, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 31
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 3, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 30
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 4, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 31
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 5, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 30
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 6, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 31
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 7, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 31
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 8, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 30
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 9, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 31
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 10, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 30
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 11, DayNr): Exit Function
+    DayNr = DayNr - mds
+    
+    mds = 31
+    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 12, DayNr): Exit Function
+End Function
+
+Public Function Date_TryParse(ByVal s As String, ByRef out_date As Date) As Boolean
+Try: On Error GoTo Catch
+    If LCase(s) = "now" Or LCase(s) = "jetzt" Then out_date = Now: Exit Function
+    out_date = CDate(s)
+    Date_TryParse = True
+    Exit Function
+Catch:
+    MsgBox Err.Number & " " & Err.Description
+End Function
+
+Public Function Time_TryParse(ByVal s As String, out_time As Date) As Boolean
+Try: On Error GoTo Catch
+    If Len(s) = 0 Then Exit Function
+    If LCase(s) = "now" Or LCase(s) = "jetzt" Then s = Now
+    Dim sa() As String: sa = Split(s, ":")
+    Dim u As Long: u = UBound(sa)
+    Dim hh As String: hh = sa(0)
+    If u > 0 Then
+        Dim mm As String: mm = sa(1)
+        If u > 1 Then
+            Dim ss As String: ss = sa(2)
+            Dim hhh As Integer: hhh = CInt(hh)
+            Dim mmm As Integer: mmm = CInt(mm)
+            Dim sss As Integer: sss = CInt(ss)
+            out_time = TimeSerial(hhh, mmm, sss)
+            Time_TryParse = True
+            Exit Function
+        End If
+    End If
+    'out_date = CDate(s)
+    Time_TryParse = True
+    Exit Function
+Catch:
+    MsgBox Err.Number & " " & Err.Description
+End Function
+
+Public Function Date_JulianDay(ByVal dt As Date) As Double
+    Dim dat As Date: dat = DateSerial(Year(dt), Month(dt), Day(dt))
+    Dim tim As Date: tim = TimeSerial(Hour(dt), Minute(dt), Second(dt))
+    Dim UtcOffset As Double: UtcOffset = Date_BiasMinutesToUTC(dt) / 60
+    Date_JulianDay = dat + 2415018.5 + tim - UtcOffset / 24
+End Function
+
+Public Function Date_JulianCentury(ByVal dt As Date) As Double
+    Dim jd As Double: jd = Date_JulianDay(dt)
+    Date_JulianCentury = (jd - 2451545#) / 36525#
+End Function
+
+'Many thanks to idiv alias Chris for the following function
+'unsigned int GetDayOfWeek(unsigned int Year, unsigned int Month, unsigned int Day)
+'{
+'    unsigned int y, c;
+'
+'    if ((Month > 0) && (Month <= 12))
+'    {
+'        if ((Day > 0) && (Day <= GetMonthDayCount(Year, Month)))
+'        {
+'            y = (Year % 100);
+'            c = Year / 100;
+'
+'            if (Month > 2)
+'                Month -= 2;
+'            Else
+'            {
+'                Month += 10;
+'                if (y > 0)
+'                    y--;
+'                Else
+'                {
+'                    y = 99;
+'                    c--;
+'                }
+'            }
+'
+'            return static_cast<unsigned>(((static_cast<signed>(Day) + (26*static_cast<signed>(Month)-2) / 10 + static_cast<signed>(y) + static_cast<signed>(y)/4 + static_cast<signed>(c)/4 - 2*static_cast<signed>(c)) + 7000) % 7);
+'        }
+'    }
+'
+'    return 0;
+'}
+Public Function GetDayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day As Long) As Long
+    
+    GetDayOfWeek = -1
+    If (Month < 1) Or (12 < Month) Then Exit Function
+    
+    If (Day < 1) Or (DaysInMonth(Year, Month) < Day) Then Exit Function
+    
+    Dim y As Long: y = Year Mod 100
+    Dim c As Long: c = Year \ 100
+    
+    If (Month > 2) Then
+        Month = Month - 2
+    Else
+        Month = Month + 10
+        If (y > 0) Then
+            y = y - 1
+        Else
+            y = 99
+            c = c - 1
+        End If
+    End If
+    
+    'return static_cast<unsigned>(((static_cast<signed>(Day) + (26*static_cast<signed>(Month)-2) / 10 + static_cast<signed>(y) + static_cast<signed>(y)/4 + static_cast<signed>(c)/4 - 2*static_cast<signed>(c)) + 7000) % 7);
+    GetDayOfWeek = ((Day + (26 * Month - 2) \ 10 + y + y \ 4 + c \ 4 - 2 * c) + 7000) Mod 7
+    
+End Function
+
+Public Function DayOfYear(ByVal d As Date) As Long
+    Dim y As Long
+    Dim i As Long
+    y = Year(d)
+    For i = 1 To Month(d) - 1
+        DayOfYear = DayOfYear + DaysInMonth(y, i)
+    Next
+    DayOfYear = DayOfYear + Day(d) 'Day(d)=DayOfMonth
+End Function
+
+Public Function WeekOfYear(ByVal d As Date) As Long
+    Dim doy As Long: doy = DayOfYear(d)
+    WeekOfYear = doy / 7
+End Function
+
+Public Function DaysInMonth(ByVal Year As Long, ByVal Month As Long) As Long
+    Select Case Month
+    Case 1, 3, 5, 7, 8, 10, 12: DaysInMonth = 31
+    Case 2: If IsLeapYear(Year) Then DaysInMonth = 29 Else DaysInMonth = 28
+    Case 4, 6, 9, 11: DaysInMonth = 30
+    End Select
+End Function
+
+Public Function IsLeapYear(ByVal y As Long) As Boolean
+'Schaltjahr (LeapYear)
+'a leap year is a year which is
+'either (i.)
+'    evenly divisible
+'        by 4
+'    and not
+'        by 100
+'or (ii.)
+'    evenly divisible
+'        by 400
+    IsLeapYear = (((y Mod 4) = 0) And Not ((y Mod 100) = 0)) Or ((y Mod 400) = 0)
+End Function
+
+'https://docs.microsoft.com/de-de/dotnet/standard/base-types/standard-date-and-time-format-strings
+'
+'Formatbezeichner    Beschreibung    Beispiele
+'"d"     Kurzes Datumsmuster.
+'
+'Weitere Informationen finden Sie unter Der Formatbezeichner für das kurze Datum („d“).  2009-06-15T13:45:30 -> 6/15/2009 (en-US)
+'
+'2009-06-15T13:45:30 -> 15/06/2009 (fr-FR)
+'
+'2009-06-15T13:45:30 -> 2009/06/15 (ja-JP)
+'"D"     Langes Datumsmuster.
+'
+'Weitere Informationen finden Sie unter Der Formatbezeichner für das lange Datum („D“).  2009-06-15T13:45:30 -> Monday, June 15, 2009 (en-US)
+'
+'2009-06-15T13:45:30 -> 15 ???? 2009 ?. (ru-RU)
+'
+'2009-06-15T13:45:30 -> Montag, 15. Juni 2009 (de-DE)
+'"f"     Vollständiges Datums-/Zeitmuster (kurze Zeit).
+'
+'Weitere Informationen finden Sie unter: Der Formatbezeichner für vollständiges Datum und kurze Zeit („f“).  2009-06-15T13:45:30 -> Monday, June 15, 2009 1:45 PM (en-US)
+'
+'2009-06-15T13:45:30 -> den 15 juni 2009 13:45 (sv-SE)
+'
+'2009-06-15T13:45:30 -> ?e?t??a, 15 ??????? 2009 1:45 µµ (el-GR)
+'"F"     Vollständiges Datums-/Zeitmuster (lange Zeit).
+'
+'Weitere Informationen finden Sie unter: Der Formatbezeichner für vollständiges Datum und lange Zeit („F“).  2009-06-15T13:45:30 -> Monday, June 15, 2009 1:45:30 PM (en-US)
+'
+'2009-06-15T13:45:30 -> den 15 juni 2009 13:45:30 (sv-SE)
+'
+'2009-06-15T13:45:30 -> ?e?t??a, 15 ??????? 2009 1:45:30 µµ (el-GR)
+'"g"     Allgemeines Datums-/Zeitmuster (kurze Zeit).
+'
+'Weitere Informationen finden Sie unter: Der allgemeine Formatbezeichner für Datum und kurze Zeit („g“).     2009-06-15T13:45:30 -> 6/15/2009 1:45 PM (en-US)
+'
+'2009-06-15T13:45:30 -> 15/06/2009 13:45 (es-ES)
+'
+'2009-06-15T13:45:30 -> 2009/6/15 13:45 (zh-CN)
+'"G"     Allgemeines Datums-/Zeitmuster (lange Zeit).
+'
+'Weitere Informationen finden Sie unter: Der allgemeine Formatbezeichner für Datum und lange Zeit („G“).     2009-06-15T13:45:30 -> 6/15/2009 1:45:30 PM (en-US)
+'
+'2009-06-15T13:45:30 -> 15/06/2009 13:45:30 (es-ES)
+'
+'2009-06-15T13:45:30 -> 2009/6/15 13:45:30 (zh-CN)
+'"M", "m"    Monatstagmuster.
+'
+'Weitere Informationen finden Sie unter: Der Formatbezeichner für den Monat („M“, „m“).  2009-06-15T13:45:30 -> June 15 (en-US)
+'
+'2009-06-15T13:45:30 -> 15. juni (da-DK)
+'
+'2009-06-15T13:45:30 -> 15 Juni (id-ID)
+'"O", "o"    Datums-/Uhrzeitmuster für Roundtrip.
+'
+'Weitere Informationen finden Sie unter: Der Formatbezeichner für Roundtrips („O“, „o“).     DateTime-Werte sind:
+'
+'2009-06-15T13:45:30 (DateTimeKind.Local) --> 2009-06-15T13:45:30.0000000-07:00
+'
+'2009-06-15T13:45:30 (DateTimeKind.Utc) --> 2009-06-15T13:45:30.0000000Z
+'
+'2009-06-15T13:45:30 (DateTimeKind.Unspecified) --> 2009-06-15T13:45:30.0000000
+'
+'DateTimeOffset:
+'
+'2009-06-15T13:45:30-07:00 --> 2009-06-15T13:45:30.0000000-07:00
+'"R", "r"    RFC1123-Muster.
+'
+'Weitere Informationen finden Sie unter: Der RFC1123-Formatbezeichner („R“, „r“).    2009-06-15T13:45:30 -> Mon, 15 Jun 2009 20:45:30 GMT
+'"s"     Sortierbares Datums-/Zeitmuster.
+'
+'Weitere Informationen finden Sie unter: Der sortierbare Formatbezeichner („s“).     2009-06-15T13:45:30 (DateTimeKind.Local) -> 2009-06-15T13:45:30
+'
+'2009-06-15T13:45:30 (DateTimeKind.Utc) -> 2009-06-15T13:45:30
+'"t"     Kurzes Zeitmuster.
+'
+'Weitere Informationen finden Sie unter: Der Formatbezeichner für kurze Zeit („t“).  2009-06-15T13:45:30 -> 1:45 PM (en-US)
+'
+'2009-06-15T13:45:30 -> 13:45 (hr-HR)
+'
+'2009-06-15T13:45:30 -> 01:45 ? (ar-EG)
+'"T"     Langes Zeitmuster.
+'
+'Weitere Informationen finden Sie unter: Der Formatbezeichner für lange Zeit („T“).  2009-06-15T13:45:30 -> 1:45:30 PM (en-US)
+'
+'2009-06-15T13:45:30 -> 13:45:30 (hr-HR)
+'
+'2009-06-15T13:45:30 -> 01:45:30 ? (ar-EG)
+'"u"     Universelles, sortierbares Datums-/Zeitmuster.
+'
+'Weitere Informationen finden Sie unter: Der universelle sortierbare Formatbezeichner („u“).     Mit einem DateTime-Wert: 2009-06-15T13:45:30 -> 2009-06-15 13:45:30Z
+'
+'Mit einem DateTimeOffset-Wert: 2009-06-15T13:45:30 -> 2009-06-15 20:45:30Z
+'"U"     Universelles Datums-/Zeitmuster (Koordinierte Weltzeit).
+'
+'Weitere Informationen finden Sie unter: Der universelle vollständige Formatbezeichner („U“).    2009-06-15T13:45:30 -> Monday, June 15, 2009 8:45:30 PM (en-US)
+'
+'2009-06-15T13:45:30 -> den 15 juni 2009 20:45:30 (sv-SE)
+'
+'2009-06-15T13:45:30 -> ?e?t??a, 15 ??????? 2009 8:45:30 µµ (el-GR)
+'"Y", "y"    Jahr-Monat-Muster.
+'
+'Weitere Informationen finden Sie unter: Der Formatbezeichner für Jahr-Monat („Y“).  2009-06-15T13:45:30 -> Juni 2009 (en-US)
+'
+'2009-06-15T13:45:30 -> juni 2009 (da-DK)
+'
+'2009-06-15T13:45:30 -> Juni 2009 (id-ID)
+'Jedes andere einzelne Zeichen   Unbekannter Bezeichner.     Löst eine FormatException zur Laufzeit aus.
+
 
 ' ############################## '     SystemTime      ' ############################## '
 'SystemTime here is timezonespecific local time, for Systemtime as UTC-time look next chapter “Universal Time Coordinated”
@@ -498,6 +1126,19 @@ Public Function SYSTEMTIME(ByVal Year As Integer, ByVal Month As Integer, ByVal 
         .wMilliseconds = Millisecond
     End With
 End Function
+
+Public Property Get SystemTime_SecondsAsSingle(this As SYSTEMTIME) As Single
+    With this
+        SystemTime_SecondsAsSingle = CSng(.wSecond) + CSng(.wMilliseconds) / 1000!
+    End With
+End Property
+
+Public Property Let SystemTime_SecondsAsSingle(this As SYSTEMTIME, ByVal Value As Single)
+    With this
+        .wSecond = Int(Value)
+        .wMilliseconds = CInt((Value - CSng(.wSecond)) * 1000!)
+    End With
+End Property
 
 Public Property Get SystemTime_Now() As SYSTEMTIME
     GetSystemTime SystemTime_Now
@@ -668,11 +1309,11 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
             Exit Function
         End If
         
-        Dim Y As Integer: Y = Year(Now)
+        Dim y As Integer: y = Year(Now)
         Dim m As Integer: m = .wMonth
         Dim d As Integer: d = 1
         'the date of the first day in month m
-        Dim dt As Date: dt = DateSerial(Y, m, d)
+        Dim dt As Date: dt = DateSerial(y, m, d)
         
         'the weekday of the first day in month m
         Dim dow As Integer: dow = Weekday(dt) - 1 'the vbenum is one based
@@ -681,13 +1322,13 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
         'the wDay member to indicate the occurrence of the day of the week within the month
         '(1 to 5, where 5 indicates the final occurrence during the month if that day of the week does not occur 5 times)
         
-        Dim idm As Integer: idm = MTime.DaysInMonth(Y, .wMonth) - 7
+        Dim idm As Integer: idm = MTime.DaysInMonth(y, .wMonth) - 7
         Dim i As Long
         For i = 1 To .wDay
             If d <= idm Then d = d + 7
         Next
         
-        TimeZoneInfoSystemTime_ToDate = DateSerial(Y, m, d) + TimeSerial(.wHour, .wMinute, .wSecond)
+        TimeZoneInfoSystemTime_ToDate = DateSerial(y, m, d) + TimeSerial(.wHour, .wMinute, .wSecond)
     End With
 End Function
 
@@ -844,7 +1485,7 @@ End Function
 ' Dieses Urdatum wird manchmal auch "The Epoch" genannt. In manchen Situationen muss
 ' man in Shellskripten die Unix-Zeit in ein normales Datum umrechnen und umgekehrt.
 Public Function UnixTime(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As Double
-    UnixTime = Date_ToUnixTime(DDate(Year, Month, Day, Hour, Minute, Second))
+    UnixTime = Date_ToUnixTime(New_Date(Year, Month, Day, Hour, Minute, Second))
 End Function
 
 Public Property Get UnixTime_Now() As Double
@@ -904,7 +1545,7 @@ End Function
 ' ############################## '       DosTime       ' ############################## '
 ' oder auch FAT-Time also die Zeit die unter DOS in der FAT der Festplatte gespeichert wird
 Public Function DOSTIME(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As DOSTIME
-    DOSTIME = Date_ToDosTime(DDate(Year, Month, Day, Hour, Minute, Second))
+    DOSTIME = Date_ToDosTime(New_Date(Year, Month, Day, Hour, Minute, Second))
 End Function
 
 Public Function DosTime_Now() As DOSTIME
@@ -1041,7 +1682,7 @@ End Function
 'https://learn.microsoft.com/de-de/uwp/api/windows.foundation.datetime?view=winrt-22621
 'UniversalTime: A 64-bit signed integer that represents a point in time as the number of 100-nanosecond intervals prior to or after midnight on January 1, 1601 (according to the Gregorian Calendar).
 Public Function WindowsFoundationDateTime(ByVal Year As Integer, ByVal Month As Integer, ByVal Day As Integer, ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer) As WindowsFoundationDateTime
-    WindowsFoundationDateTime = Date_ToWindowsFoundationDateTime(DDate(Year, Month, Day, Hour, Minute, Second))
+    WindowsFoundationDateTime = Date_ToWindowsFoundationDateTime(New_Date(Year, Month, Day, Hour, Minute, Second))
 End Function
 
 Public Function WindowsFoundationDateTime_Now() As WindowsFoundationDateTime
@@ -1110,519 +1751,4 @@ End Function
 Private Function Hex2(ByVal b As Byte) As String
     Hex2 = Hex(b): If Len(Hex2) < 2 Then Hex2 = "0" & Hex2
 End Function
-
-' ############################## '       MDate       ' ############################## '
-
-Public Function ECalendar_ToStr(e As ECalendar) As String
-    Dim s As String
-    Select Case e
-    Case ECalendar.GregorianCalendar: s = "GregorianCalendar"
-    Case ECalendar.JulianCalendar:    s = "JulianCalendar"
-    End Select
-    ECalendar_ToStr = s
-End Function
-
-Public Function ECalendar_Parse(s As String) As ECalendar
-    Dim e As ECalendar
-    Select Case s
-    Case "GregorianCalendar": e = ECalendar.GregorianCalendar
-    Case "JulianCalendar":    e = ECalendar.JulianCalendar
-    End Select
-    ECalendar_Parse = e
-End Function
-
-Public Function CalcEasterdateGauss1800(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim A As Long: A = Y Mod 19 'der Mondparameter
-    Dim b As Long: b = Y Mod 4
-    Dim c As Long: c = Y Mod 7
-    Dim k As Long: k = Y \ 100 'die Säkularzahl
-    Dim p As Long
-    Dim q As Long
-    Dim m As Long 'die säkulare Mondschaltung
-    Dim d As Long 'der Keim für den ersten Vollmond im Frühling
-    Dim N As Long
-    Dim e As Long
-    Dim OS As Long 'das Datum des Ostersonntags als Märzdatum
-    Dim EasterMonth As Long
-    
-    Select Case ecal
-    Case ECalendar.JulianCalendar
-        m = 15
-    Case ECalendar.GregorianCalendar
-        p = k \ 3
-        q = k \ 4
-        m = (15 + k - p - q) Mod 30
-    End Select
-    
-    d = (19 * A + m) Mod 30
-    
-    Select Case ecal
-    Case ECalendar.JulianCalendar
-        N = 6
-    Case ECalendar.GregorianCalendar
-        N = (4 + k - q) Mod 7
-    End Select
-    
-    e = (2 * b + 4 * c + 6 * d + N) Mod 7
-    
-    OS = (22 + d + e)
-    EasterMonth = 3
-    If OS > 31 Then
-        OS = OS - 31
-        EasterMonth = 4
-    End If
-    Dim easter As Date: easter = OS & "." & EasterMonth & "." & Y
-    CalcEasterdateGauss1800 = easter
-End Function
-
-Public Function CalcEasterdateGauss1816(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim A As Long: A = Y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
-    Dim b As Long: b = Y Mod 4
-    Dim c As Long: c = Y Mod 7
-    Dim k As Long: k = Y \ 100 'die Säkularzahl
-    Dim p As Long
-    Dim q As Long
-    Dim m As Long 'die säkulare Mondschaltung
-    Dim d As Long 'der Keim für den ersten Vollmond im Frühling
-    Dim N As Long
-    Dim e As Long
-    Dim OS As Long 'das Datum des Ostersonntags als Märzdatum
-    Dim EasterMonth As Long
-    
-    Select Case ecal
-    Case ECalendar.JulianCalendar
-        m = 15
-    Case ECalendar.GregorianCalendar
-        p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
-        q = k \ 4
-        m = (15 + k - p - q) Mod 30
-    End Select
-    
-    d = (19 * A + m) Mod 30
-    
-    Select Case ecal
-    Case ECalendar.JulianCalendar
-        N = 6
-    Case ECalendar.GregorianCalendar
-        N = (4 + k - q) Mod 7
-    End Select
-    
-    e = (2 * b + 4 * c + 6 * d + N) Mod 7
-    
-    OS = (22 + d + e)
-    
-    CalcEasterdateGauss1816 = CorrectOSDay(OS, Y)
-End Function
-
-'Schritt     Bedeutung   Formel
-'1.  die Säkularzahl                                    K(X) = X div 100
-'2.  die säkulare Mondschaltung                         M(K) = 15 + (3K + 3) div 4 - (8K + 13) div 25
-'3.  die säkulare Sonnenschaltung                       S(K) = 2 - (3K + 3) div 4
-'4.  den Mondparameter                                  A(X) = X mod 19
-'5.  den Keim für den ersten Vollmond im Frühling       D(A,M) = (19A + M) mod 30
-'6.  die kalendarische Korrekturgröße                   R(D,A) = (D + A div 11) div 29[13]
-'7.  die Ostergrenze                                    OG(D,R) = 21 + D - R
-'8.  den ersten Sonntag im März                         SZ(X,S) = 7 - (X + X div 4 + S) mod 7
-'9.  die Entfernung des Ostersonntags von der Ostergrenze
-'    (Osterentfernung in Tagen)                         OE(OG,SZ) = 7 - (OG - SZ) mod 7
-'10. das Datum des Ostersonntags als Märzdatum
-'    (32. März = 1. April usw.)                         OS = OG + OE
-Public Function CalcEasterdateGaussCorrected1900(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim A As Long: A = Y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
-    'Dim b As Long: b = y Mod 4
-    'Dim c As Long: c = y Mod 7
-    Dim k As Long: k = Y \ 100 'die Säkularzahl
-    Dim p As Long
-    Dim q As Long
-    Dim m As Long 'die säkulare Mondschaltung
-    Dim s As Long 'die säkulare Sonnenschaltung
-    Dim d As Long 'der Keim für den ersten Vollmond im Frühling
-    Dim r As Long 'die kalendarische Korrekturgröße
-    Dim OG As Long 'die Ostergrenze
-    Dim SZ As Long 'der erste Sonntag im März
-    Dim OE As Long 'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
-    Dim OS As Long 'das Datum des Ostersonntags als Märzdatum
-    Dim N As Long
-    Dim e As Long
-    Dim EasterMonth As Long
-    
-    Select Case ecal
-    Case ECalendar.JulianCalendar
-        m = 15
-        s = 0
-    Case ECalendar.GregorianCalendar
-        p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
-        q = (3 * k + 3) \ 4
-        m = 15 + q - p
-        s = 2 - q
-    End Select
-    
-    d = (19 * A + m) Mod 30
-    r = (d + A \ 11) \ 29
-    OG = 21 + d - r
-    SZ = 7 - (Y + Y \ 4 + s) Mod 7
-    OE = 7 - (OG - SZ) Mod 7
-    
-    OS = OG + OE
-    
-    CalcEasterdateGaussCorrected1900 = CorrectOSDay(OS, Y)
-End Function
-
-Public Function CorrectOSDay(ByVal OS_Mrz As Long, ByVal Y As Long) As Date
-    Dim OSDay   As Long: OSDay = OS_Mrz + 31 * (OS_Mrz > 31)
-    Dim OSMonth As Long: OSMonth = 3 - (OS_Mrz > 31)
-    CorrectOSDay = DateSerial(Y, OSMonth, OSDay)
-End Function
-
-Public Function OsternShort(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    'code taken from CalcEasterdateGaussCorrected1900 + CorrectOSDay
-    'and then shortened
-    Dim m As Long 'die säkulare Mondschaltung
-    Dim s As Long 'die säkulare Sonnenschaltung
-    Select Case ecal
-    Case ECalendar.JulianCalendar
-        m = 15
-        s = 0
-    Case ECalendar.GregorianCalendar
-        Dim k As Long: k = Y \ 100  'die Säkularzahl
-        Dim p As Long: p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
-        Dim q As Long: q = (3 * k + 3) \ 4
-        m = 15 + q - p
-        s = 2 - q
-    End Select
-    
-    Dim A       As Long:  A = Y Mod 19                   'der Mondparameter / Gaußsche Zykluszahl
-    Dim d       As Long:  d = (19 * A + m) Mod 30       'der Keim für den ersten Vollmond im Frühling
-    Dim r       As Long:  r = (d + A \ 11) \ 29         'die kalendarische Korrekturgröße
-    Dim OG      As Long: OG = 21 + d - r                'die Ostergrenze
-    Dim SZ      As Long: SZ = 7 - (Y + Y \ 4 + s) Mod 7 'der erste Sonntag im März
-    Dim OE      As Long: OE = 7 - (OG - SZ) Mod 7       'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
-    Dim OS      As Long: OS = OG + OE                   'das Datum des Ostersonntags als Märzdatum
-    Dim OS_Mrz  As Long: OS_Mrz = OS
-    Dim OSDay   As Long: OSDay = OS_Mrz + 31 * (OS_Mrz > 31)
-    Dim OSMonth As Long: OSMonth = 3 - (OS_Mrz > 31)
-    OsternShort = DateSerial(Y, OSMonth, OSDay)
-End Function
-
-Public Function OsternShort2(ByVal Y As Long) As Date
-    'let's say we only want to have GregorianCalendar
-    'code taken from CalcEasterdateGaussCorrected1900 and CorrectOSDay and then shortened it
-    Dim k  As Long:  k = Y \ 100                                            'die Säkularzahl
-                                                                            '(8 * k + 13) \ 25 'hier unterschiedlich zu 1800
-    Dim q  As Long:  q = (3 * k + 3) \ 4
-                                                                            '2 - q '= die säkulare Sonnenschaltung
-    Dim A  As Long:  A = Y Mod 19                                           'der Mondparameter / Gaußsche Zykluszahl
-                                                                                      '15 + q - ((8 * k + 13) \ 25) '= die säkulare Mondschaltung
-    Dim d  As Long:  d = (19 * A + (15 + q - ((8 * k + 13) \ 25))) Mod 30   'der Keim für den ersten Vollmond im Frühling
-                                                                                      '(d + a \ 11) \ 29 'die kalendarische Korrekturgröße
-    Dim OG As Long: OG = 21 + d - (d + A \ 11) \ 29                         'die Ostergrenze
-                                                                                      '7 - (y + y \ 4 + (2 - q)) Mod 7  'der erste Sonntag im März
-    Dim OE As Long: OE = 7 - (OG - (7 - (Y + Y \ 4 + (2 - q)) Mod 7)) Mod 7 'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
-    Dim OS As Long: OS = OG + OE                                            'das Datum des Ostersonntags als Märzdatum
-          OsternShort2 = DateSerial(Y, (3 - (OS > 31)), (OS + 31 * (OS > 31)))
-End Function
-
-
-Public Function Date_ParseFromDayNumber(ByVal Y As Integer, ByVal DayNr As Integer) As Date
-    Dim mds As Integer
-    
-    mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 1, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 28 - CInt(IsLeapYear(Y))
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 2, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 3, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 4, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 5, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 6, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 7, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 8, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 9, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 10, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 11, DayNr): Exit Function
-    DayNr = DayNr - mds
-    
-    mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(Y, 12, DayNr): Exit Function
-End Function
-
-Public Function Date_TryParse(ByVal s As String, ByRef out_date As Date) As Boolean
-Try: On Error GoTo Catch
-    If LCase(s) = "now" Or LCase(s) = "jetzt" Then s = Now
-    out_date = CDate(s)
-    Date_TryParse = True
-    Exit Function
-Catch:
-    MsgBox Err.Number & " " & Err.Description
-End Function
-
-Public Function Time_TryParse(ByVal s As String, out_time As Date) As Boolean
-Try: On Error GoTo Catch
-    If Len(s) = 0 Then Exit Function
-    If LCase(s) = "now" Or LCase(s) = "jetzt" Then s = Now
-    Dim sa() As String: sa = Split(s, ":")
-    Dim u As Long: u = UBound(sa)
-    Dim hh As String: hh = sa(0)
-    If u > 0 Then
-        Dim mm As String: mm = sa(1)
-        If u > 1 Then
-            Dim ss As String: ss = sa(2)
-            Dim hhh As Integer: hhh = CInt(hh)
-            Dim mmm As Integer: mmm = CInt(mm)
-            Dim sss As Integer: sss = CInt(ss)
-            out_time = TimeSerial(hhh, mmm, sss)
-            Time_TryParse = True
-            Exit Function
-        End If
-    End If
-    'out_date = CDate(s)
-    Time_TryParse = True
-    Exit Function
-Catch:
-    MsgBox Err.Number & " " & Err.Description
-End Function
-
-Public Function Date_JulianDay(ByVal dt As Date) As Double
-    Dim dat As Date: dat = DateSerial(Year(dt), Month(dt), Day(dt))
-    Dim tim As Date: tim = TimeSerial(Hour(dt), Minute(dt), Second(dt))
-    Dim UtcOffset As Double: UtcOffset = Date_BiasMinutesToUTC(dt) / 60
-    Date_JulianDay = dat + 2415018.5 + tim - UtcOffset / 24
-End Function
-
-Public Function Date_JulianCentury(ByVal dt As Date) As Double
-    Dim jd As Double: jd = Date_JulianDay(dt)
-    Date_JulianCentury = (jd - 2451545#) / 36525#
-End Function
-
-'Many thanks to idiv alias Chris for the following function
-'unsigned int GetDayOfWeek(unsigned int Year, unsigned int Month, unsigned int Day)
-'{
-'    unsigned int y, c;
-'
-'    if ((Month > 0) && (Month <= 12))
-'    {
-'        if ((Day > 0) && (Day <= GetMonthDayCount(Year, Month)))
-'        {
-'            y = (Year % 100);
-'            c = Year / 100;
-'
-'            if (Month > 2)
-'                Month -= 2;
-'            Else
-'            {
-'                Month += 10;
-'                if (y > 0)
-'                    y--;
-'                Else
-'                {
-'                    y = 99;
-'                    c--;
-'                }
-'            }
-'
-'            return static_cast<unsigned>(((static_cast<signed>(Day) + (26*static_cast<signed>(Month)-2) / 10 + static_cast<signed>(y) + static_cast<signed>(y)/4 + static_cast<signed>(c)/4 - 2*static_cast<signed>(c)) + 7000) % 7);
-'        }
-'    }
-'
-'    return 0;
-'}
-Public Function GetDayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day As Long) As Long
-    
-    GetDayOfWeek = -1
-    If (Month < 1) Or (12 < Month) Then Exit Function
-    
-    If (Day < 1) Or (DaysInMonth(Year, Month) < Day) Then Exit Function
-    
-    Dim Y As Long: Y = Year Mod 100
-    Dim c As Long: c = Year \ 100
-    
-    If (Month > 2) Then
-        Month = Month - 2
-    Else
-        Month = Month + 10
-        If (Y > 0) Then
-            Y = Y - 1
-        Else
-            Y = 99
-            c = c - 1
-        End If
-    End If
-    
-    'return static_cast<unsigned>(((static_cast<signed>(Day) + (26*static_cast<signed>(Month)-2) / 10 + static_cast<signed>(y) + static_cast<signed>(y)/4 + static_cast<signed>(c)/4 - 2*static_cast<signed>(c)) + 7000) % 7);
-    GetDayOfWeek = ((Day + (26 * Month - 2) \ 10 + Y + Y \ 4 + c \ 4 - 2 * c) + 7000) Mod 7
-    
-End Function
-
-Public Function DayOfYear(ByVal d As Date) As Long
-    Dim Y As Long
-    Dim i As Long
-    Y = Year(d)
-    For i = 1 To Month(d) - 1
-        DayOfYear = DayOfYear + DaysInMonth(Y, i)
-    Next
-    DayOfYear = DayOfYear + Day(d) 'Day(d)=DayOfMonth
-End Function
-
-Public Function WeekOfYear(ByVal d As Date) As Long
-    Dim doy As Long: doy = DayOfYear(d)
-    WeekOfYear = doy / 7
-End Function
-
-Public Function DaysInMonth(ByVal Year As Long, ByVal Month As Long) As Long
-    Select Case Month
-    Case 1, 3, 5, 7, 8, 10, 12: DaysInMonth = 31
-    Case 2: If IsLeapYear(Year) Then DaysInMonth = 29 Else DaysInMonth = 28
-    Case 4, 6, 9, 11: DaysInMonth = 30
-    End Select
-End Function
-
-Public Function IsLeapYear(ByVal Y As Long) As Boolean
-'Schaltjahr (LeapYear)
-'a leap year is a year which is
-'either (i.)
-'    evenly divisible
-'        by 4
-'    and not
-'        by 100
-'or (ii.)
-'    evenly divisible
-'        by 400
-    IsLeapYear = (((Y Mod 4) = 0) And Not ((Y Mod 100) = 0)) Or ((Y Mod 400) = 0)
-End Function
-
-'https://docs.microsoft.com/de-de/dotnet/standard/base-types/standard-date-and-time-format-strings
-'
-'Formatbezeichner    Beschreibung    Beispiele
-'"d"     Kurzes Datumsmuster.
-'
-'Weitere Informationen finden Sie unter Der Formatbezeichner für das kurze Datum („d“).  2009-06-15T13:45:30 -> 6/15/2009 (en-US)
-'
-'2009-06-15T13:45:30 -> 15/06/2009 (fr-FR)
-'
-'2009-06-15T13:45:30 -> 2009/06/15 (ja-JP)
-'"D"     Langes Datumsmuster.
-'
-'Weitere Informationen finden Sie unter Der Formatbezeichner für das lange Datum („D“).  2009-06-15T13:45:30 -> Monday, June 15, 2009 (en-US)
-'
-'2009-06-15T13:45:30 -> 15 ???? 2009 ?. (ru-RU)
-'
-'2009-06-15T13:45:30 -> Montag, 15. Juni 2009 (de-DE)
-'"f"     Vollständiges Datums-/Zeitmuster (kurze Zeit).
-'
-'Weitere Informationen finden Sie unter: Der Formatbezeichner für vollständiges Datum und kurze Zeit („f“).  2009-06-15T13:45:30 -> Monday, June 15, 2009 1:45 PM (en-US)
-'
-'2009-06-15T13:45:30 -> den 15 juni 2009 13:45 (sv-SE)
-'
-'2009-06-15T13:45:30 -> ?e?t??a, 15 ??????? 2009 1:45 µµ (el-GR)
-'"F"     Vollständiges Datums-/Zeitmuster (lange Zeit).
-'
-'Weitere Informationen finden Sie unter: Der Formatbezeichner für vollständiges Datum und lange Zeit („F“).  2009-06-15T13:45:30 -> Monday, June 15, 2009 1:45:30 PM (en-US)
-'
-'2009-06-15T13:45:30 -> den 15 juni 2009 13:45:30 (sv-SE)
-'
-'2009-06-15T13:45:30 -> ?e?t??a, 15 ??????? 2009 1:45:30 µµ (el-GR)
-'"g"     Allgemeines Datums-/Zeitmuster (kurze Zeit).
-'
-'Weitere Informationen finden Sie unter: Der allgemeine Formatbezeichner für Datum und kurze Zeit („g“).     2009-06-15T13:45:30 -> 6/15/2009 1:45 PM (en-US)
-'
-'2009-06-15T13:45:30 -> 15/06/2009 13:45 (es-ES)
-'
-'2009-06-15T13:45:30 -> 2009/6/15 13:45 (zh-CN)
-'"G"     Allgemeines Datums-/Zeitmuster (lange Zeit).
-'
-'Weitere Informationen finden Sie unter: Der allgemeine Formatbezeichner für Datum und lange Zeit („G“).     2009-06-15T13:45:30 -> 6/15/2009 1:45:30 PM (en-US)
-'
-'2009-06-15T13:45:30 -> 15/06/2009 13:45:30 (es-ES)
-'
-'2009-06-15T13:45:30 -> 2009/6/15 13:45:30 (zh-CN)
-'"M", "m"    Monatstagmuster.
-'
-'Weitere Informationen finden Sie unter: Der Formatbezeichner für den Monat („M“, „m“).  2009-06-15T13:45:30 -> June 15 (en-US)
-'
-'2009-06-15T13:45:30 -> 15. juni (da-DK)
-'
-'2009-06-15T13:45:30 -> 15 Juni (id-ID)
-'"O", "o"    Datums-/Uhrzeitmuster für Roundtrip.
-'
-'Weitere Informationen finden Sie unter: Der Formatbezeichner für Roundtrips („O“, „o“).     DateTime-Werte sind:
-'
-'2009-06-15T13:45:30 (DateTimeKind.Local) --> 2009-06-15T13:45:30.0000000-07:00
-'
-'2009-06-15T13:45:30 (DateTimeKind.Utc) --> 2009-06-15T13:45:30.0000000Z
-'
-'2009-06-15T13:45:30 (DateTimeKind.Unspecified) --> 2009-06-15T13:45:30.0000000
-'
-'DateTimeOffset:
-'
-'2009-06-15T13:45:30-07:00 --> 2009-06-15T13:45:30.0000000-07:00
-'"R", "r"    RFC1123-Muster.
-'
-'Weitere Informationen finden Sie unter: Der RFC1123-Formatbezeichner („R“, „r“).    2009-06-15T13:45:30 -> Mon, 15 Jun 2009 20:45:30 GMT
-'"s"     Sortierbares Datums-/Zeitmuster.
-'
-'Weitere Informationen finden Sie unter: Der sortierbare Formatbezeichner („s“).     2009-06-15T13:45:30 (DateTimeKind.Local) -> 2009-06-15T13:45:30
-'
-'2009-06-15T13:45:30 (DateTimeKind.Utc) -> 2009-06-15T13:45:30
-'"t"     Kurzes Zeitmuster.
-'
-'Weitere Informationen finden Sie unter: Der Formatbezeichner für kurze Zeit („t“).  2009-06-15T13:45:30 -> 1:45 PM (en-US)
-'
-'2009-06-15T13:45:30 -> 13:45 (hr-HR)
-'
-'2009-06-15T13:45:30 -> 01:45 ? (ar-EG)
-'"T"     Langes Zeitmuster.
-'
-'Weitere Informationen finden Sie unter: Der Formatbezeichner für lange Zeit („T“).  2009-06-15T13:45:30 -> 1:45:30 PM (en-US)
-'
-'2009-06-15T13:45:30 -> 13:45:30 (hr-HR)
-'
-'2009-06-15T13:45:30 -> 01:45:30 ? (ar-EG)
-'"u"     Universelles, sortierbares Datums-/Zeitmuster.
-'
-'Weitere Informationen finden Sie unter: Der universelle sortierbare Formatbezeichner („u“).     Mit einem DateTime-Wert: 2009-06-15T13:45:30 -> 2009-06-15 13:45:30Z
-'
-'Mit einem DateTimeOffset-Wert: 2009-06-15T13:45:30 -> 2009-06-15 20:45:30Z
-'"U"     Universelles Datums-/Zeitmuster (Koordinierte Weltzeit).
-'
-'Weitere Informationen finden Sie unter: Der universelle vollständige Formatbezeichner („U“).    2009-06-15T13:45:30 -> Monday, June 15, 2009 8:45:30 PM (en-US)
-'
-'2009-06-15T13:45:30 -> den 15 juni 2009 20:45:30 (sv-SE)
-'
-'2009-06-15T13:45:30 -> ?e?t??a, 15 ??????? 2009 8:45:30 µµ (el-GR)
-'"Y", "y"    Jahr-Monat-Muster.
-'
-'Weitere Informationen finden Sie unter: Der Formatbezeichner für Jahr-Monat („Y“).  2009-06-15T13:45:30 -> Juni 2009 (en-US)
-'
-'2009-06-15T13:45:30 -> juni 2009 (da-DK)
-'
-'2009-06-15T13:45:30 -> Juni 2009 (id-ID)
-'Jedes andere einzelne Zeichen   Unbekannter Bezeichner.     Löst eine FormatException zur Laufzeit aus.
 

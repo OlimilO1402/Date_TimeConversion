@@ -580,9 +580,9 @@ Private m_WndFndDTim As MTime.WindowsFoundationDateTime
 Private m_DTimeStamp As Long
 
 Private Sub BtnEditDate_Click()
-    Dim dat As Date: dat = m_DateTime
+    Dim dat As SYSTEMTIME: dat = m_SystemTime
     If FEditDateTime.ShowDialog(Me, dat) = vbCancel Then Exit Sub
-    UpdateFromDate dat
+    UpdateFromSYSTEMTIME dat
 End Sub
 
 Private Sub Form_Load()
@@ -624,7 +624,13 @@ End Sub
 
 Private Sub Btn_SystemTime_Now_Click()
     
-    m_SystemTime = MTime.SystemTime_Now
+    UpdateFromSYSTEMTIME MTime.SystemTime_Now
+    
+End Sub
+
+Private Sub UpdateFromSYSTEMTIME(NewSystemTime As SYSTEMTIME)
+    
+    m_SystemTime = NewSystemTime
     
     m_DateTime = MTime.SystemTime_ToDate(m_SystemTime)
     m_UTCTime = MTime.SystemTime_ToUniversalTimeCoordinated(m_SystemTime)
