@@ -49,23 +49,23 @@ End Function
 '2024-05-31T16:56:12
 
 Private Function NextState(ByVal oldstate As Long, ByVal ch As Long) As Long
-    Select Case state
-    Case 0
-        Select Case ch
-        Case 89:   state = 10: n = 1 '"Y"
-        Case 77:   state = 20: n = 1 '"M"
-        Case 68:   state = 30: n = 1 '"D"
-        Case 104:  state = 40: n = 1 '"h"
-        Case 109:  state = 50: n = 1 '"m"
-        Case 115:  state = 60: n = 1 '"s"
-        Case Else: state = -1: n = 0 'errorstate
-        End Select
-    Case 10
-        Select Case ch
-        Case 89:     n = n + 1
-        Case Else: state = -1: n = 0  'errorstate
-        End Select
-    Case 4
-    End Select
+'    Select Case oldstate
+'    Case 0
+'        Select Case ch
+'        Case 89:   NextState = 10: n = 1 '"Y"
+'        Case 77:   NextState = 20: n = 1 '"M"
+'        Case 68:   NextState = 30: n = 1 '"D"
+'        Case 104:  NextState = 40: n = 1 '"h"
+'        Case 109:  NextState = 50: n = 1 '"m"
+'        Case 115:  NextState = 60: n = 1 '"s"
+'        Case Else: NextState = -1: n = 0 'errorstate
+'        End Select
+'    Case 10
+'        Select Case ch
+'        Case 89:     n = n + 1
+'        Case Else: NextState = -1: n = 0  'errorstate
+'        End Select
+'    Case 4
+'    End Select
 End Function
 

@@ -386,7 +386,7 @@ Public Function DateTimeStamp_ToHexNStr(ByVal DtStamp As Long) As String
 End Function
 
 Public Function DateTimeStamp_ToStrISO8601(ByVal DtStamp As Long) As String
-    '
+    DateTimeStamp_ToStrISO8601 = SystemTime_ToStrISO8601(DateTimeStamp_ToSystemTime(DtStamp))
 End Function
 
 ' ############################## '        Date         ' ############################## '
@@ -473,9 +473,30 @@ Public Function Date_FormatISO8601(ByVal this As Date, Optional doFormatDate As 
     Date_FormatISO8601 = Format(this, fmt)
 End Function
 
+Public Function Date_Format(ByVal this As Date, ByVal FormatStr As String) As String
+    Dim s As String, y As Integer
+    Select Case FormatStr
+    Case "YYYY-Www":   s = Year(this) & "-W" & WeekOfYear(this)
+   'Case "YYYY-Www":   ' 2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004-W28    - YYYY-Www - 0333-W28
+    Case "YYYYWww":    s = Year(this) & "W" & WeekOfYear(this)
+   'Case "YYYYWww":    ' 2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004W28     - YYYYWww    -0333W28
+    Case "YYYY-Www-D": s = Year(this) & "-W" & WeekOfYear(this) & "-" & DayOfWeek(Year(this), Month(this), Day(this))
+                       ' 2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004-W28-7  - YYYY-Www-D -0333-W28-7
+    Case "YYYYWwwD":   s = Year(this) & "W" & WeekOfYear(this) & DayOfWeek(Year(this), Month(this), Day(this))
+                       ' 2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004W287    - YYYYWwwD   -0333W287
+    Case "YYYY-DDD":   s = Year(this) & "-" & DayOfYear(this)
+                       ' 2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004-193    - YYYY-DDD   -0333-193
+    Case "YYYYDDD":    s = Year(this) & DayOfYear(this)
+                       ' 2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004193     - YYYYDDD    - 333193
+    Case Else:         s = Format(this, FormatStr)
+    End Select
+    Date_Format = s
+End Function
+
 Public Function Date_ParseFromISO8601(ByVal s As String) As Date
+Try: On Error GoTo Catch
     s = Trim$(s)
-    Dim ye As Integer, mo As Integer, da As Integer
+    Dim ye As Integer, mo As Integer, da As Integer, woy As Integer
     Dim ho As Integer, mn As Integer, se As Integer
     Dim DatTimSep As String: DatTimSep = GetDateTimeSeparator(s)
     Dim sa() As String
@@ -505,7 +526,7 @@ Public Function Date_ParseFromISO8601(ByVal s As String) As Date
                 Case 7: ye = CInt(Left(sDate, 4))
                         Dim doy As Integer: doy = CLng(Mid(sDate, 5))
                         If doy > 367 Then Exit Function
-                        Dim tmp As Date: tmp = Date_ParseFromDayNumber(ye, doy): Exit Function
+                        Dim tmp As Date: tmp = Date_FromDayOfYear(ye, doy): Exit Function
                         mo = Month(tmp)
                         da = Day(tmp)
                 Case 6: ye = CLng(Left(sDate, 2))
@@ -531,15 +552,34 @@ Public Function Date_ParseFromISO8601(ByVal s As String) As Date
             End If
         End If
     Else
-        If Not IsNumeric(s) Then Exit Function
-        If Len(s) > 3 Then ye = CInt(Left(s, 4))
-        If Len(s) > 5 Then mo = CInt(Mid(s, 5, 2))
-        If Len(s) > 7 Then da = CInt(Mid(s, 7, 2))
-        If Len(s) > 9 Then ho = CInt(Mid(s, 9, 2))
-        If Len(s) > 11 Then mn = CInt(Mid(s, 11, 2))
-        If Len(s) > 13 Then se = CInt(Mid(s, 13, 2))
+        If Not IsNumeric(s) Then
+            If Str_Contains(s, "W") Then
+                sa = Split(s, "W")
+                ye = sa(0)
+                If UBound(sa) > 0 Then woy = sa(1)
+                Date_ParseFromISO8601 = Date_FromWeekOfYear(ye, woy)
+            Else
+                If Len(s) = 7 And Str_Contains(s, "-") Then
+                    sa = Split(s, "-")
+                    ye = sa(0)
+                    If UBound(sa) > 0 Then woy = sa(1)
+                    Date_ParseFromISO8601 = Date_FromWeekOfYear(ye, woy)
+                Else
+                    Date_ParseFromISO8601 = CDate(s)
+                End If
+            End If
+            Exit Function
+        Else
+            If Len(s) > 3 Then ye = CInt(Left(s, 4))
+            If Len(s) > 5 Then mo = CInt(Mid(s, 5, 2))
+            If Len(s) > 7 Then da = CInt(Mid(s, 7, 2))
+            If Len(s) > 9 Then ho = CInt(Mid(s, 9, 2))
+            If Len(s) > 11 Then mn = CInt(Mid(s, 11, 2))
+            If Len(s) > 13 Then se = CInt(Mid(s, 13, 2))
+        End If
     End If
     Date_ParseFromISO8601 = New_Date(ye, mo, da, ho, mn, se)
+Catch:
 End Function
 
 Private Function GetDateTimeSeparator(s As String) As String
@@ -809,55 +849,70 @@ Public Function OsternShort2(ByVal y As Long) As Date
 End Function
 
 
-Public Function Date_ParseFromDayNumber(ByVal y As Integer, ByVal DayNr As Integer) As Date
+Public Function Date_FromDayOfYear(ByVal Year As Integer, ByVal DayOfYear As Integer) As Date
     Dim mds As Integer
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 1, DayNr): Exit Function
-    DayNr = DayNr - mds
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 1, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
-    mds = 28 - CInt(IsLeapYear(y))
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 2, DayNr): Exit Function
-    DayNr = DayNr - mds
+    mds = 28 - CInt(IsLeapYear(Year))
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 2, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 3, DayNr): Exit Function
-    DayNr = DayNr - mds
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 3, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
     mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 4, DayNr): Exit Function
-    DayNr = DayNr - mds
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 4, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 5, DayNr): Exit Function
-    DayNr = DayNr - mds
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 5, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
     mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 6, DayNr): Exit Function
-    DayNr = DayNr - mds
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 6, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 7, DayNr): Exit Function
-    DayNr = DayNr - mds
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 7, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 8, DayNr): Exit Function
-    DayNr = DayNr - mds
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 8, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
     mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 9, DayNr): Exit Function
-    DayNr = DayNr - mds
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 9, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 10, DayNr): Exit Function
-    DayNr = DayNr - mds
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 10, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
     mds = 30
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 11, DayNr): Exit Function
-    DayNr = DayNr - mds
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 11, DayOfYear): Exit Function
+    DayOfYear = DayOfYear - mds
     
     mds = 31
-    If DayNr <= mds Then Date_ParseFromDayNumber = DateSerial(y, 12, DayNr): Exit Function
+    If DayOfYear <= mds Then Date_FromDayOfYear = DateSerial(Year, 12, DayOfYear): Exit Function
+End Function
+
+'Public Function Date_FromDayOfYear(ByVal Year As Integer, ByVal doy As Integer) As Date
+'    Dim m As Integer, nd As Long, nd1 As Long
+'    For m = 0 To 11
+'        nd1 = nd + DaysInMonth(Year, m + 1)
+'        If (nd < doy) And (doy <= nd1) Then Exit For
+'        nd = nd1
+'    Next
+'    Dim d As Integer: d = doy - nd
+'    Date_FromDayOfYear = DateSerial(Year, m + 1, d)
+'End Function
+
+Public Function Date_FromWeekOfYear(ByVal Year As Integer, ByVal woy As Integer) As Date
+    Date_FromWeekOfYear = Date_FromDayOfYear(Year, 7 * woy)
 End Function
 
 Public Function Date_TryParse(ByVal s As String, ByRef out_date As Date) As Boolean
@@ -940,9 +995,9 @@ End Function
 '
 '    return 0;
 '}
-Public Function GetDayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day As Long) As Long
+Public Function DayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day As Long) As Long
     
-    GetDayOfWeek = -1
+    DayOfWeek = -1
     If (Month < 1) Or (12 < Month) Then Exit Function
     
     If (Day < 1) Or (DaysInMonth(Year, Month) < Day) Then Exit Function
@@ -963,7 +1018,7 @@ Public Function GetDayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day 
     End If
     
     'return static_cast<unsigned>(((static_cast<signed>(Day) + (26*static_cast<signed>(Month)-2) / 10 + static_cast<signed>(y) + static_cast<signed>(y)/4 + static_cast<signed>(c)/4 - 2*static_cast<signed>(c)) + 7000) % 7);
-    GetDayOfWeek = ((Day + (26 * Month - 2) \ 10 + y + y \ 4 + c \ 4 - 2 * c) + 7000) Mod 7
+    DayOfWeek = ((Day + (26 * Month - 2) \ 10 + y + y \ 4 + c \ 4 - 2 * c) + 7000) Mod 7
     
 End Function
 
@@ -977,9 +1032,11 @@ Public Function DayOfYear(ByVal d As Date) As Long
     DayOfYear = DayOfYear + Day(d) 'Day(d)=DayOfMonth
 End Function
 
+'https://www.aktuelle-kalenderwoche.org/
+'
 Public Function WeekOfYear(ByVal d As Date) As Long
     Dim doy As Long: doy = DayOfYear(d)
-    WeekOfYear = doy / 7
+    WeekOfYear = doy / 7 + 1
 End Function
 
 Public Function DaysInMonth(ByVal Year As Long, ByVal Month As Long) As Long
@@ -1003,6 +1060,8 @@ Public Function IsLeapYear(ByVal y As Long) As Boolean
 '        by 400
     IsLeapYear = (((y Mod 4) = 0) And Not ((y Mod 100) = 0)) Or ((y Mod 400) = 0)
 End Function
+
+'https://de.wikipedia.org/wiki/ISO_8601
 
 'https://docs.microsoft.com/de-de/dotnet/standard/base-types/standard-date-and-time-format-strings
 '

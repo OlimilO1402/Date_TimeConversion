@@ -19,6 +19,14 @@ Begin VB.Form FMain
    ScaleHeight     =   8535
    ScaleWidth      =   13950
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton BtnTestFormatISO8601 
+      Caption         =   "Test FormatISO8601"
+      Height          =   375
+      Left            =   0
+      TabIndex        =   33
+      Top             =   7080
+      Width           =   2175
+   End
    Begin VB.CommandButton BtnEditDate 
       Caption         =   "Edit Date"
       Height          =   375
@@ -585,6 +593,35 @@ Private Sub BtnEditDate_Click()
     UpdateFromSYSTEMTIME dat
 End Sub
 
+Private Sub BtnTestFormatISO8601_Click()
+    Dim dat0 As Date: dat0 = Now
+    Dim dat1 As Date
+    Dim s As String: s = ""
+    Dim st As String
+    st = MTime.Date_FormatISO8601(dat0):              dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf
+    st = MTime.Date_FormatISO8601(dat0, False):       dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf
+    st = MTime.Date_FormatISO8601(dat0, , False):     dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf
+    st = MTime.Date_FormatISO8601(dat0, , , "."):     dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf
+    st = MTime.Date_FormatISO8601(dat0, , , ""):      dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf
+    st = MTime.Date_FormatISO8601(dat0, , , "", ""):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf
+    Dim fmt As String
+    'dat0 = DateSerial(2004, 7, 11)
+    fmt = "YYYYMMDDhhmmss":  st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf
+    fmt = "YYYYMMDD":         st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf
+    
+    fmt = "YYYY-MM-DD":      st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11
+    fmt = "YYYYMMDD":        st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 20040711    - YYYYMMDD - 3330711
+    fmt = "YYYY-MM":         st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004-07     - YYYY-MM  - 0333-07
+    fmt = "YYYY":            st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004        - YYYY     - 333
+    fmt = "YYYY-ww":         st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004-W28    - YYYY-Www - 0333-W28
+    fmt = "YYYYWww":         st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004W28     - YYYYWww    -0333W28
+    fmt = "YYYY-Www-D":      st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004-W28-7  - YYYY-Www-D -0333-W28-7
+    fmt = "YYYYWwwD":        st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004W287    - YYYYWwwD   -0333W287
+    fmt = "YYYY-DDD":        st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004-193    - YYYY-DDD   -0333-193
+    fmt = "YYYYDDD":         st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004193     - YYYYDDD    - 333193
+    Text1.Text = s
+End Sub
+
 Private Sub Form_Load()
     MTime.Init
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
@@ -596,9 +633,9 @@ End Sub
 Private Sub Form_Resize()
     Dim L As Single: L = Text1.Left
     Dim t As Single: t = Text1.Top
-    Dim W As Single: W = Me.ScaleWidth - L
+    Dim w As Single: w = Me.ScaleWidth - L
     Dim h As Single: h = Me.ScaleHeight - t
-    If W > 0 And h > 0 Then Text1.Move L, t, W, h
+    If w > 0 And h > 0 Then Text1.Move L, t, w, h
 End Sub
 
 Private Sub Btn_Date_Now_Click()
@@ -857,7 +894,7 @@ End Sub
 Private Sub CheckOneDate(ByVal y As Integer, ByVal m As Integer, ByVal d As Integer)
     Dim dt  As Date:     dt = DateSerial(y, m, d)
     Dim wkd As Integer: wkd = Weekday(dt) - 1
-    Dim dow As Integer: dow = GetDayOfWeek(y, m, d)
+    Dim dow As Integer: dow = DayOfWeek(y, m, d)
     If wkd <> dow Then
         Debug.Print "wkd = " & wkd & " <> " & "dow = " & dow & " " & dt
     End If
