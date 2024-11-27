@@ -19,6 +19,14 @@ Begin VB.Form FMain
    ScaleHeight     =   8535
    ScaleWidth      =   13950
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton Command1 
+      Caption         =   "Command1"
+      Height          =   375
+      Left            =   120
+      TabIndex        =   34
+      Top             =   7560
+      Width           =   1935
+   End
    Begin VB.CommandButton BtnTestFormatISO8601 
       Caption         =   "Test FormatISO8601"
       Height          =   375
@@ -620,6 +628,32 @@ Private Sub BtnTestFormatISO8601_Click()
     fmt = "YYYY-DDD":        st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004-193    - YYYY-DDD   -0333-193
     fmt = "YYYYDDD":         st = Date_Format(dat0, fmt):  dat1 = MTime.Date_ParseFromISO8601(st): s = s & st & " | " & dat1 & vbCrLf '  2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004193     - YYYYDDD    - 333193
     Text1.Text = s
+End Sub
+
+Private Sub Command1_Click()
+'    Dim d As Date: d = Now
+'    d = "23.11.2024"
+'    Dim woy As Integer: woy = MTime.WeekOfYear(d)
+'    Debug.Print woy
+    Dim d As Date, wd As Integer
+    Dim woy As Integer
+    
+    'd = CDate("01.01.2021"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Freitag
+    'd = CDate("01.01.2022"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Samstag
+    'd = CDate("01.01.2023"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Sonntag
+    'd = CDate("01.01.2024"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Montag
+    'd = CDate("01.01.2025"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Mittwoch
+    'd = CDate("01.01.2026"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Donnerstag
+    
+    d = CDate("09.01.2019"): woy = MTime.WeekOfYear(d): Debug.Print woy
+    d = CDate("09.01.2020"): woy = MTime.WeekOfYear(d): Debug.Print woy
+    d = CDate("09.01.2021"): woy = MTime.WeekOfYear(d): Debug.Print woy
+    d = CDate("09.01.2022"): woy = MTime.WeekOfYear(d): Debug.Print woy
+    d = CDate("09.01.2023"): woy = MTime.WeekOfYear(d): Debug.Print woy
+    d = CDate("09.01.2024"): woy = MTime.WeekOfYear(d): Debug.Print woy
+    d = CDate("09.01.2025"): woy = MTime.WeekOfYear(d): Debug.Print woy
+    d = CDate("09.01.2026"): woy = MTime.WeekOfYear(d): Debug.Print woy
+    
 End Sub
 
 Private Sub Form_Load()

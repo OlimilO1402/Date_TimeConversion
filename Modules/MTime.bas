@@ -1034,9 +1034,55 @@ End Function
 
 'https://www.aktuelle-kalenderwoche.org/
 '
+'Was ist die Kalenderwoche?
+'Die Kalenderwoche ist eine Woche, die mit dem Montag beginnt und mit dem Sonntag endet. Das Jahr hat insgesamt meist 52 Kalenderwochen.
+'
+'Wann beginnt die erste Kalenderwoche eines Jahres?
+'Die erste Kalenderwoche eines Jahres ist die Woche, die mindestens vier Tage des neuen Jahres beinhaltet.
+'Fällt also beispielsweise der 1. Januar auf einen Dienstag, beginnt die erste Kalenderwoche mit Montag, den 31.12.,
+'da diese Woche sechs Tage des neuen Jahres enthält (Dienstag, Mittwoch, Donnerstag, Freitag, Samstag und Sonntag).
+'Fällt der 1. Januar hingegen auf den Freitag, dann beginnt die erste Kalenderwoche des neuen Jahres mit Montag, dem 04.01.,
+'da die Vorwoche nur drei Tage des neuen Jahres enthält (Freitag, Samstag, Sonntag).
+'
+'Gibt es für die Kalenderwoche eine offizielle Regelung?
+'Ja, die ISO 8601, die als ersten Wochentag den Montag festlegt.
+'
+'Gilt die Regelung für die Kalenderwoche international?
+'Ja und nein. In vielen Ländern wird diese Vorgehensweise verwendet. In zahlreichen anderen Ländern, wie beispielsweise den USA, Kanada,
+'Mexiko und Australien, beginnt die Woche jedoch mit dem Sonntag. Ausserdem beginnt dort die erste Kalenderwoche immer mit dem 01. Januar,
+'egal auf welchen Wochentag dieser fällt. Im Mittleren Osten beginnt die Woche jedoch überwiegend mit dem Samstag. Ausserdem beginnt auch
+'dort die erste Kalenderwoche immer mit dem 01. Januar, egal auf welchen Wochentag dieser fällt.
+'
+'Gibt es eine internationale Schreibweise für die Kalenderwochen?
+'Ja, auch die gibt es nach ISO 8601. Demnach wird die Kalenderwoche wie folgt geschrieben:
+'YYYY-Www oder YYYYWww
+'YYYY-Www-D oder YYYYWwwD
+'Demnach würde in Deutschland Montag, der 31.12.2012 wie folgt bezeichnet: 2013-W01-1
+'In den USA hingegen wäre es 2013-W01-2
+'Und im nahen Osten 2013-W01-3.
+
+'Zwei Beispiele für die erste KW gemäß ISO 8601
+'Fällt der 1. Januar auf einen Mittwoch, beginnt die erste Kalenderwoche mit Montag, dem 30. Dezember.
+'Diese 1. Woche enthält dann zwei Tage des alten Jahres (Montag und Dienstag) und fünf Tage des neuen
+'Jahres (Mittwoch bis Sonntag).
+'Fällt der 1. Januar hingegen auf einen Freitag, beginnt die erste Kalenderwoche mit Montag, dem 4. Januar.
+'Denn die Vorwoche hätte nur drei Tage des neuen Jahres enthalten (Freitag, Samstag, Sonntag)
+'
+'Jahr    KW                  Anz KW   Anz Tage Schaltjahr
+'2021    Kalenderwochen 2021   52       365
+'2022    Kalenderwochen 2022   52       365
+'2023    Kalenderwochen 2023   52       365
+'2024    Kalenderwochen 2024   52       366         Ja
+'2025    Kalenderwochen 2025   52       365
+'2026    Kalenderwochen 2026   53       365
+
 Public Function WeekOfYear(ByVal d As Date) As Long
-    Dim doy As Long: doy = DayOfYear(d)
-    WeekOfYear = doy / 7 + 1
+'OK wir möchten eine Zahl erreichen die glatt durch 7 teilbar ist, und die Zahl der Kalenderwoche ergibt
+    Dim y   As Integer:   y = Year(d)
+    Dim wd0 As Integer: wd0 = Weekday(DateSerial(y, 1, 1), vbMonday)
+    Dim wd1 As Integer: wd1 = Weekday(d, vbMonday)
+    Dim doy As Integer: doy = DayOfYear(d)
+    WeekOfYear = (doy + wd0 + 6 - wd1) / 7
 End Function
 
 Public Function DaysInMonth(ByVal Year As Long, ByVal Month As Long) As Long
@@ -1045,6 +1091,22 @@ Public Function DaysInMonth(ByVal Year As Long, ByVal Month As Long) As Long
     Case 2: If IsLeapYear(Year) Then DaysInMonth = 29 Else DaysInMonth = 28
     Case 4, 6, 9, 11: DaysInMonth = 30
     End Select
+End Function
+
+Public Function VbWeekDay_ToStr(ByVal dow As VbDayOfWeek, Optional ByVal FirstDayOfWeek As VbDayOfWeek = vbMonday, Optional ByVal isShort As Boolean = False) As String
+    If FirstDayOfWeek = vbMonday Then dow = dow + IIf(dow = 7, -6, 1)
+    Dim s As String
+    Select Case dow
+    Case VbDayOfWeek.vbSunday:    s = "Sonntag"    ' 1
+    Case VbDayOfWeek.vbMonday:    s = "Montag"     ' 2
+    Case VbDayOfWeek.vbTuesday:   s = "Dienstag"   ' 3
+    Case VbDayOfWeek.vbWednesday: s = "Mittwoch"   ' 4
+    Case VbDayOfWeek.vbThursday:  s = "Donnerstag" ' 5
+    Case VbDayOfWeek.vbFriday:    s = "Freitag"    ' 6
+    Case VbDayOfWeek.vbSaturday:  s = "Samstag"    ' 7
+    End Select
+    If isShort Then s = Left(s, 2)
+    VbWeekDay_ToStr = s
 End Function
 
 Public Function IsLeapYear(ByVal y As Long) As Boolean
