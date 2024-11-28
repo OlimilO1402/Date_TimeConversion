@@ -1076,13 +1076,41 @@ End Function
 '2025    Kalenderwochen 2025   52       365
 '2026    Kalenderwochen 2026   53       365
 
-Public Function WeekOfYear(ByVal d As Date) As Long
+'https://www.vbarchiv.net/tipps/tipp_995-kalenderwoche-korrekt-ermitteln.html
+
+Public Function WeekOfYear(ByVal d As Date) As Integer
 'OK wir möchten eine Zahl erreichen die glatt durch 7 teilbar ist, und die Zahl der Kalenderwoche ergibt
     Dim y   As Integer:   y = Year(d)
     Dim wd0 As Integer: wd0 = Weekday(DateSerial(y, 1, 1), vbMonday)
     Dim wd1 As Integer: wd1 = Weekday(d, vbMonday)
     Dim doy As Integer: doy = DayOfYear(d)
     WeekOfYear = (doy + wd0 + 6 - wd1) / 7
+End Function
+
+'https://www.vbarchiv.net/tipps/tipp_995-kalenderwoche-korrekt-ermitteln.html
+
+' *** Ermittelt die Kalenderwoche mit dem zur Kalenderwoche gehörigem Jahr
+' *** fConvKW wird in der Form YYYYWW zurückgegeben ***
+'Fazit:
+'Solange es sich bei dem Datum nicht um die letzte Woche eines Jahres handelt, gibt die Format-Funktion die korrekten Kalenderwoche zurück.
+'Nachfolgender Tipp errechnet die Kalenderwoche auch dann korrekt, wenn es sich um die letzte Woche eines Kalenderjahres handelt.
+'Das Problem wird umgangen, indem man das Datum des Dienstags in dieser Woche ermittle (also losgelöst vom Montag und vom Jahresletzten) und daran die Datepart-Funktion ausführt. Dann klappt's und das Ergebnis muss ggf. nur noch auf die jeweilige Wochendarstellung zurückgerechnet werden.
+Public Function WeekOfYearF(ByVal d As Date) As Integer
+    ' PROBLEM:
+    ' DatePart - in der uns üblichen Arbeitsweise
+    ' DatePart("ww", Datum, vbMonday, vbFirstFourDays) -
+    ' wirft für folgende Daten folgende Werte aus
+    ' So, 28.12.2003 oder 30.12.2007 -> KW52 -> richtig
+    ' Mo, 29.12.2003 oder 31.12.2007 -> KW53 -> QUATSCH
+    ' Di, 30.12.2003 oder 01.01.2008 -> KW01 -> richtig
+    ' deshalb bestimme ich vorsichtshalber die Kalenderwoche
+    ' des Dienstags ?!?!?!?!?!
+    If Weekday(d) = vbMonday Then d = d + 1
+    WeekOfYearF = DatePart("ww", d, VbDayOfWeek.vbMonday, VbFirstWeekOfYear.vbFirstFourDays)
+    ' Anpassung des Jahres und Ergänzung der Null
+    ' (in den Kalenderwochen 01, 52 und 53 kann das Jahr des Datums
+    ' anders sein als das Jahr der zugehörigen Kalenderwoche.
+    ' So liegt der 31.12.2001 in KW01/2002)
 End Function
 
 Public Function DaysInMonth(ByVal Year As Long, ByVal Month As Long) As Long
