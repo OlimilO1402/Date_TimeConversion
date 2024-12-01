@@ -19,13 +19,13 @@ Begin VB.Form FMain
    ScaleHeight     =   8535
    ScaleWidth      =   13950
    StartUpPosition =   3  'Windows-Standard
-   Begin VB.CommandButton Command1 
-      Caption         =   "Command1"
+   Begin VB.CommandButton BtnTestWeekOfYearISO 
+      Caption         =   "Test WeekOfYearISO"
       Height          =   375
-      Left            =   120
+      Left            =   0
       TabIndex        =   34
       Top             =   7560
-      Width           =   1935
+      Width           =   2175
    End
    Begin VB.CommandButton BtnTestFormatISO8601 
       Caption         =   "Test FormatISO8601"
@@ -630,30 +630,42 @@ Private Sub BtnTestFormatISO8601_Click()
     Text1.Text = s
 End Sub
 
-Private Sub Command1_Click()
-'    Dim d As Date: d = Now
-'    d = "23.11.2024"
-'    Dim woy As Integer: woy = MTime.WeekOfYear(d)
-'    Debug.Print woy
+Private Sub BtnTestWeekOfYearISO_Click()
+
     Dim d As Date, wd As Integer
     Dim woy As Integer
+    Dim s As String
     
-    'd = CDate("01.01.2021"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Freitag
-    'd = CDate("01.01.2022"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Samstag
-    'd = CDate("01.01.2023"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Sonntag
-    'd = CDate("01.01.2024"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Montag
-    'd = CDate("01.01.2025"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Mittwoch
-    'd = CDate("01.01.2026"): wd = Weekday(d, vbMonday): Debug.Print VbWeekDay_ToStr(wd, vbMonday, True) ' Donnerstag
+    d = CDate("31.12.2018"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf
+    d = CDate("01.01.2019"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf & vbCrLf
     
-    d = CDate("09.01.2019"): woy = MTime.WeekOfYear(d): Debug.Print woy
-    d = CDate("09.01.2020"): woy = MTime.WeekOfYear(d): Debug.Print woy
-    d = CDate("09.01.2021"): woy = MTime.WeekOfYear(d): Debug.Print woy
-    d = CDate("09.01.2022"): woy = MTime.WeekOfYear(d): Debug.Print woy
-    d = CDate("09.01.2023"): woy = MTime.WeekOfYear(d): Debug.Print woy
-    d = CDate("09.01.2024"): woy = MTime.WeekOfYear(d): Debug.Print woy
-    d = CDate("09.01.2025"): woy = MTime.WeekOfYear(d): Debug.Print woy
-    d = CDate("09.01.2026"): woy = MTime.WeekOfYear(d): Debug.Print woy
+    d = CDate("31.12.2019"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf
+    d = CDate("01.01.2020"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf & vbCrLf
     
+    d = CDate("31.12.2020"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf
+    d = CDate("01.01.2021"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf & vbCrLf
+    
+    d = CDate("31.12.2021"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf
+    d = CDate("01.01.2022"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf & vbCrLf
+    
+    d = CDate("31.12.2022"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf
+    d = CDate("01.01.2023"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf & vbCrLf
+    
+    d = CDate("31.12.2023"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf
+    d = CDate("01.01.2024"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf & vbCrLf
+    
+    d = CDate("31.12.2024"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf
+    d = CDate("01.01.2025"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf & vbCrLf
+    
+    d = CDate("31.12.2025"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf
+    d = CDate("01.01.2026"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf & vbCrLf
+    
+    d = CDate("31.12.2026"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf
+    d = CDate("01.01.2027"): woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf & vbCrLf
+    
+    d = Now:                 woy = MTime.WeekOfYearISO(d): s = s & d & " is " & VBA.WeekdayName(Weekday(d, vbMonday), True, vbMonday) & " WeekOfYearISO = " & woy & vbCrLf
+    
+    Text1.Text = s
 End Sub
 
 Private Sub Form_Load()

@@ -1095,7 +1095,7 @@ End Function
 'Solange es sich bei dem Datum nicht um die letzte Woche eines Jahres handelt, gibt die Format-Funktion die korrekten Kalenderwoche zurück.
 'Nachfolgender Tipp errechnet die Kalenderwoche auch dann korrekt, wenn es sich um die letzte Woche eines Kalenderjahres handelt.
 'Das Problem wird umgangen, indem man das Datum des Dienstags in dieser Woche ermittle (also losgelöst vom Montag und vom Jahresletzten) und daran die Datepart-Funktion ausführt. Dann klappt's und das Ergebnis muss ggf. nur noch auf die jeweilige Wochendarstellung zurückgerechnet werden.
-Public Function WeekOfYearF(ByVal d As Date) As Integer
+Public Function WeekOfYearISO(ByVal d As Date) As Integer
     ' PROBLEM:
     ' DatePart - in der uns üblichen Arbeitsweise
     ' DatePart("ww", Datum, vbMonday, vbFirstFourDays) -
@@ -1106,7 +1106,7 @@ Public Function WeekOfYearF(ByVal d As Date) As Integer
     ' deshalb bestimme ich vorsichtshalber die Kalenderwoche
     ' des Dienstags ?!?!?!?!?!
     If Weekday(d) = vbMonday Then d = d + 1
-    WeekOfYearF = DatePart("ww", d, VbDayOfWeek.vbMonday, VbFirstWeekOfYear.vbFirstFourDays)
+    WeekOfYearISO = DatePart("ww", d, VbDayOfWeek.vbMonday, VbFirstWeekOfYear.vbFirstFourDays)
     ' Anpassung des Jahres und Ergänzung der Null
     ' (in den Kalenderwochen 01, 52 und 53 kann das Jahr des Datums
     ' anders sein als das Jahr der zugehörigen Kalenderwoche.
