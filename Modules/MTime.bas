@@ -1900,4 +1900,3 @@ End Function
 Private Function Hex2(ByVal b As Byte) As String
     Hex2 = Hex(b): If Len(Hex2) < 2 Then Hex2 = "0" & Hex2
 End Function
-

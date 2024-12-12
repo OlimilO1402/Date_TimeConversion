@@ -19,6 +19,14 @@ Begin VB.Form FMain
    ScaleHeight     =   8535
    ScaleWidth      =   13950
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton BtnShowCalendar 
+      Caption         =   "Show Calendar"
+      Height          =   375
+      Left            =   0
+      TabIndex        =   35
+      Top             =   8040
+      Width           =   2175
+   End
    Begin VB.CommandButton BtnTestWeekOfYearISO 
       Caption         =   "Test WeekOfYearISO"
       Height          =   375
@@ -601,6 +609,10 @@ Private Sub BtnEditDate_Click()
     UpdateFromSYSTEMTIME dat
 End Sub
 
+Private Sub BtnShowCalendar_Click()
+
+End Sub
+
 Private Sub BtnTestFormatISO8601_Click()
     Dim dat0 As Date: dat0 = Now
     Dim dat1 As Date
@@ -670,6 +682,7 @@ End Sub
 
 Private Sub Form_Load()
     MTime.Init
+    MDECalendar.InitAllLegalFestivals Year(Now)
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
     Btn_Date_Now_Click
     'Btn_DosTime_Now_Click
