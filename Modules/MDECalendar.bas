@@ -397,9 +397,13 @@ Public Sub CalendarView_DrawDay(this As CalendarView, CalDay As CalendarDay)
         s = CStr(CalDay.Day) & " " & VbWeekDay_ToStr(wd, vbSunday, True)
         If CalDay.FestivalIndex Then
             s = s & " " & MDECalendar.ELegalFestivals_ToStr(CalDay.FestivalIndex)
+        Else
+            If wd = vbMonday Then
+                s = s & " " & "KW " & WeekOfYearISO(CalDay.Date)
+            End If
         End If
         
-        If Weekday(CalDay.Date) = vbSunday Then
+        If wd = vbSunday Then
             c = RGB(255, 255, 255)
         Else
             c = RGB(0, 0, 0)

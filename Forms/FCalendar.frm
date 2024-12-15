@@ -19,6 +19,15 @@ Begin VB.Form FCalendar
    ScaleHeight     =   9690
    ScaleWidth      =   16350
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton BtnPrintToPDF 
+      Caption         =   "Print to pdf..."
+      Height          =   375
+      Left            =   10680
+      TabIndex        =   9
+      ToolTipText     =   "Uses ""Microsoft Print to PDF"" by default"
+      Top             =   60
+      Width           =   1695
+   End
    Begin VB.ComboBox CmbMonthTo 
       Height          =   375
       Left            =   4680
@@ -205,3 +214,26 @@ Private Sub UpdateView()
     PBCalendar.Cls
     MDECalendar.CalendarView_DrawYear m_CalView, m_Calendar
 End Sub
+
+Private Function SelectPrinter(ByVal PrinterName As String) As Printer
+    Dim i As Long
+    For i = 0 To Printers.Count - 1
+        If UCase(Printers(i).DeviceName) = UCase(PrinterName) Then 'e.g.: "Microsoft Print to PDF"
+            Set SelectPrinter = Printers(i)
+            'Set Printer = SelectPrinter 'Printers(i)
+            Exit For
+        End If
+    Next
+End Function
+
+Private Sub BtnPrintToPDF_Click()
+    Set Printer = SelectPrinter("Microsoft Print to PDF")
+    Set m_CalView.Canvas = Printer
+    Printer.Orientation = PrinterObjectConstants.vbPRORLandscape '2
+    'Debug.Print Printer.DriverName '= "winspool"
+    'Debug.Print Printer.DeviceName '= "Microsoft Print to PDF"
+    'Printer.NewPage
+    MDECalendar.CalendarView_DrawYear m_CalView, m_Calendar
+    Printer.EndDoc
+End Sub
+
