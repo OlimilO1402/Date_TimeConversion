@@ -848,6 +848,11 @@ Public Function OsternShort2(ByVal y As Long) As Date
           OsternShort2 = DateSerial(y, (3 - (OS > 31)), (OS + 31 * (OS > 31)))
 End Function
 
+Public Function AdventSunday1(ByVal Year As Integer) As Date
+    Dim Nov26 As Date: Nov26 = DateSerial(Year, 11, 26)
+    Dim wd As VbDayOfWeek: wd = Weekday(Nov26, VbDayOfWeek.vbMonday)
+    AdventSunday1 = Nov26 + 7 - wd
+End Function
 
 Public Function Date_FromDayOfYear(ByVal Year As Integer, ByVal DayOfYear As Integer) As Date
     Dim mds As Integer

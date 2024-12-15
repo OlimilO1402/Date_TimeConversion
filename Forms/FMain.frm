@@ -610,7 +610,7 @@ Private Sub BtnEditDate_Click()
 End Sub
 
 Private Sub BtnShowCalendar_Click()
-
+    FCalendar.Show
 End Sub
 
 Private Sub BtnTestFormatISO8601_Click()
@@ -682,7 +682,7 @@ End Sub
 
 Private Sub Form_Load()
     MTime.Init
-    MDECalendar.InitAllLegalFestivals Year(Now)
+    'MDECalendar.InitFestivals Year(Now)
     Me.Caption = Me.Caption & " v" & App.Major & "." & App.Minor & "." & App.Revision
     Btn_Date_Now_Click
     'Btn_DosTime_Now_Click
@@ -691,10 +691,10 @@ End Sub
 
 Private Sub Form_Resize()
     Dim L As Single: L = Text1.Left
-    Dim t As Single: t = Text1.Top
-    Dim w As Single: w = Me.ScaleWidth - L
-    Dim h As Single: h = Me.ScaleHeight - t
-    If w > 0 And h > 0 Then Text1.Move L, t, w, h
+    Dim T As Single: T = Text1.Top
+    Dim W As Single: W = Me.ScaleWidth - L
+    Dim H As Single: H = Me.ScaleHeight - T
+    If W > 0 And H > 0 Then Text1.Move L, T, W, H
 End Sub
 
 Private Sub Btn_Date_Now_Click()
@@ -851,24 +851,24 @@ Private Sub BtnSomeUnixTimeTests_Click()
     
     'user@linux> date -d @1234567890
     'Sa 14. Feb 00:31:30 CET 2009
-    Dim d As Integer, h As Integer
+    Dim d As Integer, H As Integer
     If IsSummerTime Then
-        d = 13: h = 23
+        d = 13: H = 23
     Else
-        d = 14: h = 0
+        d = 14: H = 0
     End If
-    dat = DateSerial(2009, 2, d) + TimeSerial(h, 31, 30)
+    dat = DateSerial(2009, 2, d) + TimeSerial(H, 31, 30)
     uxs = Date_ToUnixTime(dat)
     s = s & "1234567890 = " & uxs & " : " & CBool(1234567890 = uxs) & vbCrLf
     
     'user@linux > Date - d '2008-12-18 12:34:00' +%s
     '1229600040
     If IsSummerTime Then
-        h = 11
+        H = 11
     Else
-        h = 12
+        H = 12
     End If
-    dat = DateSerial(2008, 12, 18) + TimeSerial(h, 34, 0)
+    dat = DateSerial(2008, 12, 18) + TimeSerial(H, 34, 0)
     uxs = Date_ToUnixTime(dat)
     s = s & "1229600040 = " & uxs & " : " & CBool(1229600040 = uxs) & vbCrLf
     
