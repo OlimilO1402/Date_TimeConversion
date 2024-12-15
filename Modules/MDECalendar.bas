@@ -303,7 +303,7 @@ Public Property Get CalendarView_DayHeight(this As CalendarView) As Single
 End Property
 
 Public Sub CalendarView_DrawYear(this As CalendarView, CalYear As CalendarYear)
-    
+'Try: On Error GoTo Catch
     With this
         Dim nx As Integer
         .Canvas.CurrentX = .MarginCalLeft
@@ -348,9 +348,11 @@ Public Sub CalendarView_DrawYear(this As CalendarView, CalYear As CalendarYear)
             .Canvas.CurrentX = .MarginCalLeft + nx * .TmpDayWidth
         End If
     End With
+'Catch:
 End Sub
 
 Public Sub CalendarView_DrawMonth(this As CalendarView, CalMonth As CalendarMonth)
+'Try: On Error GoTo Catch
     With this
         Dim x As Single: x = .Canvas.CurrentX
         Dim Y As Single: Y = .MarginCalTop
@@ -374,9 +376,11 @@ Public Sub CalendarView_DrawMonth(this As CalendarView, CalMonth As CalendarMont
         .Canvas.CurrentY = x
         .Canvas.CurrentY = Y
     End With
+'Catch:
 End Sub
 
 Public Sub CalendarView_DrawDay(this As CalendarView, CalDay As CalendarDay)
+'Try: On Error GoTo Catch
     With this
         Dim fc As Long: fc = .Canvas.ForeColor
         Dim x As Single: x = .Canvas.CurrentX
@@ -416,4 +420,5 @@ Public Sub CalendarView_DrawDay(this As CalendarView, CalDay As CalendarDay)
         .Canvas.CurrentY = Y
         .Canvas.ForeColor = fc
     End With
+'Catch:
 End Sub

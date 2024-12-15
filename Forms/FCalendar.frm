@@ -227,6 +227,7 @@ Private Function SelectPrinter(ByVal PrinterName As String) As Printer
 End Function
 
 Private Sub BtnPrintToPDF_Click()
+Try: On Error GoTo Catch
     Set Printer = SelectPrinter("Microsoft Print to PDF")
     Set m_CalView.Canvas = Printer
     Printer.Orientation = PrinterObjectConstants.vbPRORLandscape '2
@@ -235,5 +236,15 @@ Private Sub BtnPrintToPDF_Click()
     'Printer.NewPage
     MDECalendar.CalendarView_DrawYear m_CalView, m_Calendar
     Printer.EndDoc
+    Exit Sub
+Catch:
+    If Err.Number = 482 Then
+        'User selected Cancel
+        'MsgBox "There was an error, User selected Cancel or "
+        Debug.Print Err.LastDllError
+    Else
+        MsgBox "Error during printing!" & vbCrLf & Err.Number & " " & Err.Description
+    End If
+    Debug.Print Err.Number
 End Sub
 
