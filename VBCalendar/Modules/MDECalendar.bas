@@ -35,27 +35,26 @@ Public Enum ELegalFestivals
     Ostersonntag              ' 5  calculate according to Gauss
     Ostermontag               ' 6  1 day after Ostersonntag
     TagDerArbeit              ' 7  01.05.
-    Muttertag                 ' 8  am 2. Sonntag im Mai
-    ChristiHimmelfahrt        ' 9  10 days before Pfingstsonntag
-    Pfingstsonntag            '10  7 weeks = 49 days after Ostersonntag
-    Pfingstmontag             '11  1 day after Pfingstsonntag
-    Fronleichnam              '12  10 days after Pfingstmontag
-    AugsburgerFriedensfest    '13  08.08.
-    MariaeHimmelfahrt         '14  15.08.
-    Weltkindertag             '15  20.09.
-    TagDerDeutschenEinheit    '16  03.10.
-    Reformationstag           '17  31.10.
-    Allerheiligen             '18  01.11.
-    BussUndBettag             '19  20.11
-    '                         '20  24.12.
-    Weihnachtsfeiertag1 = 21  '21  25.12.
-    Weihnachtsfeiertag2       '22  26.12.
-    '                         '23  31.12.
+    ChristiHimmelfahrt        ' 8  10 days before Pfingstsonntag
+    Pfingstsonntag            ' 9  7 weeks = 49 days after Ostersonntag
+    Pfingstmontag             '10  1 day after Pfingstsonntag
+    Fronleichnam              '11  10 days after Pfingstmontag
+    AugsburgerFriedensfest    '12  08.08.
+    MariaeHimmelfahrt         '13  15.08.
+    Weltkindertag             '14  20.09.
+    TagDerDeutschenEinheit    '15  03.10.
+    Reformationstag           '16  31.10.
+    Allerheiligen             '17  01.11.
+    BussUndBettag             '18  20.11
+    '                         '19  24.12.
+    Weihnachtsfeiertag1 = 20  '20  25.12.
+    Weihnachtsfeiertag2       '21  26.12.
+    '                         '22  31.12.
 End Enum
 
 Public Enum EContractFestivals
-    Heiligabend = 20          '20  24.12. (according to job agreement maybe half holiday)
-    Silvester = 23            '23  31.12. (according to job agreement maybe half holiday)
+    Heiligabend = 19          '19  24.12. (according to agreement half holiday)
+    Silvester = 22            '22  31.12. (according to agreement half holiday)
 End Enum
 
 Public Type LegalFestival
@@ -128,30 +127,26 @@ Public Function ELegalFestivals_ToStr(ByVal e As ELegalFestivals) As String
     Select Case e
     Case ELegalFestivals.Neujahr:                   s = "Neujahr"                    ' 1  01.01.
     Case ELegalFestivals.HeiligeDreiKönige:         s = "Heilige Drei Könige"        ' 2  06.01.
-    Case ELegalFestivals.InternationalerFrauentag:  s = "Internat. Frauentag"        ' 3  08.03.
+    Case ELegalFestivals.InternationalerFrauentag:  s = "Internat. Frauentag"  ' 3  08.03.
     Case ELegalFestivals.Karfreitag:                s = "Karfreitag"                 ' 4  2 days before Ostersonntag"
-    Case ELegalFestivals.Ostersonntag:              s = "Ostersonntag"               ' 5  calculate accoding to Gauss"
+    Case ELegalFestivals.Ostersonntag:              s = "Ostersonntag"               ' 5  calculate accodring to Gauss"
     Case ELegalFestivals.Ostermontag:               s = "Ostermontag"                ' 6  1 day after Ostersonntag"
     Case ELegalFestivals.TagDerArbeit:              s = "Tag Der Arbeit"             ' 7  01.05."
-    Case ELegalFestivals.Muttertag:                 s = "Muttertag"                  ' 8  2. Sonntag im Mai
-    Case ELegalFestivals.ChristiHimmelfahrt:        s = "Christi Himmelf."           ' 9  10 days before Pfingstsonntag"
-    Case ELegalFestivals.Pfingstsonntag:            s = "Pfingstsonntag"             '10  7 weeks = 49 days after Ostersonntag"
-    Case ELegalFestivals.Pfingstmontag:             s = "Pfingstmontag"              '11  1 day after Pfingstsonntag"
-    Case ELegalFestivals.Fronleichnam:              s = "Fronleichnam"               '12  10 days after Pfingstmontag"
-    Case ELegalFestivals.AugsburgerFriedensfest:    s = "Augsbg. Friedensf."         '13  08.08."
-    Case ELegalFestivals.MariaeHimmelfahrt:         s = "Mariae Himmelf."            '14  15.08."
-    Case ELegalFestivals.Weltkindertag:             s = "Weltkindertag"              '15  20.09."
-    Case ELegalFestivals.TagDerDeutschenEinheit:    s = "Tag d.Dt.Einheit"           '16  03.10."
-    Case ELegalFestivals.Reformationstag:           s = "Reformationstag"            '17  31.10."
-    Case ELegalFestivals.Allerheiligen:             s = "Allerheiligen"              '18
-    Case ELegalFestivals.BussUndBettag:             s = "Buß- & Bettag"              '19  20.11
-    
-    Case EContractFestivals.Heiligabend:            s = "Heiligabend"                '20  24.12.
-    
-    Case ELegalFestivals.Weihnachtsfeiertag1:       s = "1. Weihnachtsf."            '21  25.12.
-    Case ELegalFestivals.Weihnachtsfeiertag2:       s = "2. Weihnachtsf."            '22  26.12.
-    
-    Case EContractFestivals.Silvester:              s = "Silvester"                  '23  31.12.
+    Case ELegalFestivals.ChristiHimmelfahrt:        s = "Christi Himmelf."        ' 8  10 days before Pfingstsonntag"
+    Case ELegalFestivals.Pfingstsonntag:            s = "Pfingstsonntag"             ' 9  7 weeks = 49 days after Ostersonntag"
+    Case ELegalFestivals.Pfingstmontag:             s = "Pfingstmontag"              '10  1 day after Pfingstsonntag"
+    Case ELegalFestivals.Fronleichnam:              s = "Fronleichnam"               '11  10 days after Pfingstmontag"
+    Case ELegalFestivals.AugsburgerFriedensfest:    s = "Augsbg. Friedensf."    '12  08.08."
+    Case ELegalFestivals.MariaeHimmelfahrt:         s = "Mariae Himmelf."         '13  15.08."
+    Case ELegalFestivals.Weltkindertag:             s = "Weltkindertag"              '14  20.09."
+    Case ELegalFestivals.TagDerDeutschenEinheit:    s = "Tag d.Dt.Einheit"   '15  03.10."
+    Case ELegalFestivals.Reformationstag:           s = "Reformationstag"            '16  31.10."
+    Case ELegalFestivals.Allerheiligen:             s = "Allerheiligen"              '17
+    Case ELegalFestivals.BussUndBettag:             s = "Buß- & Bettag"            '18  20.11
+    Case EContractFestivals.Heiligabend:            s = "Heiligabend"                '19  24.12.
+    Case ELegalFestivals.Weihnachtsfeiertag1:       s = "1. Weihnachtsf."  '20  25.12.
+    Case ELegalFestivals.Weihnachtsfeiertag2:       s = "2. Weihnachtsf." '21  26.12.
+    Case EContractFestivals.Silvester:              s = "Silvester"                  '22  31.12.
     End Select
     ELegalFestivals_ToStr = s
 End Function
@@ -163,7 +158,7 @@ End Function
 
 Public Function GetFestivals(ByVal Year As Integer) As LegalFestival()
     Dim EasterSunday As Date: EasterSunday = MTime.OsternShort2(Year)
-    ReDim Fests(0 To 23) As LegalFestival
+    ReDim Fests(0 To 22) As LegalFestival
     Dim i As Long
     i = i + 1:    Fests(i) = New_LegalFestival(DateSerial(Year, 1, 1), ELegalFestivals.Neujahr, EGermanLand.AllLands)
     i = i + 1:    Fests(i) = New_LegalFestival(DateSerial(Year, 1, 6), ELegalFestivals.HeiligeDreiKönige, EGermanLand.BadenWuerttemberg Or EGermanLand.Bayern Or EGermanLand.SachsenAnhalt)
@@ -172,10 +167,6 @@ Public Function GetFestivals(ByVal Year As Integer) As LegalFestival()
     i = i + 1:    Fests(i) = New_LegalFestival(EasterSunday, ELegalFestivals.Ostersonntag, EGermanLand.AllLands)
     i = i + 1:    Fests(i) = New_LegalFestival(EasterSunday + 1, ELegalFestivals.Ostermontag, EGermanLand.AllLands)
     i = i + 1:    Fests(i) = New_LegalFestival(DateSerial(Year, 5, 1), ELegalFestivals.TagDerArbeit, EGermanLand.AllLands)
-    
-    Dim Mothersday As Date: Mothersday = MTime.Mothersday(Year)
-    i = i + 1:    Fests(i) = New_LegalFestival(Mothersday, ELegalFestivals.Muttertag, EGermanLand.AllLands)
-    
     i = i + 1:    Fests(i) = New_LegalFestival(EasterSunday + 39, ELegalFestivals.ChristiHimmelfahrt, EGermanLand.AllLands)
     i = i + 1:    Fests(i) = New_LegalFestival(EasterSunday + 49, ELegalFestivals.Pfingstsonntag, EGermanLand.AllLands)
     i = i + 1:    Fests(i) = New_LegalFestival(EasterSunday + 50, ELegalFestivals.Pfingstmontag, EGermanLand.AllLands)

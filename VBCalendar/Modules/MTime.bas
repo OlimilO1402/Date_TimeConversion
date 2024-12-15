@@ -223,8 +223,8 @@ Public Sub Init()
     'Debug.Print "----------"
     'Debug.Print PDynTimeZoneInfo_ToStr(m_DynTZI)
     
-    Dim Y As Integer: Y = DateTime.Year(Now)
-    ret = GetTimeZoneInformationForYear(Y, m_DynTZI, m_TZI)
+    Dim y As Integer: y = DateTime.Year(Now)
+    ret = GetTimeZoneInformationForYear(y, m_DynTZI, m_TZI)
     'Debug.Print "----------"
     'Debug.Print PTimeZoneInfo_ToStr(m_TZI)
     'Debug.Print PDynTimeZoneInfo_ToStr(m_DynTZI)
@@ -304,10 +304,10 @@ Public Function GetSystemUpTime() As String
     Dim ms As Currency 'milliseconds since system new start
     QueryPerformanceCounter ms
     Dim d As Long: d = ms \ MillisecondsPerDay:     ms = ms - CCur(d) * CCur(MillisecondsPerDay)
-    Dim H As Long: H = ms \ MillisecondsPerHour:    ms = ms - H * MillisecondsPerHour
+    Dim h As Long: h = ms \ MillisecondsPerHour:    ms = ms - h * MillisecondsPerHour
     Dim m As Long: m = ms \ MillisecondsPerMinute:  ms = ms - m * MillisecondsPerMinute
     Dim s As Long: s = ms \ MillisecondsPerSecond:  ms = ms - s * MillisecondsPerSecond
-    GetSystemUpTime = d & ":" & Format(H, "00") & ":" & Format(m, "00") & ":" & Format(s, "00") & "." & Format(ms, "000")
+    GetSystemUpTime = d & ":" & Format(h, "00") & ":" & Format(m, "00") & ":" & Format(s, "00") & "." & Format(ms, "000")
 End Function
 
 '    Dim d As Date ' empty date!
@@ -318,10 +318,10 @@ Public Function GetPCStartTime() As Date
     Dim ms As Currency 'milliseconds since system new start
     QueryPerformanceCounter ms
     Dim d As Long: d = ms \ MillisecondsPerDay:     ms = ms - d * MillisecondsPerDay
-    Dim H As Long: H = ms \ MillisecondsPerHour:    ms = ms - H * MillisecondsPerHour
+    Dim h As Long: h = ms \ MillisecondsPerHour:    ms = ms - h * MillisecondsPerHour
     Dim m As Long: m = ms \ MillisecondsPerMinute:  ms = ms - m * MillisecondsPerMinute
     Dim s As Long: s = ms \ MillisecondsPerSecond:  ms = ms - s * MillisecondsPerSecond
-    GetPCStartTime = VBA.DateTime.Now - DateSerial(1900, 1, d - 1) - TimeSerial(H, m, s)
+    GetPCStartTime = VBA.DateTime.Now - DateSerial(1900, 1, d - 1) - TimeSerial(h, m, s)
 End Function
 
 ' ############################## '    DateTimeStamp    ' ############################## '
@@ -474,7 +474,7 @@ Public Function Date_FormatISO8601(ByVal this As Date, Optional doFormatDate As 
 End Function
 
 Public Function Date_Format(ByVal this As Date, ByVal FormatStr As String) As String
-    Dim s As String, Y As Integer
+    Dim s As String, y As Integer
     Select Case FormatStr
     Case "YYYY-Www":   s = Year(this) & "-W" & WeekOfYear(this)
    'Case "YYYY-Www":   ' 2004-07-11  -YYYY-MM-DD     -0333-07-11 ' 2004-W28    - YYYY-Www - 0333-W28
@@ -657,11 +657,11 @@ Public Function ECalendar_Parse(s As String) As ECalendar
     ECalendar_Parse = e
 End Function
 
-Public Function CalcEasterdateGauss1800(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim A As Long: A = Y Mod 19 'der Mondparameter
-    Dim b As Long: b = Y Mod 4
-    Dim c As Long: c = Y Mod 7
-    Dim k As Long: k = Y \ 100 'die Säkularzahl
+Public Function CalcEasterdateGauss1800(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+    Dim A As Long: A = y Mod 19 'der Mondparameter
+    Dim b As Long: b = y Mod 4
+    Dim c As Long: c = y Mod 7
+    Dim k As Long: k = y \ 100 'die Säkularzahl
     Dim p As Long
     Dim q As Long
     Dim m As Long 'die säkulare Mondschaltung
@@ -697,15 +697,15 @@ Public Function CalcEasterdateGauss1800(ByVal Y As Long, Optional ByVal ecal As 
         OS = OS - 31
         EasterMonth = 4
     End If
-    Dim easter As Date: easter = OS & "." & EasterMonth & "." & Y
+    Dim easter As Date: easter = OS & "." & EasterMonth & "." & y
     CalcEasterdateGauss1800 = easter
 End Function
 
-Public Function CalcEasterdateGauss1816(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim A As Long: A = Y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
-    Dim b As Long: b = Y Mod 4
-    Dim c As Long: c = Y Mod 7
-    Dim k As Long: k = Y \ 100 'die Säkularzahl
+Public Function CalcEasterdateGauss1816(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+    Dim A As Long: A = y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
+    Dim b As Long: b = y Mod 4
+    Dim c As Long: c = y Mod 7
+    Dim k As Long: k = y \ 100 'die Säkularzahl
     Dim p As Long
     Dim q As Long
     Dim m As Long 'die säkulare Mondschaltung
@@ -737,7 +737,7 @@ Public Function CalcEasterdateGauss1816(ByVal Y As Long, Optional ByVal ecal As 
     
     OS = (22 + d + e)
     
-    CalcEasterdateGauss1816 = CorrectOSDay(OS, Y)
+    CalcEasterdateGauss1816 = CorrectOSDay(OS, y)
 End Function
 
 'Schritt     Bedeutung   Formel
@@ -753,11 +753,11 @@ End Function
 '    (Osterentfernung in Tagen)                         OE(OG,SZ) = 7 - (OG - SZ) mod 7
 '10. das Datum des Ostersonntags als Märzdatum
 '    (32. März = 1. April usw.)                         OS = OG + OE
-Public Function CalcEasterdateGaussCorrected1900(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
-    Dim A As Long: A = Y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
+Public Function CalcEasterdateGaussCorrected1900(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+    Dim A As Long: A = y Mod 19 'der Mondparameter / Gaußsche Zykluszahl
     'Dim b As Long: b = y Mod 4
     'Dim c As Long: c = y Mod 7
-    Dim k As Long: k = Y \ 100 'die Säkularzahl
+    Dim k As Long: k = y \ 100 'die Säkularzahl
     Dim p As Long
     Dim q As Long
     Dim m As Long 'die säkulare Mondschaltung
@@ -786,21 +786,21 @@ Public Function CalcEasterdateGaussCorrected1900(ByVal Y As Long, Optional ByVal
     d = (19 * A + m) Mod 30
     r = (d + A \ 11) \ 29
     OG = 21 + d - r
-    SZ = 7 - (Y + Y \ 4 + s) Mod 7
+    SZ = 7 - (y + y \ 4 + s) Mod 7
     OE = 7 - (OG - SZ) Mod 7
     
     OS = OG + OE
     
-    CalcEasterdateGaussCorrected1900 = CorrectOSDay(OS, Y)
+    CalcEasterdateGaussCorrected1900 = CorrectOSDay(OS, y)
 End Function
 
-Public Function CorrectOSDay(ByVal OS_Mrz As Long, ByVal Y As Long) As Date
+Public Function CorrectOSDay(ByVal OS_Mrz As Long, ByVal y As Long) As Date
     Dim OSDay   As Long: OSDay = OS_Mrz + 31 * (OS_Mrz > 31)
     Dim OSMonth As Long: OSMonth = 3 - (OS_Mrz > 31)
-    CorrectOSDay = DateSerial(Y, OSMonth, OSDay)
+    CorrectOSDay = DateSerial(y, OSMonth, OSDay)
 End Function
 
-Public Function OsternShort(ByVal Y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
+Public Function OsternShort(ByVal y As Long, Optional ByVal ecal As ECalendar = ECalendar.GregorianCalendar) As Date
     'code taken from CalcEasterdateGaussCorrected1900 + CorrectOSDay
     'and then shortened
     Dim m As Long 'die säkulare Mondschaltung
@@ -810,65 +810,48 @@ Public Function OsternShort(ByVal Y As Long, Optional ByVal ecal As ECalendar = 
         m = 15
         s = 0
     Case ECalendar.GregorianCalendar
-        Dim k As Long: k = Y \ 100  'die Säkularzahl
+        Dim k As Long: k = y \ 100  'die Säkularzahl
         Dim p As Long: p = (8 * k + 13) \ 25 'hier unterschiedlich zu 1800
         Dim q As Long: q = (3 * k + 3) \ 4
         m = 15 + q - p
         s = 2 - q
     End Select
     
-    Dim A       As Long:  A = Y Mod 19                   'der Mondparameter / Gaußsche Zykluszahl
+    Dim A       As Long:  A = y Mod 19                   'der Mondparameter / Gaußsche Zykluszahl
     Dim d       As Long:  d = (19 * A + m) Mod 30       'der Keim für den ersten Vollmond im Frühling
     Dim r       As Long:  r = (d + A \ 11) \ 29         'die kalendarische Korrekturgröße
     Dim OG      As Long: OG = 21 + d - r                'die Ostergrenze
-    Dim SZ      As Long: SZ = 7 - (Y + Y \ 4 + s) Mod 7 'der erste Sonntag im März
+    Dim SZ      As Long: SZ = 7 - (y + y \ 4 + s) Mod 7 'der erste Sonntag im März
     Dim OE      As Long: OE = 7 - (OG - SZ) Mod 7       'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
     Dim OS      As Long: OS = OG + OE                   'das Datum des Ostersonntags als Märzdatum
     Dim OS_Mrz  As Long: OS_Mrz = OS
     Dim OSDay   As Long: OSDay = OS_Mrz + 31 * (OS_Mrz > 31)
     Dim OSMonth As Long: OSMonth = 3 - (OS_Mrz > 31)
-    OsternShort = DateSerial(Y, OSMonth, OSDay)
+    OsternShort = DateSerial(y, OSMonth, OSDay)
 End Function
 
-Public Function OsternShort2(ByVal Y As Long) As Date
+Public Function OsternShort2(ByVal y As Long) As Date
     'let's say we only want to have GregorianCalendar
     'code taken from CalcEasterdateGaussCorrected1900 and CorrectOSDay and then shortened it
-    Dim k  As Long:  k = Y \ 100                                            'die Säkularzahl
+    Dim k  As Long:  k = y \ 100                                            'die Säkularzahl
                                                                             '(8 * k + 13) \ 25 'hier unterschiedlich zu 1800
     Dim q  As Long:  q = (3 * k + 3) \ 4
                                                                             '2 - q '= die säkulare Sonnenschaltung
-    Dim A  As Long:  A = Y Mod 19                                           'der Mondparameter / Gaußsche Zykluszahl
+    Dim A  As Long:  A = y Mod 19                                           'der Mondparameter / Gaußsche Zykluszahl
                                                                                       '15 + q - ((8 * k + 13) \ 25) '= die säkulare Mondschaltung
     Dim d  As Long:  d = (19 * A + (15 + q - ((8 * k + 13) \ 25))) Mod 30   'der Keim für den ersten Vollmond im Frühling
                                                                                       '(d + a \ 11) \ 29 'die kalendarische Korrekturgröße
     Dim OG As Long: OG = 21 + d - (d + A \ 11) \ 29                         'die Ostergrenze
                                                                                       '7 - (y + y \ 4 + (2 - q)) Mod 7  'der erste Sonntag im März
-    Dim OE As Long: OE = 7 - (OG - (7 - (Y + Y \ 4 + (2 - q)) Mod 7)) Mod 7 'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
+    Dim OE As Long: OE = 7 - (OG - (7 - (y + y \ 4 + (2 - q)) Mod 7)) Mod 7 'die Entfernung des Ostersonntags von der Ostergrenze (Osterentfernung in Tagen)
     Dim OS As Long: OS = OG + OE                                            'das Datum des Ostersonntags als Märzdatum
-          OsternShort2 = DateSerial(Y, (3 - (OS > 31)), (OS + 31 * (OS > 31)))
+          OsternShort2 = DateSerial(y, (3 - (OS > 31)), (OS + 31 * (OS > 31)))
 End Function
 
 Public Function AdventSunday1(ByVal Year As Integer) As Date
     Dim Nov26 As Date: Nov26 = DateSerial(Year, 11, 26)
     Dim wd As VbDayOfWeek: wd = Weekday(Nov26, VbDayOfWeek.vbMonday)
     AdventSunday1 = Nov26 + 7 - wd
-End Function
-
-Public Function Mothersday(ByVal Year As Integer) As Date
-    Dim Maiday As Date: Maiday = DateSerial(Year, 5, 1)
-    Dim Was1Sunday As Boolean
-    Dim i As Long
-    For i = 1 To 30
-        If Weekday(Maiday) = vbSunday Then
-            If Was1Sunday Then
-                Mothersday = Maiday
-                Exit Function
-            Else
-                Was1Sunday = True
-            End If
-        End If
-        Maiday = Maiday + 1
-    Next
 End Function
 
 Public Function Date_FromDayOfYear(ByVal Year As Integer, ByVal DayOfYear As Integer) As Date
@@ -1024,32 +1007,32 @@ Public Function DayOfWeek(ByVal Year As Long, ByVal Month As Long, ByVal Day As 
     
     If (Day < 1) Or (DaysInMonth(Year, Month) < Day) Then Exit Function
     
-    Dim Y As Long: Y = Year Mod 100
+    Dim y As Long: y = Year Mod 100
     Dim c As Long: c = Year \ 100
     
     If (Month > 2) Then
         Month = Month - 2
     Else
         Month = Month + 10
-        If (Y > 0) Then
-            Y = Y - 1
+        If (y > 0) Then
+            y = y - 1
         Else
-            Y = 99
+            y = 99
             c = c - 1
         End If
     End If
     
     'return static_cast<unsigned>(((static_cast<signed>(Day) + (26*static_cast<signed>(Month)-2) / 10 + static_cast<signed>(y) + static_cast<signed>(y)/4 + static_cast<signed>(c)/4 - 2*static_cast<signed>(c)) + 7000) % 7);
-    DayOfWeek = ((Day + (26 * Month - 2) \ 10 + Y + Y \ 4 + c \ 4 - 2 * c) + 7000) Mod 7
+    DayOfWeek = ((Day + (26 * Month - 2) \ 10 + y + y \ 4 + c \ 4 - 2 * c) + 7000) Mod 7
     
 End Function
 
 Public Function DayOfYear(ByVal d As Date) As Long
-    Dim Y As Long
+    Dim y As Long
     Dim i As Long
-    Y = Year(d)
+    y = Year(d)
     For i = 1 To Month(d) - 1
-        DayOfYear = DayOfYear + DaysInMonth(Y, i)
+        DayOfYear = DayOfYear + DaysInMonth(y, i)
     Next
     DayOfYear = DayOfYear + Day(d) 'Day(d)=DayOfMonth
 End Function
@@ -1102,8 +1085,8 @@ End Function
 
 Public Function WeekOfYear(ByVal d As Date) As Integer
 'OK wir möchten eine Zahl erreichen die glatt durch 7 teilbar ist, und die Zahl der Kalenderwoche ergibt
-    Dim Y   As Integer:   Y = Year(d)
-    Dim wd0 As Integer: wd0 = Weekday(DateSerial(Y, 1, 1), vbMonday)
+    Dim y   As Integer:   y = Year(d)
+    Dim wd0 As Integer: wd0 = Weekday(DateSerial(y, 1, 1), vbMonday)
     Dim wd1 As Integer: wd1 = Weekday(d, vbMonday)
     Dim doy As Integer: doy = DayOfYear(d)
     WeekOfYear = (doy + wd0 + 6 - wd1) / 7
@@ -1159,7 +1142,7 @@ Public Function VbWeekDay_ToStr(ByVal dow As VbDayOfWeek, Optional ByVal FirstDa
     VbWeekDay_ToStr = s
 End Function
 
-Public Function IsLeapYear(ByVal Y As Long) As Boolean
+Public Function IsLeapYear(ByVal y As Long) As Boolean
 'Schaltjahr (LeapYear)
 'a leap year is a year which is
 'either (i.)
@@ -1170,7 +1153,7 @@ Public Function IsLeapYear(ByVal Y As Long) As Boolean
 'or (ii.)
 '    evenly divisible
 '        by 400
-    IsLeapYear = (((Y Mod 4) = 0) And Not ((Y Mod 100) = 0)) Or ((Y Mod 400) = 0)
+    IsLeapYear = (((y Mod 4) = 0) And Not ((y Mod 100) = 0)) Or ((y Mod 400) = 0)
 End Function
 
 'https://de.wikipedia.org/wiki/ISO_8601
@@ -1480,11 +1463,11 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
             Exit Function
         End If
         
-        Dim Y As Integer: Y = Year(Now)
+        Dim y As Integer: y = Year(Now)
         Dim m As Integer: m = .wMonth
         Dim d As Integer: d = 1
         'the date of the first day in month m
-        Dim dt As Date: dt = DateSerial(Y, m, d)
+        Dim dt As Date: dt = DateSerial(y, m, d)
         
         'the weekday of the first day in month m
         Dim dow As Integer: dow = Weekday(dt) - 1 'the vbenum is one based
@@ -1493,13 +1476,13 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
         'the wDay member to indicate the occurrence of the day of the week within the month
         '(1 to 5, where 5 indicates the final occurrence during the month if that day of the week does not occur 5 times)
         
-        Dim idm As Integer: idm = MTime.DaysInMonth(Y, .wMonth) - 7
+        Dim idm As Integer: idm = MTime.DaysInMonth(y, .wMonth) - 7
         Dim i As Long
         For i = 1 To .wDay
             If d <= idm Then d = d + 7
         Next
         
-        TimeZoneInfoSystemTime_ToDate = DateSerial(Y, m, d) + TimeSerial(.wHour, .wMinute, .wSecond)
+        TimeZoneInfoSystemTime_ToDate = DateSerial(y, m, d) + TimeSerial(.wHour, .wMinute, .wSecond)
     End With
 End Function
 
@@ -1826,8 +1809,8 @@ End Function
 
 ' ############################## '       StrTime       ' ############################## '
 ' "hh:mm:ss.mls"
-Public Function StrTime_ToCyTime(T As String) As Currency
-    Dim sa() As String: sa = Split(T, ":")
+Public Function StrTime_ToCyTime(t As String) As Currency
+    Dim sa() As String: sa = Split(t, ":")
     'Dim h  As Integer:  h = sa(0)
     'Dim m  As Integer:  m = sa(1)
     'Dim s  As Integer:  s = Int(Val(sa(2)))
@@ -1835,8 +1818,8 @@ Public Function StrTime_ToCyTime(T As String) As Currency
     StrTime_ToCyTime = CLng(Split(sa(2), ".")(1)) + Int(Val(sa(2))) * 1000 + CLng(sa(1)) * 60 * 1000 + CLng(sa(0)) * 60 * 60 * 1000
 End Function
 
-Public Function StrTime_ToSYSTEMTIME(T As String) As SYSTEMTIME
-    Dim sa() As String: sa = Split(T, ":")
+Public Function StrTime_ToSYSTEMTIME(t As String) As SYSTEMTIME
+    Dim sa() As String: sa = Split(t, ":")
     With StrTime_ToSYSTEMTIME
         .wYear = Year(Now)
         .wMonth = Month(Now)
