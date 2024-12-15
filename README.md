@@ -13,3 +13,4 @@ Date and time will be formatted in ISO-8601 like 2024-09-16T18:30:56 or 20240916
 [ISO 8601 en](https://en.wikipedia.org/wiki/ISO_8601)
  
 ![TimeConversions Image](Resources/TimeConversions.png "TimeConversions Image")
+![Calendar Image](Resources/FCalendar.png "Calendar Image")

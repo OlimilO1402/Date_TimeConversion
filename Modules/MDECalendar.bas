@@ -83,7 +83,7 @@ Public Type CalendarYear
 End Type
 
 Public Type CalendarView
-    Canvas          As PictureBox
+    Canvas          As Control ' PictureBox ' Printer
     HasDecLastYear  As Boolean
     HasJanNextYear  As Boolean
     HasMonthNames   As Boolean
@@ -222,17 +222,17 @@ End Property
 'End Function
 
 Public Function New_CalendarYear(ByVal Year As Integer, Optional ByVal StartMonth As Integer = 1, Optional ByVal EndMonth As Integer = 12) As CalendarYear
-    Dim y As CalendarYear
-    y.Year = Year
-    y.Fests = GetFestivals(Year)
+    Dim Y As CalendarYear
+    Y.Year = Year
+    Y.Fests = GetFestivals(Year)
     StartMonth = IIf(0 < StartMonth And StartMonth <= 12, StartMonth, 1)
     EndMonth = IIf(StartMonth < EndMonth And EndMonth <= 12, EndMonth, 12)
-    ReDim y.Months(StartMonth To EndMonth)
+    ReDim Y.Months(StartMonth To EndMonth)
     Dim m As Integer
     For m = StartMonth To EndMonth
-        y.Months(m) = New_CalendarMonth(y, m)
+        Y.Months(m) = New_CalendarMonth(Y, m)
     Next
-    New_CalendarYear = y
+    New_CalendarYear = Y
 End Function
 
 Public Function New_CalendarMonth(CalYear As CalendarYear, ByVal Month As Integer) As CalendarMonth
@@ -353,7 +353,7 @@ End Sub
 Public Sub CalendarView_DrawMonth(this As CalendarView, CalMonth As CalendarMonth)
     With this
         Dim x As Single: x = .Canvas.CurrentX
-        Dim y As Single: y = .MarginCalTop
+        Dim Y As Single: Y = .MarginCalTop
         Dim ny As Integer
         If .HasMonthNames Then
             .Canvas.FontName = .FontMonthName.Name
@@ -372,25 +372,26 @@ Public Sub CalendarView_DrawMonth(this As CalendarView, CalMonth As CalendarMont
             .Canvas.CurrentY = .MarginCalTop + ny * .TmpDayHeight
         Next
         .Canvas.CurrentY = x
-        .Canvas.CurrentY = y
+        .Canvas.CurrentY = Y
     End With
 End Sub
 
 Public Sub CalendarView_DrawDay(this As CalendarView, CalDay As CalendarDay)
     With this
+        Dim fc As Long: fc = .Canvas.ForeColor
         Dim x As Single: x = .Canvas.CurrentX
-        Dim y As Single: y = .Canvas.CurrentY
+        Dim Y As Single: Y = .Canvas.CurrentY
         Dim wd As VbDayOfWeek: wd = Weekday(CalDay.Date)
         Dim c As Long: c = IIf(wd = vbSaturday, .ColTmpSaturday, IIf(wd = VbDayOfWeek.vbSunday, .ColTmpSunday, .ColTmpWeekday))
         
-        .Canvas.Line (x, y)-(x + .TmpDayWidth - 1, y + .TmpDayHeight - 1), c, BF
+        .Canvas.Line (x, Y)-(x + .TmpDayWidth - 1, Y + .TmpDayHeight - 1), c, BF
         If CalDay.FestivalIndex Then
             c = RGB(222, 141, 245)
-            .Canvas.Line (x, y)-(x + .TmpDayWidth - 1, y + .TmpDayHeight - 1), c, B
+            .Canvas.Line (x, Y)-(x + .TmpDayWidth - 1, Y + .TmpDayHeight - 1), c, B
         End If
         
         .Canvas.CurrentX = x
-        .Canvas.CurrentY = y
+        .Canvas.CurrentY = Y
         
         Dim s As String
         s = CStr(CalDay.Day) & " " & VbWeekDay_ToStr(wd, vbSunday, True)
@@ -408,7 +409,7 @@ Public Sub CalendarView_DrawDay(this As CalendarView, CalDay As CalendarDay)
         'View.Canvas.Print VbWeekDay_ToStr(wd, vbSunday, True)
         
         .Canvas.CurrentX = x
-        .Canvas.CurrentY = y
-        
+        .Canvas.CurrentY = Y
+        .Canvas.ForeColor = fc
     End With
 End Sub
