@@ -855,20 +855,8 @@ Public Function AdventSunday1(ByVal Year As Integer) As Date
 End Function
 
 Public Function Mothersday(ByVal Year As Integer) As Date
-    Dim Maiday As Date: Maiday = DateSerial(Year, 5, 1)
-    Dim Was1Sunday As Boolean
-    Dim i As Long
-    For i = 1 To 30
-        If Weekday(Maiday) = vbSunday Then
-            If Was1Sunday Then
-                Mothersday = Maiday
-                Exit Function
-            Else
-                Was1Sunday = True
-            End If
-        End If
-        Maiday = Maiday + 1
-    Next
+    Dim May1 As Date: May1 = DateSerial(Year, 5, 1)
+    Mothersday = May1 + 15 - Weekday(May1)
 End Function
 
 Public Function Date_FromDayOfYear(ByVal Year As Integer, ByVal DayOfYear As Integer) As Date
