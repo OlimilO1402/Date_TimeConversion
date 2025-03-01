@@ -1131,7 +1131,7 @@ Public Function DaysInMonth(ByVal Year As Integer, ByVal Month As Integer) As In
     End Select
 End Function
 
-Public Function VbWeekDay_ToStr(ByVal dow As VbDayOfWeek, Optional ByVal FirstDayOfWeek As VbDayOfWeek = vbMonday, Optional ByVal isShort As Boolean = False) As String
+Public Function Weekday_ToStr(ByVal dow As VbDayOfWeek, Optional ByVal FirstDayOfWeek As VbDayOfWeek = vbMonday, Optional ByVal isShort As Boolean = False) As String
     If FirstDayOfWeek = vbMonday Then dow = dow + IIf(dow = 7, -6, 1)
     Dim S As String
     Select Case dow
@@ -1144,7 +1144,7 @@ Public Function VbWeekDay_ToStr(ByVal dow As VbDayOfWeek, Optional ByVal FirstDa
     Case VbDayOfWeek.vbSaturday:  S = "Samstag"    ' 7
     End Select
     If isShort Then S = Left(S, 2)
-    VbWeekDay_ToStr = S
+    Weekday_ToStr = S
 End Function
 
 Public Function IsLeapYear(ByVal y As Long) As Boolean
