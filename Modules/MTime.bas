@@ -1,5 +1,5 @@
 Attribute VB_Name = "MTime"
-Option Explicit 'Lines: 1402 14.jun.2023; 1603 16.sep.2024
+Option Explicit 'Lines: 1402 14.jun.2023; 1603 16.sep.2024; 1912 21.sep.2025
 
 Public Enum ECalendar
     JulianCalendar
@@ -15,14 +15,14 @@ Public Const MillisecondsPerSecond     As Long = 1000&
 Public Const MillisecondsPerMinute     As Long = MillisecondsPerSecond * SecondsPerMinute '   60000
 Public Const MillisecondsPerHour       As Long = MillisecondsPerSecond * SecondsPerHour   ' 3600000
 Public Const MillisecondsPerDay        As Long = MillisecondsPerHour * HoursPerDay
+Public Const TicksPerMillisecond       As Long = 10000&     ' ten-thousand zehntausend
+Public Const TicksPerSecond            As Long = 10000000   ' MillisecondsPerSecond * TicksPerMillisecond ' = 1 000 * 10 000 = 10 000 000 ' = 10 millions
+Public Const NanosecondsPerTick        As Long = 100&
 Public Const NanosecondsPerMillisecond As Long = 1000000    ' = 1 million
 Public Const NanosecondsPerSecond      As Long = 1000000000 ' = 1 billion 'deutsch: 1 Milliarde
-Public Const NanosecondsPerTick        As Long = 100&
-Public Const TicksPerMillisecond       As Long = 10000&    'ten-thousand zehntausend
-Public Const TicksPerSecond            As Long = 10000000 'MillisecondsPerSecond * TicksPerMillisecond ' = 1 000 * 10 000 = 10 000 000 ' = 10 millions
 
 ' Date:
-' Enthält IEEE-64-Bit(8-Byte)-Werte, die Datumsangaben im Bereich vom 1. Januar des Jahres 0001 bis zum 31. Dezember
+' Enthält IEEE-64-Bit(8-Byte)-Werte, die Datumsangaben im Bereich vom 1. Januar des Jahres 0001 (vb.net) (bzw 1899 vb6) bis zum 31. Dezember
 ' des Jahres 9999 und Uhrzeiten von 00:00:00 Uhr (Mitternacht) bis 23:59:59.9999999 Uhr darstellen.
 ' Jedes Inkrement stellt 100 Nanosekunden verstrichener Zeit seit Beginn des 1. Januar des Jahres 1 im gregorianischen
 ' Kalender dar. Der maximale Wert stellt 100 Nanosekunden vor Beginn des 1. Januar des Jahres 10000 dar.
