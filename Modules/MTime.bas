@@ -1,6 +1,6 @@
 Attribute VB_Name = "MTime"
-Option Explicit 'Lines: 1402 14.jun.2023; 1603 16.sep.2024; 1912 21.sep.2025
-
+Option Explicit 'Lines: 1402 14.jun.2023; 1603 16.sep.2024; 1961 01.nov.2025
+'also have a look: https://www.activevb.de/tipps/vb6tipps/tipp0402.html
 Public Enum ECalendar
     JulianCalendar
     GregorianCalendar
@@ -423,7 +423,7 @@ Public Function Date_AddMinutes(this As Date, ByVal minutes As Long) As Date
 End Function
 
 Public Function Date_AddSeconds(this As Date, ByVal seconds As Long) As Date
-    Date_AddSeconds = VBA.DateTime.DateAdd("n", CDbl(seconds), this)
+    Date_AddSeconds = VBA.DateTime.DateAdd("s", CDbl(seconds), this)
 End Function
 
 Public Function Date_Age(ByVal DateOfBirth As Date) As Long
@@ -449,7 +449,7 @@ Public Function Date_ToSystemTime(this As Date) As SYSTEMTIME
     With Date_ToSystemTime
         .wYear = Year(this)
         .wMonth = Month(this)
-        .wDayOfWeek = Weekday(this, vbUseSystemDayOfWeek)
+        .wDayOfWeek = WeekDay(this, vbUseSystemDayOfWeek)
         .wDay = Day(this)
         .wHour = Hour(this)
         .wMinute = Minute(this)
@@ -897,13 +897,13 @@ End Function
 
 Public Function AdventSunday1(ByVal Year As Integer) As Date
     Dim Nov26 As Date: Nov26 = DateSerial(Year, 11, 26)
-    Dim wd As VbDayOfWeek: wd = Weekday(Nov26, VbDayOfWeek.vbMonday)
+    Dim wd As VbDayOfWeek: wd = WeekDay(Nov26, VbDayOfWeek.vbMonday)
     AdventSunday1 = Nov26 + 7 - wd
 End Function
 
 Public Function Mothersday(ByVal Year As Integer) As Date
     Dim May1 As Date: May1 = DateSerial(Year, 5, 1)
-    Mothersday = May1 + 15 - Weekday(May1)
+    Mothersday = May1 + 15 - WeekDay(May1)
 End Function
 
 Public Function Date_FromDayOfYear(ByVal Year As Integer, ByVal DayOfYear As Integer) As Date
@@ -1138,8 +1138,8 @@ End Function
 Public Function WeekOfYear(ByVal d As Date) As Integer
 'OK wir möchten eine Zahl erreichen die glatt durch 7 teilbar ist, und die Zahl der Kalenderwoche ergibt
     Dim y   As Integer:   y = Year(d)
-    Dim wd0 As Integer: wd0 = Weekday(DateSerial(y, 1, 1), vbMonday)
-    Dim wd1 As Integer: wd1 = Weekday(d, vbMonday)
+    Dim wd0 As Integer: wd0 = WeekDay(DateSerial(y, 1, 1), vbMonday)
+    Dim wd1 As Integer: wd1 = WeekDay(d, vbMonday)
     Dim doy As Integer: doy = DayOfYear(d)
     WeekOfYear = (doy + wd0 + 6 - wd1) / 7
 End Function
@@ -1162,7 +1162,7 @@ Public Function WeekOfYearISO(ByVal d As Date) As Integer
     ' Di, 30.12.2003 oder 01.01.2008 -> KW01 -> richtig
     ' deshalb bestimme ich vorsichtshalber die Kalenderwoche
     ' des Dienstags ?!?!?!?!?!
-    If Weekday(d) = vbMonday Then d = d + 1
+    If WeekDay(d) = vbMonday Then d = d + 1
     WeekOfYearISO = DatePart("ww", d, VbDayOfWeek.vbMonday, VbFirstWeekOfYear.vbFirstFourDays)
     ' Anpassung des Jahres und Ergänzung der Null
     ' (in den Kalenderwochen 01, 52 und 53 kann das Jahr des Datums
@@ -1522,7 +1522,7 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
         Dim dt As Date: dt = DateSerial(y, m, d)
         
         'the weekday of the first day in month m
-        Dim dow As Integer: dow = Weekday(dt) - 1 'the vbenum is one based
+        Dim dow As Integer: dow = WeekDay(dt) - 1 'the vbenum is one based
         d = d + DaysUntilWeekday(dow, .wDayOfWeek)
         
         'the wDay member to indicate the occurrence of the day of the week within the month
@@ -1698,6 +1698,7 @@ Public Property Get UnixTime_Now() As Double
     UnixTime_Now = Date_ToUnixTime(Date_Now)
 End Property
 
+'also have a look: https://www.activevb.de/rubriken/faq/faq0115.html
 Public Function UnixTime_ToDate(ByVal uts As Double) As Date
     UnixTime_ToDate = DateAdd("s", uts + GetSummerTimeCorrector, DateSerial(1970, 1, 1))
 End Function
@@ -1758,6 +1759,7 @@ Public Function DosTime_Now() As DOSTIME
     DosTime_Now = FileTime_ToDosTime(Date_ToFileTime(Date_Now))
 End Function
 
+'also have a look: https://www.activevb.de/rubriken/faq/faq0115.html
 Public Function DosTime_ToDate(this As DOSTIME) As Date
     DosTime_ToDate = FileTime_ToDate(DosTime_ToFileTime(this))
 End Function
