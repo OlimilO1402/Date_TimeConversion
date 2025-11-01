@@ -19,6 +19,14 @@ Begin VB.Form FMain
    ScaleHeight     =   8895
    ScaleWidth      =   13950
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.CommandButton BtnCalcYourAge 
+      Caption         =   "Calculate your age"
+      Height          =   375
+      Left            =   0
+      TabIndex        =   35
+      Top             =   8040
+      Width           =   2175
+   End
    Begin VB.CommandButton BtnTestWeekOfYearISO 
       Caption         =   "Test WeekOfYearISO"
       Height          =   375
@@ -595,6 +603,32 @@ Private m_DOSTime    As MTime.DOSTIME
 Private m_WndFndDTim As MTime.WindowsFoundationDateTime
 Private m_DTimeStamp As Long
 
+Private Sub BtnCalcYourAge_Click()
+    Dim s As String: s = InputBox("Date of birth: yyyy-mm-dd", "When were you born?")
+    If StrPtr(s) = 0 Then
+        'Cancel was pressed
+        Exit Sub
+    End If
+    Dim sa() As String: sa = Split(s, "-")
+    If UBound(sa) < 2 Then
+        MsgBox "Please give your day of birth in the format yyyy-mm-dd"
+        Exit Sub
+    Else
+        Dim i As Long
+        For i = 0 To 2
+            If Not IsNumeric(sa(i)) Then
+                MsgBox "Please give your day of birth in the format yyyy-mm-dd"
+                Exit Sub
+            End If
+        Next
+    End If
+    Dim dob As Date: dob = DateSerial(CInt(sa(0)), CInt(sa(1)), CInt(sa(2)))
+    
+    Dim age As Integer: age = MTime.Date_Age(dob)
+    
+    MsgBox "Your age is: " & age
+End Sub
+
 Private Sub Form_Load()
     MTime.Init
     'MDECalendar.InitFestivals Year(Now)
@@ -808,11 +842,11 @@ Private Sub Btn_IsSummerTime_Click()
     s = s & "UtcBias (minutes): " & BiasMin & vbCrLf
     s = s & "SystemUpTime: " & MTime.GetSystemUpTime & vbCrLf
     s = s & "PCStartTime : " & MTime.GetPCStartTime & vbCrLf
-    Dim Y As Long: Y = CLng(Int(Year(dat)))
+    Dim y As Long: y = CLng(Int(Year(dat)))
     
-    s = s & "The year " & Y & " is " & IIf(Not MTime.IsLeapYear(Y), "not ", "") & "a leap year." & vbCrLf
-    Dim esd As Date: esd = MTime.OsternShort2(Y)
-    s = s & "The eastern sunday in the year " & Y & " is " & FormatDateTime(esd, VBA.VbDateTimeFormat.vbShortDate) & vbCrLf
+    s = s & "The year " & y & " is " & IIf(Not MTime.IsLeapYear(y), "not ", "") & "a leap year." & vbCrLf
+    Dim esd As Date: esd = MTime.OsternShort2(y)
+    s = s & "The eastern sunday in the year " & y & " is " & FormatDateTime(esd, VBA.VbDateTimeFormat.vbShortDate) & vbCrLf
 
     Text1.Text = s
 End Sub
@@ -829,17 +863,17 @@ Private Sub Btn_IsItALeypYear_Click()
     Dim s As String: s = InputBox("Year:", "Calculates if the year is a leap-year", Year(Now))
     If StrPtr(s) = 0 Then Exit Sub
     If Not IsNumeric(s) Then Exit Sub
-    Dim Y As Long: Y = CLng(Int(Val(s)))
-    Text1.Text = "The year " & Y & " is " & IIf(Not MTime.IsLeapYear(Y), "not ", "") & "a leap year."
+    Dim y As Long: y = CLng(Int(Val(s)))
+    Text1.Text = "The year " & y & " is " & IIf(Not MTime.IsLeapYear(y), "not ", "") & "a leap year."
 End Sub
 
 Private Sub Btn_EasterSunday_Click()
     Dim s As String: s = InputBox("Year:", "Calculates the easter sunday for the year", Year(Now))
     If StrPtr(s) = 0 Then Exit Sub
     If Not IsNumeric(s) Then Exit Sub
-    Dim Y As Long: Y = CLng(Int(Val(s)))
-    Dim dat As Date: dat = MTime.OsternShort2(Y)
-    Text1.Text = "The eastern sunday in the year " & Y & " is " & Date_ToStr(dat)
+    Dim y As Long: y = CLng(Int(Val(s)))
+    Dim dat As Date: dat = MTime.OsternShort2(y)
+    Text1.Text = "The eastern sunday in the year " & y & " is " & Date_ToStr(dat)
 End Sub
 
 Private Sub BtnCheckDosDate22222_Click()
@@ -922,10 +956,10 @@ Private Sub BtnTestWeekOfYearISO_Click()
     Text1.Text = s
 End Sub
 
-Private Sub CheckOneDate(ByVal Y As Integer, ByVal m As Integer, ByVal d As Integer)
-    Dim dt  As Date:     dt = DateSerial(Y, m, d)
+Private Sub CheckOneDate(ByVal y As Integer, ByVal m As Integer, ByVal d As Integer)
+    Dim dt  As Date:     dt = DateSerial(y, m, d)
     Dim wkd As Integer: wkd = Weekday(dt) - 1
-    Dim dow As Integer: dow = DayOfWeek(Y, m, d)
+    Dim dow As Integer: dow = DayOfWeek(y, m, d)
     If wkd <> dow Then
         Debug.Print "wkd = " & wkd & " <> " & "dow = " & dow & " " & dt
     End If
@@ -956,11 +990,11 @@ Private Sub Command14_Click()
 '    Next
 '    Exit Sub
     Dim i As Long
-    Dim Y As Integer, m As Integer, d As Integer
+    Dim y As Integer, m As Integer, d As Integer
     For i = 0 To 1000
-        Y = 1970 + Rnd * (2023 - 1970)
+        y = 1970 + Rnd * (2023 - 1970)
         m = 1 + Rnd * 11
-        d = 1 + Rnd * (DaysInMonth(Y, m) - 1)
-        CheckOneDate Y, m, d
+        d = 1 + Rnd * (DaysInMonth(y, m) - 1)
+        CheckOneDate y, m, d
     Next
 End Sub
