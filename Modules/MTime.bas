@@ -449,7 +449,7 @@ Public Function Date_ToSystemTime(this As Date) As SYSTEMTIME
     With Date_ToSystemTime
         .wYear = Year(this)
         .wMonth = Month(this)
-        .wDayOfWeek = WeekDay(this, vbUseSystemDayOfWeek)
+        .wDayOfWeek = Weekday(this, vbUseSystemDayOfWeek)
         .wDay = Day(this)
         .wHour = Hour(this)
         .wMinute = Minute(this)
@@ -538,6 +538,42 @@ Public Function Date_Format(ByVal this As Date, ByVal FormatStr As String) As St
     Case Else:         s = Format(this, FormatStr)
     End Select
     Date_Format = s
+End Function
+
+'?MTime.Date_Parse(FormatDateTime(DateSerial(Year(Now), 13, Day(Now)), VbDateTimeFormat.vbLongDate))
+Public Function Date_Parse(ByVal s As String) As Date
+    If Date_TryParseFromLongDateFormat(s, Date_Parse) Then
+        Date_Parse = Date_Parse
+    End If
+End Function
+
+Public Function Date_TryParseFromLongDateFormat(ByVal LongDate As String, ByRef date_Out As Date) As Boolean
+    Dim sa() As String: sa = Split(LongDate, ". ")
+    If UBound(sa) < 1 Then Exit Function
+    Dim d As Integer: d = CInt(Trim$(Right$(sa(0), 2)))
+    Dim s As String: s = sa(1)
+    Dim y As Integer: y = CInt(Right$(s, 4))
+    s = UCase$(Left$(s, Len(s) - 5))
+    Dim m As Integer: m = String_ParseMonth(s)
+    date_Out = DateSerial(y, m, d)
+    Date_TryParseFromLongDateFormat = True
+End Function
+
+Public Function String_ParseMonth(ByVal s As String) As Integer
+    If Len(s) < 3 Then Exit Function
+    s = UCase(MidB$(s, 1, 6))
+    Dim m As Integer: m = Asc(MidB$(s, 1, 2))
+    Select Case m
+    Case 65: m = Asc(MidB$(s, 3, 2)): If m = 80 Then m = 4 Else m = 8
+    Case 68: m = 12
+    Case 70: m = 2
+    Case 74: m = Asc(MidB(s, 3, 2)): If m = 65 Then m = 1 Else If Asc(MidB(s, 5, 2)) = 78 Then m = 6 Else m = 7
+    Case 77: m = Asc(MidB(s, 5, 2)): If m = 82 Then m = 3 Else m = 5
+    Case 78: m = 11
+    Case 79: m = 10
+    Case 83: m = 9
+    End Select
+    String_ParseMonth = m
 End Function
 
 Public Function Date_ParseFromISO8601(ByVal s As String) As Date
@@ -897,13 +933,13 @@ End Function
 
 Public Function AdventSunday1(ByVal Year As Integer) As Date
     Dim Nov26 As Date: Nov26 = DateSerial(Year, 11, 26)
-    Dim wd As VbDayOfWeek: wd = WeekDay(Nov26, VbDayOfWeek.vbMonday)
+    Dim wd As VbDayOfWeek: wd = Weekday(Nov26, VbDayOfWeek.vbMonday)
     AdventSunday1 = Nov26 + 7 - wd
 End Function
 
 Public Function Mothersday(ByVal Year As Integer) As Date
     Dim May1 As Date: May1 = DateSerial(Year, 5, 1)
-    Mothersday = May1 + 15 - WeekDay(May1)
+    Mothersday = May1 + 15 - Weekday(May1)
 End Function
 
 Public Function Date_FromDayOfYear(ByVal Year As Integer, ByVal DayOfYear As Integer) As Date
@@ -1138,8 +1174,8 @@ End Function
 Public Function WeekOfYear(ByVal d As Date) As Integer
 'OK wir möchten eine Zahl erreichen die glatt durch 7 teilbar ist, und die Zahl der Kalenderwoche ergibt
     Dim y   As Integer:   y = Year(d)
-    Dim wd0 As Integer: wd0 = WeekDay(DateSerial(y, 1, 1), vbMonday)
-    Dim wd1 As Integer: wd1 = WeekDay(d, vbMonday)
+    Dim wd0 As Integer: wd0 = Weekday(DateSerial(y, 1, 1), vbMonday)
+    Dim wd1 As Integer: wd1 = Weekday(d, vbMonday)
     Dim doy As Integer: doy = DayOfYear(d)
     WeekOfYear = (doy + wd0 + 6 - wd1) / 7
 End Function
@@ -1162,7 +1198,7 @@ Public Function WeekOfYearISO(ByVal d As Date) As Integer
     ' Di, 30.12.2003 oder 01.01.2008 -> KW01 -> richtig
     ' deshalb bestimme ich vorsichtshalber die Kalenderwoche
     ' des Dienstags ?!?!?!?!?!
-    If WeekDay(d) = vbMonday Then d = d + 1
+    If Weekday(d) = vbMonday Then d = d + 1
     WeekOfYearISO = DatePart("ww", d, VbDayOfWeek.vbMonday, VbFirstWeekOfYear.vbFirstFourDays)
     ' Anpassung des Jahres und Ergänzung der Null
     ' (in den Kalenderwochen 01, 52 und 53 kann das Jahr des Datums
@@ -1522,7 +1558,7 @@ Public Function TimeZoneInfoSystemTime_ToDate(this As SYSTEMTIME) As Date
         Dim dt As Date: dt = DateSerial(y, m, d)
         
         'the weekday of the first day in month m
-        Dim dow As Integer: dow = WeekDay(dt) - 1 'the vbenum is one based
+        Dim dow As Integer: dow = Weekday(dt) - 1 'the vbenum is one based
         d = d + DaysUntilWeekday(dow, .wDayOfWeek)
         
         'the wDay member to indicate the occurrence of the day of the week within the month
